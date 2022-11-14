@@ -16,6 +16,7 @@ import { createWebHistory, createRouter } from 'vue-router'
 const Dashboard = () => import('../components/Dashboard.vue');
 const Login = () => import('@/components/Login.vue');
 const Register = () => import('../components/Register.vue');
+const PasswordReset = () => import('../components/PasswordReset.vue');
 
 const routes = [
     {
@@ -39,6 +40,15 @@ const routes = [
                 meta: {
                     middleware: "guest",
                     title: `Register`
+                }
+            },
+            {
+                name: "password_reset",
+                path: "password/reset",
+                component: PasswordReset,
+                meta: {
+                    middleware: "guest",
+                    title: `PasswordReset`
                 }
             }
         ]

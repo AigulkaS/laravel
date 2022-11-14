@@ -13,8 +13,10 @@ import axios from "axios";
 window.axios = axios;
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
-import Router from './router';
 
+
+
+import Router from './router';
 
 
 /**
@@ -30,6 +32,7 @@ app.component('example-component', ExampleComponent);
 import Dashboard from "./components/Dashboard.vue";
 import router from "./router";
 app.component('dashboard', Dashboard);
+
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue
@@ -47,7 +50,6 @@ app.component('dashboard', Dashboard);
  * an "id" attribute of "app". This element is included with the "auth"
  * scaffolding. Otherwise, you will need to add an element yourself.
  */
-
 
 app.use(Router);
 app.mount('#app');
