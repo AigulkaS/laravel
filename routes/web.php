@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,7 +21,7 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-Route::get('/roles', [App\Http\Controllers\RoleController::class, 'index'])->name('roles');
-Route::get('/users/create', [App\Http\Controllers\UserController::class, 'create'])->name('users/create');
-Route::get('/users/delete', [App\Http\Controllers\UserController::class, 'delete'])->name('users/delete');
-Route::get('/users/updateOrCreate', [App\Http\Controllers\UserController::class, 'updateOrCreate'])->name('users/updateOrCreate');
+// Route::get('/roles', [App\Http\Controllers\RoleController::class, 'index'])->name('roles');
+// Route::get('/users/create', [App\Http\Controllers\UserController::class, 'create'])->name('users/create');
+// Route::get('/users/delete', [App\Http\Controllers\UserController::class, 'delete'])->name('users/delete');
+// Route::get('/users/updateOrCreate', [App\Http\Controllers\UserController::class, 'updateOrCreate'])->name('users/updateOrCreate');
