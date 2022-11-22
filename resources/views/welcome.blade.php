@@ -26,6 +26,7 @@
     <div id="app">
 {{--        <example-component></example-component>--}}
 {{--        <dashboard></dashboard>--}}
+{{--        <dashboard></dashboard>--}}
         <router-view></router-view>
     </div>
 {{--        <div class="relative flex items-top justify-center min-h-screen bg-gray-100 dark:bg-gray-900 sm:items-center py-4 sm:pt-0">--}}
@@ -138,5 +139,4 @@
     </body>
 </html>
 <script>
-
 </script>

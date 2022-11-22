@@ -18,6 +18,16 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::post('/register', [\App\Http\Controllers\AuthController::class, 'register'])->name('register');
+Route::post('/login', [\App\Http\Controllers\AuthController::class, 'login'])->name('login');
+
+Route::group(['middleware' => 'auth:sanctum'], function () {
+    Route::get('/get', [\App\Http\Controllers\GetController::class, 'index'])->name('get.index');
+    Route::post('/logout', [\App\Http\Controllers\AuthController::class, 'logout'])->name('logout');
+
+});
+//Route::get('/get', [\App\Http\Controllers\GetController::class, 'index'])->name('get.index');
+
 Route::group(['namespace' => 'User', 'prefix' => 'users'], function() {
     // Route::post('/', 'StoreController');
     Route::post('/users/create', [App\Http\Controllers\User\StoreController::class, 'create'])->name('users/create');
