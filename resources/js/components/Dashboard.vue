@@ -11,7 +11,7 @@
                 <div class="collapse navbar-collapse" id="navbarNavDropdown">
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <router-link :to="{name:'dashboard'}" class="nav-link">
+                            <router-link :to="{name:'home'}" class="nav-link">
                                 Home <span class="sr-only">(current)</span>
                             </router-link>
                         </li>
@@ -28,15 +28,23 @@
                                     register
                                 </router-link>
                             </li>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <!--                                    {{ user.name }}-->
+                            <li class="nav-item">
+                                <router-link :to="{name:'register'}" class="nav-link" aria-haspopup="true" aria-expanded="false">
                                     user.name
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
-                                    <a class="dropdown-item" href="javascript:void(0)" @click="logout">Logout</a>
-                                </div>
+                                </router-link>
                             </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link" @click.prevent="logout">Logout</a>
+                            </li>
+<!--                            <li class="nav-item dropdown">-->
+<!--                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">-->
+<!--                                    &lt;!&ndash;                                    {{ user.name }}&ndash;&gt;-->
+<!--                                    user.name-->
+<!--                                </a>-->
+<!--                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">-->
+<!--                                    <a class="dropdown-item" href="javascript:void(0)" @click="logout">Logout</a>-->
+<!--                                </div>-->
+<!--                            </li>-->
                         </ul>
                     </div>
                 </div>
@@ -50,7 +58,21 @@
 
 <script>
 export default {
-    name: "Dashboard"
+    name: "Dashboard",
+    methods: {
+        logout() {
+            axios.post('api/logout', {},{
+                headers: {Authorization: localStorage.getItem('access_token')}
+            }).then(res => {
+                console.log(res);
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('auth_user');
+                this.$router.push({name: 'login'});
+            }).catch(err => {
+                console.log(err.reserved)
+            })
+        }
+    }
 }
 </script>
 

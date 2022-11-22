@@ -7,13 +7,13 @@
                         <h1 class="text-center">Авторизация</h1>
                         <hr/>
                         <form action="javascript:void(0)" class="row" method="post">
-<!--                            <div class="col-12" v-if="Object.keys(validationErrors).length > 0">-->
-<!--                                <div class="alert alert-danger">-->
-<!--                                    <ul class="mb-0">-->
-<!--                                        <li v-for="(value, key) in validationErrors" :key="key">{{ value[0] }}</li>-->
-<!--                                    </ul>-->
-<!--                                </div>-->
-<!--                            </div>-->
+                            <div class="col-12" v-if="Object.keys(validationErrors).length > 0">
+                                <div class="alert alert-danger">
+                                    <ul class="mb-0">
+                                        <li v-for="(value, key) in validationErrors" :key="key">{{ value[0] }}</li>
+                                    </ul>
+                                </div>
+                            </div>
                             <div class="form-group col-12">
                                 <label for="email" class="font-weight-bold" :class="v$.auth.email.$error ? 'text-danger' : ''">
                                     Email<span class="text-danger">*</span>
@@ -93,6 +93,47 @@ export default {
             this.v$.$validate() // checks all inputs
             if (!this.v$.$error) {
                 console.log(55555);
+                axios.get('/sanctum/csrf-cookie').then(response => {
+                    console.log(9999);
+                    axios.post('/api/login', {
+                        email: this.auth.email,
+                        password: this.auth.password,
+                    })
+                        .then(res => {
+                            this.validationErrors = {};
+                            console.log(res);
+                            console.log(33330)
+                            localStorage.setItem('access_token', `${res.data.token_type} ${res.data.access_token}`);
+                            localStorage.setItem('auth_user', JSON.stringify(res.data.auth_user));
+                            // axios.get('/api/get',{
+                            //     headers: {Authorization: `${res.data.token_type} ${res.data.access_token}`}
+                            // }).then(res => {
+                            //     console.log(res)
+                            // }).catch(err => {
+                            //     console.log(err.response)
+                            // })
+                            // localStorage.setItem('auth_user', JSON.stringify(res.data.data));
+                            this.$router.push({name: "home"})
+                        })
+                        .catch(err => {
+                            console.log(err.response);
+                            console.log(err);
+                            if(err.response.status == 422){
+                                this.validationErrors = err.response.data.errors
+                            }
+                            else if (err.response.status == 500) {
+                                //что то придумать с ошикой 404 и 500, записала в тетрадь
+                            }
+                            else{
+                                this.validationErrors = {}
+                                this.validationErrors = err.response.data.errors
+                                alert(err.response.data.message)
+                            }
+                        })
+                        .finally(() => {
+                            this.processing = false
+                        });
+                });
             } else {
                 window.scrollTo(0,0);
                 // this.$refs.registr_form.scrollTop = 0;

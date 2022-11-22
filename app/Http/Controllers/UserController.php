@@ -2,7 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\User\LoginRequest;
+use App\Http\Requests\User\StoreRequest;
+use App\Http\Resources\User\UserResource;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
+
+
+
+
+use Illuminate\Auth\Events\Registered;
 
 class UserController extends Controller
 {
@@ -46,7 +56,7 @@ class UserController extends Controller
                 'push' => 0,
                 'sms' => 0,
             ],
-            
+
         ];
 
         foreach($usersArr as $item) {
@@ -85,6 +95,6 @@ class UserController extends Controller
     }
 
 
-                
-            
+
+
 }

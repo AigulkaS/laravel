@@ -1,4 +1,5 @@
 import { createWebHistory, createRouter } from 'vue-router'
+// import Dashboard from "../components/Dashboard";
 // import store from '@/store'
 /* Guest Component */
 // const Login = () => import('../components/Login.vue')
@@ -13,21 +14,27 @@ import { createWebHistory, createRouter } from 'vue-router'
 /* Authenticated Component */
 
 
-const Dashboard = () => import('../components/Dashboard.vue');
-const Login = () => import('@/components/Login.vue');
-const Register = () => import('../components/Register.vue');
-const PasswordReset = () => import('../components/PasswordReset.vue');
+// const Dashboard = () => import('../components/Dashboard.vue');
+// const Login = () => import('@/components/Login.vue');
+// const Register = () => import('../components/Register.vue');
+// const PasswordReset = () => import('../components/PasswordReset.vue');
 
 const routes = [
     {
         name: 'dashboard',
         path: "/",
-        component: Dashboard,
+        component: () => import('../components/Dashboard.vue'),
+        // component: Dashboard
         children: [
+            {
+                name: 'home',
+                path: '',
+                component: () => import('../components/Home.vue'),
+            },
             {
                 name: "login",
                 path: "login",
-                component: Login,
+                component: () => import('../components/Login.vue'),
                 meta: {
                     middleware: "guest",
                     title: `Login`
@@ -36,7 +43,7 @@ const routes = [
             {
                 name: "register",
                 path: "register",
-                component: Register,
+                component: () => import('../components/Register.vue'),
                 meta: {
                     middleware: "guest",
                     title: `Register`
@@ -45,7 +52,7 @@ const routes = [
             {
                 name: "password_reset",
                 path: "password/reset",
-                component: PasswordReset,
+                component: () => import('../components/PasswordReset.vue'),
                 meta: {
                     middleware: "guest",
                     title: `PasswordReset`
