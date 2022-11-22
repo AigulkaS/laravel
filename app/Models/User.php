@@ -74,4 +74,21 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function role() {
+        return $this->belongsTo(Role::class);
+    }
+
+    public function hospital() {
+        return $this->belongsTo(Hospital::class);
+    }
+
+    public function surgeonBookings() {
+        return $this->hasMany(Booking::class, 'surgeon_id', 'id');
+    }
+
+    public function cardiologistBookings() {
+        return $this->hasMany(Booking::class, 'cardiologist_id', 'id');
+    }
+
 }

@@ -28,3 +28,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 });
 //Route::get('/get', [\App\Http\Controllers\GetController::class, 'index'])->name('get.index');
 
+Route::group(['namespace' => 'User', 'prefix' => 'users'], function() {
+    // Route::post('/', 'StoreController');
+    Route::post('/users/create', [App\Http\Controllers\User\StoreController::class, 'create'])->name('users/create');
+});
