@@ -24,13 +24,14 @@ return new class extends Migration
             $table->foreign('surgeon_id')->references('id')->on('users');
             $table->foreign('cardiologist_id')->references('id')->on('users');
             $table->foreign('dispatcher_id')->references('id')->on('users');
-            $table->foreignId('hospital_id')->constrained();
+            $table->unsignedBigInteger('hospital_id');
             $table->foreign('room_id')->references('id')->on('hospital_rooms');
-            $table->foreignId('disease_id')->constrained();
+            $table->unsignedBigInteger('disease_id');
             $table->string('brigade');
             $table->timestamp('start_time');
             $table->timestamp('end_time');
-            $table->index(['hospital_id', 'room_id', 'start_time']);
+            $table->index(['hospital_id', 'room_id', 'start_time'], 'booking_idx');
+            $table->timestamps();
         });
     }
 

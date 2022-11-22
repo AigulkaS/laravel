@@ -5,7 +5,19 @@
  */
 
 import './bootstrap';
+import '../sass/app.scss'
+
 import { createApp } from 'vue';
+
+import axios from "axios";
+window.axios = axios;
+window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+
+
+
+import Router from './router';
+
 
 /**
  * Next, we will create a fresh Vue application instance. You may then begin
@@ -17,6 +29,9 @@ const app = createApp({});
 
 import ExampleComponent from './components/ExampleComponent.vue';
 app.component('example-component', ExampleComponent);
+import Dashboard from "./components/Dashboard.vue";
+import router from "./router";
+app.component('dashboard', Dashboard);
 
 /**
  * The following block of code may be used to automatically register your
@@ -36,6 +51,5 @@ app.component('example-component', ExampleComponent);
  * scaffolding. Otherwise, you will need to add an element yourself.
  */
 
-
-
+app.use(Router);
 app.mount('#app');

@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('role_id')->constrained();
-            $table->foreignId('hospital_id')->constrained();
+            $table->unsignedBigInteger('role_id');
+            $table->unsignedBigInteger('hospital_id');
             $table->string('last_name');
             $table->string('first_name');
             $table->string('patronymic')->nullable();
@@ -27,6 +27,7 @@ return new class extends Migration
             $table->boolean('sms')->default(0);
 
             $table->softDeletes();
+            $table->timestamps();
 
         });
     }
