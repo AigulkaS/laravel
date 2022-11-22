@@ -17,3 +17,8 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::group(['namespace' => 'User', 'prefix' => 'users'], function() {
+    // Route::post('/', 'StoreController');
+    Route::post('/users/create', [App\Http\Controllers\User\StoreController::class, 'create'])->name('users/create');
+});

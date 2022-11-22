@@ -15,8 +15,9 @@ return new class extends Migration
     {
         Schema::create('brigades', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('hospital_id')->constrained();
+            $table->unsignedBigInteger('hospital_id');
             $table->string('name'); 
+            $table->timestamps();
         });
     }
 

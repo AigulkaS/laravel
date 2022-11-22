@@ -13,11 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
+        // Schema::drop('hospitals');
         Schema::create('hospitals', function (Blueprint $table) {
             $table->id();
             $table->string('full_name');
             $table->string('short_name');
             $table->string('address');
+            $table->timestamps();
         });
     }
 

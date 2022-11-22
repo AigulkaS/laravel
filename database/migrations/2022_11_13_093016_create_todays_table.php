@@ -16,9 +16,12 @@ return new class extends Migration
         Schema::create('todays', function (Blueprint $table) {
             $table->id();
             $table->timestamp('date');
-            $table->foreignId('hospital_id')->constrained();
+            $table->unsignedBigInteger('hospital_id');
             $table->unsignedBigInteger('surgeon_id');
             $table->unsignedBigInteger('cardiologist_id');
+            $table->foreign('surgeon_id')->references('id')->on('users');
+            $table->foreign('cardiologist_id')->references('id')->on('users');
+            $table->timestamps();
         });
     }
 
