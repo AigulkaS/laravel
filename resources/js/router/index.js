@@ -1,23 +1,9 @@
 import { createWebHistory, createRouter } from 'vue-router'
-// import Dashboard from "../components/Dashboard";
-// import store from '@/store'
-/* Guest Component */
-// const Login = () => import('../components/Login.vue')
-// const Register = () => import('@/components/Register.vue')
-/* Guest Component */
-/* Layouts */
-// const DahboardLayout = () => import('@/components/layouts/Default.vue')
-// const DahboardLayout = () => import('../components/Dashboard.vue')
-/* Layouts */
-/* Authenticated Component */
-// const Dashboard = () => import('@/components/Dashboard.vue')
-/* Authenticated Component */
-
 
 // const Dashboard = () => import('../components/Dashboard.vue');
 // const Login = () => import('@/components/Login.vue');
 // const Register = () => import('../components/Register.vue');
-// const PasswordReset = () => import('../components/PasswordReset.vue');
+// const PasswordReset = () => import('../components/ForgotPassword.vue');
 
 const routes = [
     {
@@ -34,30 +20,55 @@ const routes = [
             {
                 name: "login",
                 path: "login",
-                component: () => import('../components/Login.vue'),
+                component: () => import('../components/Auth/Login.vue'),
                 meta: {
-                    middleware: "guest",
-                    title: `Login`
+                    guest: true,
+                    // middleware: "guest",
+                    // title: `Login`
                 }
             },
             {
                 name: "register",
                 path: "register",
-                component: () => import('../components/Register.vue'),
+                component: () => import('../components/Auth/Register.vue'),
                 meta: {
-                    middleware: "guest",
-                    title: `Register`
+                    guest: true,
+                    // middleware: "guest",
+                    // title: `Register`
                 }
             },
             {
-                name: "password_reset",
-                path: "password/reset",
-                component: () => import('../components/PasswordReset.vue'),
+                name: "forgot-password",
+                path: "forgot-password",
+                component: () => import('../components/Auth/ForgotPassword.vue'),
                 meta: {
-                    middleware: "guest",
-                    title: `PasswordReset`
+                    guest: true,
+                    // middleware: "guest",
+                    // title: `PasswordReset`
                 }
-            }
+            },
+            {
+                path: '/verify-email/:id/:hash',
+                props: route => ({
+                    id: route.params.id,
+                    hash: route.params.hash
+                }),
+                component: () => import('../components/Auth/VerifyEmail.vue'),
+                name: 'verify-email',
+
+            },
+            {
+                path: '/reset-password/:token',
+                props: route => ({
+                    token: route.params.token,
+                    email: route.query.email
+                }),
+                component: () => import('../components/Auth/ResetPassword.vue'),
+                name: 'reset-password',
+                meta : {
+                    guest : true
+                }
+            },
         ]
     }
     // {
@@ -115,4 +126,48 @@ const router = createRouter({
 //         }
 //     }
 // })
+
+
+
+
+
+
+
+router.beforeEach((to, from, next) => {
+    if(to.matched.some(record => record.meta.requiresAuth)) {
+        if (localStorage.getItem('access_token') == null) {
+            next({
+                // path: '/login',
+                name: 'login',
+                params: { nextUrl: to.fullPath }
+            })
+        } else {
+            let user = JSON.parse(localStorage.getItem('user'))
+            if(to.matched.some(record => record.meta.is_admin)) {
+                if(user.is_admin == 1){
+                    next()
+                }
+                else{
+                    next({ name: 'userboard'})
+                }
+            }else {
+                next()
+            }
+        }
+    } else if(to.matched.some(record => record.meta.guest)) {
+        if(localStorage.getItem('access_token') == null){
+            next()
+        }
+        else{
+            next({ name: 'home'})
+        }
+    }else {
+        next()
+    }
+})
+
+
+
+
+
 export default router

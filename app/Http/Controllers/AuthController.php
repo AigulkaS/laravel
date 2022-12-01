@@ -29,19 +29,14 @@ class AuthController extends Controller
                 'auth_user' => new UserResource($user)
             ], 200);
         }
-
-//        return new UserResource($user);
-
     }
 
     public function login(LoginRequest $request) {
         $credentials = $request->validated();
 
-
         if (!$this->guard()->attempt($credentials)) {
             return response()->json([
-
-                'message' => 'The provided credentials are incorrect.'
+                'message' => 'Неверный email или пароль, попробуйте ещё раз'
             ], 422);
         }
         $this->guard()->attempt($credentials);
