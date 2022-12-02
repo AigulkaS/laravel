@@ -20,13 +20,13 @@ return new class extends Migration
             $table->string('last_name');
             $table->string('first_name');
             $table->string('patronymic')->nullable();
-            $table->string('phone')->unique();
+            $table->string('phone')->nullable();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->boolean('push')->default(0);
             $table->boolean('sms')->default(0);
-            $table->rememberToken();
+            $table->rememberToken()->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

@@ -2,14 +2,23 @@
 
 namespace App\Http\Controllers\User;
 
-use App\Http\Controllers\Controller;
+use App\Http\Filters\UserFilter;
 use App\Models\User;
+use App\Http\Requests\User\FilterRequest;
+use App\Http\Resources\User\UserResource;
 
 class IndexController extends BaseController
 {
-    public function __invoke()
+    public function __invoke(FilterRequest $request)
     {
-        $users = User::all();
+
+        $data = $request->validated();
+        
+        $filter = app()->make(UserFilter::class, ['queryParams' => array_filter($data)]);
+        
+        $users = User::filter($filter)->get();
+        
+        // return UserResource::collection($users);
         return view('user.index', compact('users'));
     }
   

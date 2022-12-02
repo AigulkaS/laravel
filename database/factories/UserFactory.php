@@ -36,6 +36,7 @@ class UserFactory extends Factory
             'patronymic' => fake()->lastName(),
             'phone' => fake()->phoneNumber(),
             'email' => fake()->safeEmail(),
+            'email_verified_at' => fake()->date(),
             'password' => fake()->password(),
             'push' => random_int(0,1),
             'sms' => random_int(0,1),

@@ -2,45 +2,19 @@
 
 namespace App\Models;
 
-//use Illuminate\Database\Eloquent\Factories\HasFactory;
-//use Illuminate\Database\Eloquent\Model;
-//use Illuminate\Database\Eloquent\SoftDeletes;
-
-//use Illuminate\Database\Eloquent\Factories\HasFactory;
-//use Illuminate\Foundation\Auth\User as Authenticatable;
-//use Illuminate\Notifications\Notifiable;
-//use Laravel\Sanctum\HasApiTokens;
-//use Illuminate\Database\Eloquent\SoftDeletes;
-//
-//
-//
-//
-//class User extends Authenticatable
-//{
-////    use HasFactory;
-////    use SoftDeletes;
-//
-//    use HasApiTokens, HasFactory, Notifiable;
-//    use SoftDeletes;
-//
-//
-//    protected $guarded = false;
-//    public $timestamps = false;
-//}
-
-
-
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Traits\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
     use SoftDeletes;
+    use Filterable;
 
     /**
      * The attributes that are mass assignable.

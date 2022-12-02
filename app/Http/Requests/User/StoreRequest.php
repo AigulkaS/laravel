@@ -24,6 +24,15 @@ class StoreRequest extends FormRequest
     public function rules()
     {
         return [
+        //            'role_id' => 'required|integer',
+        //    'hospital_id' => 'required|integer',
+        //    'last_name' => 'required|string',
+        //    'first_name' => 'required|string',
+        //    'patronymic' => 'required|string',
+        //    'phone' => 'required|string',
+        //    'email' => 'required|string',
+        //    'password' => 'required|string',
+
 
             'role_id' => 'required|integer',
             'hospital_id' => 'required|integer',
@@ -32,18 +41,12 @@ class StoreRequest extends FormRequest
             'patronymic' => 'required|string|max:255',
             'phone' => 'string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string||min:6|confirmed',
+            'password' => 'required|string',
+            // 'password' => 'required|string||min:6|confirmed',
 
         ];
 
-//        'role_id' => 'required|integer',
-//            'hospital_id' => 'required|integer',
-//            'last_name' => 'required|string',
-//            'first_name' => 'required|string',
-//            'patronymic' => 'required|string',
-//            'phone' => 'required|string',
-//            'email' => 'required|string',
-//            'password' => 'required|string',
+
 
 //        Phone Required????
     }
