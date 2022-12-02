@@ -9,8 +9,16 @@ class DestroyController extends BaseController
 {
     public function __invoke(User $user)
     {
-        $user->delete();
-        return redirect()->route('user.index');
+        try {
+            $user->delete();
+            return response()->json([
+                "msg" => "delete successfully",
+            ], 200);
+        } catch(\Exception $exception) {
+            return response()->json([
+                "msg" => $exception->getMessage(),
+            ], 419);
+        }
     }
 
 

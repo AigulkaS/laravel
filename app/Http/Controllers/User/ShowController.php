@@ -3,13 +3,16 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 
 class ShowController extends BaseController
 {
     public function __invoke(User $user)
     {
-        return view('user.show', compact('user'));
+        return new UserResource($user);
+
+        // return view('user.show', compact('user'));
     }
 
                 
