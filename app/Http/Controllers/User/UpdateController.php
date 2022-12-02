@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Http\Requests\User\UpdateRequest;
+use App\Http\Resources\User\UserResource;
 
 class UpdateController extends BaseController
 {
@@ -12,9 +13,10 @@ class UpdateController extends BaseController
     {
         $data = $request->validated();
 
-        $this->service->update($user, $data);
+        $user = $this->service->update($user, $data);
             
-        return redirect()->route('user.show', $user->id);
+        return new UserResource($user);
+        // return redirect()->route('user.show', $user->id);
     }
 
         

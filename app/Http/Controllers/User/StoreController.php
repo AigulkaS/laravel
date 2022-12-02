@@ -4,7 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\StoreRequest;
-
+use App\Http\Resources\User\UserResource;
 
 class StoreController extends BaseController
 {
@@ -14,9 +14,13 @@ class StoreController extends BaseController
     {
         $data = $request->validated();
 
-        $this->service->store($data);
+        $user = $this->service->store($data);
 
-        return redirect()->route('user.index');
+        return new UserResource($user);
+
+        
+
+        // return redirect()->route('user.index');
     }
 
 
