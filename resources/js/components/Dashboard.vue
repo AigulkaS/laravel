@@ -15,6 +15,11 @@
                                 Главная
                             </router-link>
                         </li>
+                        <li class="nav-item">
+                            <router-link :to="{name:'admin_page'}" class="nav-link">
+                                Админка
+                            </router-link>
+                        </li>
                     </ul>
                     <div class="d-flex">
                         <ul class="navbar-nav">
