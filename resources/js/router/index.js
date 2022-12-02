@@ -69,6 +69,21 @@ const routes = [
                     guest : true
                 }
             },
+            {
+                path: 'admin',
+                component: () => import('../components/Admin/Admin.vue'),
+                name: 'admin_page',
+                meta : {
+                    // guest : true
+                },
+                children: [
+                    {
+                        path: 'users',
+                        component: () => import('../components/Admin/Users.vue'),
+                        name: 'users',
+                    }
+                ]
+            },
         ]
     }
     // {
