@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Services\User;
+namespace App\Services;
 
 use App\Models\User;
 
-class Service {
+class UserService {
 
     public function store($data) {
         $user = User::create($data);

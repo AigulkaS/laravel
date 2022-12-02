@@ -32,12 +32,14 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::post('/logout', [\App\Http\Controllers\AuthController::class, 'logout'])->name('logout');
 
 });
-//Route::get('/get', [\App\Http\Controllers\GetController::class, 'index'])->name('get.index');
 
-Route::group(['namespace' => 'User', 'prefix' => 'users'], function() {
-    // Route::post('/', 'StoreController');
-    Route::post('/users/create', [App\Http\Controllers\User\StoreController::class, 'create'])->name('users/create');
-});
+Route::get('/users', App\Http\Controllers\User\IndexController::class)->name('user.index');
+Route::get('/users/create', App\Http\Controllers\User\CreateController::class)->name('user.create');
 
+  Route::post('/users', App\Http\Controllers\User\StoreController::class)->name('user.store');
+  Route::get('/users/{user}', App\Http\Controllers\User\ShowController::class,)->name('user.show');
+  Route::get('/users/{user}/edit', App\Http\Controllers\User\EditController::class,)->name('user.edit');
+  Route::patch('/users/{user}', App\Http\Controllers\User\UpdateController::class,)->name('user.update');
+  Route::delete('/users/{user}', App\Http\Controllers\User\DestroyController::class,)->name('user.delete');
 
 

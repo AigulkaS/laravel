@@ -5,7 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Http\Requests\User\UpdateRequest;
-use App\Http\Resources\User\UserResource;
+use App\Http\Resources\UserResource;
 
 class UpdateController extends BaseController
 {
