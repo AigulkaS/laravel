@@ -12,30 +12,35 @@
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item">
                             <router-link :to="{name:'home'}" class="nav-link">
-                                Home <span class="sr-only">(current)</span>
+                                Главная
                             </router-link>
                         </li>
                     </ul>
                     <div class="d-flex">
                         <ul class="navbar-nav">
-                            <li class="nav-item">
-                                <router-link :to="{name:'login'}" class="nav-link" aria-haspopup="true" aria-expanded="false">
-                                    login
-                                </router-link>
-                            </li>
-                            <li class="nav-item">
-                                <router-link :to="{name:'register'}" class="nav-link" aria-haspopup="true" aria-expanded="false">
-                                    register
-                                </router-link>
-                            </li>
-                            <li class="nav-item">
-                                <router-link :to="{name:'register'}" class="nav-link" aria-haspopup="true" aria-expanded="false">
-                                    user.name
-                                </router-link>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#" class="nav-link" @click.prevent="logout">Logout</a>
-                            </li>
+                            <template v-if="!auth_user">
+                                <li class="nav-item">
+                                    <router-link :to="{name:'login'}" class="nav-link" aria-haspopup="true" aria-expanded="false">
+                                        Войти
+                                    </router-link>
+                                </li>
+                                <li class="nav-item">
+                                    <router-link :to="{name:'register'}" class="nav-link" aria-haspopup="true" aria-expanded="false">
+                                        Регистрация
+                                    </router-link>
+                                </li>
+                            </template>
+                            <template v-else>
+                                <li class="nav-item">
+                                    <router-link :to="{name:'register'}" class="nav-link" aria-haspopup="true" aria-expanded="false">
+                                        user.name
+                                    </router-link>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link" @click.prevent="logout">Выход</a>
+                                </li>
+                            </template>
+
 <!--                            <li class="nav-item dropdown">-->
 <!--                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">-->
 <!--                                    &lt;!&ndash;                                    {{ user.name }}&ndash;&gt;-->
@@ -59,9 +64,14 @@
 <script>
 export default {
     name: "Dashboard",
+    computed: {
+      auth_user() {
+          return localStorage.getItem('auth_user');
+      }
+    },
     methods: {
         logout() {
-            axios.post('api/logout', {},{
+            axios.post('/api/logout', {},{
                 headers: {Authorization: localStorage.getItem('access_token')}
             }).then(res => {
                 console.log(res);

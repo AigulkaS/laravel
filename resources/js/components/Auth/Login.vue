@@ -7,11 +7,16 @@
                         <h1 class="text-center">Авторизация</h1>
                         <hr/>
                         <form action="javascript:void(0)" class="row" method="post">
-                            <div class="col-12" v-if="Object.keys(validationErrors).length > 0">
+                            <div class="col-12" v-if="validationErrors && Object.keys(validationErrors).length > 0">
                                 <div class="alert alert-danger">
-                                    <ul class="mb-0">
-                                        <li v-for="(value, key) in validationErrors" :key="key">{{ value[0] }}</li>
-                                    </ul>
+                                    <template v-if="typeof validationErrors == 'object'">
+                                        <ul class="mb-0">
+                                            <li v-for="(value, key) in validationErrors" :key="key">{{ value[0] }}</li>
+                                        </ul>
+                                    </template>
+                                    <template v-else>
+                                        <div>{{validationErrors}}</div>
+                                    </template>
                                 </div>
                             </div>
                             <div class="form-group col-12">
@@ -47,7 +52,7 @@
                                 </button>
                             </div>
                             <div class="col-12 mb-2 text-center">
-                                <router-link :to="{name: 'password_reset'}">Забыли свой пароль</router-link>
+                                <router-link :to="{name: 'forgot-password'}">Забыли свой пароль</router-link>
                             </div>
                             <div class="col-12 text-center">
 <!--                                <label>Don't have an account? <router-link :to="{name:'register'}">Register Now!</router-link></label>-->
@@ -102,24 +107,15 @@ export default {
                         .then(res => {
                             this.validationErrors = {};
                             console.log(res);
-                            console.log(33330)
                             localStorage.setItem('access_token', `${res.data.token_type} ${res.data.access_token}`);
                             localStorage.setItem('auth_user', JSON.stringify(res.data.auth_user));
-                            // axios.get('/api/get',{
-                            //     headers: {Authorization: `${res.data.token_type} ${res.data.access_token}`}
-                            // }).then(res => {
-                            //     console.log(res)
-                            // }).catch(err => {
-                            //     console.log(err.response)
-                            // })
-                            // localStorage.setItem('auth_user', JSON.stringify(res.data.data));
                             this.$router.push({name: "home"})
                         })
                         .catch(err => {
                             console.log(err.response);
                             console.log(err);
                             if(err.response.status == 422){
-                                this.validationErrors = err.response.data.errors
+                                this.validationErrors = err.response.data.errors ? err.response.data.errors :err.response.data.message
                             }
                             else if (err.response.status == 500) {
                                 //что то придумать с ошикой 404 и 500, записала в тетрадь
