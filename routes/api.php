@@ -33,6 +33,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
 });
 
+// for users
 Route::get('/users', App\Http\Controllers\User\IndexController::class)->name('user.index');
 Route::get('/users/create', App\Http\Controllers\User\CreateController::class)->name('user.create');
 
@@ -41,5 +42,15 @@ Route::get('/users/create', App\Http\Controllers\User\CreateController::class)->
   Route::get('/users/{user}/edit', App\Http\Controllers\User\EditController::class,)->name('user.edit');
   Route::patch('/users/{user}', App\Http\Controllers\User\UpdateController::class,)->name('user.update');
   Route::delete('/users/{user}', App\Http\Controllers\User\DestroyController::class,)->name('user.delete');
+// 
 
+// for roles
+Route::get('/roles', App\Http\Controllers\Role\IndexController::class)->name('role.index');
+Route::get('/roles/create', App\Http\Controllers\Role\CreateController::class)->name('role.create');
+Route::post('/roles', App\Http\Controllers\Role\StoreController::class)->name('role.store');
+Route::get('/roles/{role}', App\Http\Controllers\Role\ShowController::class,)->name('role.show');
+Route::get('/roles/{role}/edit', App\Http\Controllers\Role\EditController::class,)->name('role.edit');
+Route::patch('/roles/{role}', App\Http\Controllers\Role\UpdateController::class,)->name('role.update');
+Route::delete('/roles/{role}', App\Http\Controllers\Role\DestroyController::class,)->name('role.delete');
+// 
 
