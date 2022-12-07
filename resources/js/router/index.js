@@ -79,10 +79,46 @@ const routes = [
                 children: [
                     {
                         path: 'users',
-                        component: () => import('../components/Admin/Users.vue'),
+                        component: () => import('../components/Admin/Users/Users.vue'),
                         name: 'users',
+                    },
+
+                    {
+                        path: 'roles',
+                        component: () => import('../components/Admin/Roles.vue'),
+                        name: 'roles',
+                    },{
+                        path: 'permissions',
+                        component: () => import('../components/Admin/Permissions.vue'),
+                        name: 'permissions',
+                    },
+                    {
+                        path: 'hospitals',
+                        component: () => import('../components/Admin/Hospitals.vue'),
+                        name: 'hospitals',
+                    },
+                    {
+                        path: 'diseases',
+                        component: () => import('../components/Admin/Diseases.vue'),
+                        name: 'diseases',
                     }
                 ]
+            },
+            {
+                path: '/admin/users/:id/edit',
+                props: route => ({
+                    id: route.params.id,
+                }),
+                component: () => import('../components/Admin/Users/Edit.vue'),
+                name: 'user_edit',
+            },
+            {
+                path: '/admin/users/:id/show',
+                props: route => ({
+                    id: route.params.id,
+                }),
+                component: () => import('../components/Admin/Users/Show.vue'),
+                name: 'user_show',
             },
         ]
     }
