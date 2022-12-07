@@ -7,11 +7,16 @@
                         <h1 class="text-center">Регистрация</h1>
                         <hr/>
                         <form action="javascript:void(0)" @submit="register" class="row" method="post" ref="registr_form">
-                            <div class="col-12" v-if="Object.keys(validationErrors).length > 0">
+                            <div class="col-12" v-if="validationErrors && Object.keys(validationErrors).length > 0">
                                 <div class="alert alert-danger">
-                                    <ul class="mb-0">
-                                        <li v-for="(value, key) in validationErrors" :key="key">{{ value[0] }}</li>
-                                    </ul>
+                                    <template v-if="typeof validationErrors == 'object'">
+                                        <ul class="mb-0">
+                                            <li v-for="(value, key) in validationErrors" :key="key">{{ value[0] }}</li>
+                                        </ul>
+                                    </template>
+                                    <template v-else>
+                                        <div>{{validationErrors}}</div>
+                                    </template>
                                 </div>
                             </div>
                             <div class="form-group col-12 my-2 ">
@@ -181,13 +186,9 @@ export default {
         }
     },
     methods:{
-        // ...mapActions({
-        //     signIn:'auth/login'
-        // }),
         async register(){
             this.v$.$validate() // checks all inputs
             if (!this.v$.$error) {
-                console.log(55555);
                 this.processing = true
                 axios.get('/sanctum/csrf-cookie').then(response => {
                     axios.post('/api/register', {
@@ -231,21 +232,6 @@ export default {
                 window.scrollTo(0,0);
                 // this.$refs.registr_form.scrollTop = 0;
             }
-            // this.processing = true
-            // await axios.get('/sanctum/csrf-cookie')
-            // await axios.post('/register',this.user).then(response=>{
-            //     this.validationErrors = {}
-            //     this.signIn()
-            // }).catch(({response})=>{
-            //     if(response.status===422){
-            //         this.validationErrors = response.data.errors
-            //     }else{
-            //         this.validationErrors = {}
-            //         alert(response.data.message)
-            //     }
-            // }).finally(()=>{
-            //     this.processing = false
-            // })
         }
     }
 }

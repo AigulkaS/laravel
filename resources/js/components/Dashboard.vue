@@ -16,7 +16,7 @@
                             </router-link>
                         </li>
                         <li class="nav-item">
-                            <router-link :to="{name:'admin_page'}" class="nav-link">
+                            <router-link :to="{name:'users'}" class="nav-link">
                                 Админка
                             </router-link>
                         </li>
