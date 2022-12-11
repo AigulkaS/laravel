@@ -24,14 +24,14 @@ class UpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'role_id' => '',
-            'hospital_id' => '',
-            'last_name' => '',
-            'first_name' => '',
-            'patronymic' => '',
-            'phone' => '',
-            'email' => '',
-            'password' => '',
+            'role_id' => 'required|integer',
+            'hospital_id' => 'required|integer',
+            'last_name' => 'required|string|max:255',
+            'first_name' => 'required|string|max:255',
+            'patronymic' => 'required|string|max:255',
+            'phone' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255',
+            'password' => 'required|string',
         ];
     }
 }

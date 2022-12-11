@@ -8,16 +8,20 @@ class DestroyController extends BaseController
 {
     public function __invoke(Role $role)
     {
-        try {
-            $role->delete();
-            return response()->json([
-                "msg" => "delete successfully",
-            ], 200);
-        } catch(\Exception $exception) {
-            return response()->json([
-                "msg" => $exception->getMessage(),
-            ], 419);
-        }
+        $message = $this->service->delete($role);
+
+        return $message;
+        
+        // try {
+        //     $role->delete();
+        //     return response()->json([
+        //         "msg" => "delete successfully",
+        //     ], 200);
+        // } catch(\Exception $exception) {
+        //     return response()->json([
+        //         "msg" => $exception->getMessage(),
+        //     ], 419);
+        // }
     }
 
 

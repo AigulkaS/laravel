@@ -54,3 +54,12 @@ Route::patch('/roles/{role}', App\Http\Controllers\Role\UpdateController::class,
 Route::delete('/roles/{role}', App\Http\Controllers\Role\DestroyController::class,)->name('role.delete');
 // 
 
+// for permissions
+Route::get('/permissions', App\Http\Controllers\Permission\IndexController::class)->name('permission.index');
+Route::get('/permissions/create', App\Http\Controllers\Permission\CreateController::class)->name('permission.create');
+Route::post('/permissions', App\Http\Controllers\Permission\StoreController::class)->name('permission.store');
+Route::get('/permissions/{permission}', App\Http\Controllers\Permission\ShowController::class,)->name('permission.show');
+Route::get('/permissions/{permission}/edit', App\Http\Controllers\Permission\EditController::class,)->name('permission.edit');
+Route::patch('/permissions/{permission}', App\Http\Controllers\Permission\UpdateController::class,)->name('permission.update');
+Route::delete('/permissions/{permission}', App\Http\Controllers\Permission\DestroyController::class,)->name('permission.delete');
+// 

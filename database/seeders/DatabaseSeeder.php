@@ -47,7 +47,7 @@ class DatabaseSeeder extends Seeder
     }
 
     private function permissionRoleFactoryCreate() {
-        return DB::table('permission_role')->insert([
+        return DB::table('permission_roles')->insert([
             'permission_id' => Permission::get()->random()->id,
             'Role_id' => Role::get()->random()->id,
         ]);

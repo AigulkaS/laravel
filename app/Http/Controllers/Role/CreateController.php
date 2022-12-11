@@ -2,13 +2,18 @@
 
 namespace App\Http\Controllers\Role;
 
-use App\Http\Controllers\Controller;
+use App\Http\Resources\PermissionResource;
+use App\Models\Permission;
 
 class CreateController extends BaseController
 {
     public function __invoke()
     {
-        return response()->json([], 200);
+        $permissions = Permission::all();
+        
+        return response()->json([
+            'permissions' => PermissionResource::collection($permissions),
+        ], 200);
     }
 
 
