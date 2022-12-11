@@ -26,8 +26,10 @@ class UserResource extends JsonResource
             'patronymic' => $this->patronymic,
             'phone' => $this->phone,
             'email' => $this->email,
+            'password' => $this->password,
             'push' => $this->push,
-            'sms' => $this->sms
+            'sms' => $this->sms,
+            'remember_token' => $this->remember_token
         ];
     }
 }

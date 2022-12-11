@@ -17,11 +17,9 @@ class IndexController extends BaseController
         $filter = app()->make(UserFilter::class, ['queryParams' => array_filter($data)]);
         
         $users = User::filter($filter)->get();
-        // $users = User::all();
-        // dd($users);
+        // $users = User::filter($filter)->paginate(5);
         
         return UserResource::collection($users);
-        // return view('user.index', compact('users'));
     }
   
 }

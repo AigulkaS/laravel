@@ -14,7 +14,17 @@ class UpdateController extends BaseController
 
         $role = $this->service->update($role, $data);
             
-        return new RoleResource($role);
+
+        return $role instanceof Role ? new RoleResource($role) : $role;
+
+        // if ($role instanceof Role) {
+        //     return response()->json([
+        //         'role' => new RoleResource($role),
+        //         'permissions' =>Permission::collection($role->permissions)
+        //     ], 200);
+        // } else {
+        //     return $role;
+        // }
     }
 
         

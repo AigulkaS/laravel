@@ -25,6 +25,7 @@ class FilterRequest extends FormRequest
     {
         return [
             'id' => 'integer',
+            'name' => 'string',
         ];
     }
 }

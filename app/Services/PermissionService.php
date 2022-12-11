@@ -2,57 +2,58 @@
 
 namespace App\Services;
 
-use App\Models\Role;
+use App\Models\Permission;
 use Illuminate\Support\Facades\DB;
 
-class RoleService {
+class PermissionService {
 
     public function store($data) {
-
         try {
             DB::beginTransaction();
-            $permissions = $data['permissions'];
 
-            unset($data['permissions']);
+            $roles = $data['roles'];
 
-            $role = Role::create($data);
+            unset($data['roles']);
 
-            $role->permissions()->attach($permissions);
+            $permission = Permission::create($data);
+
+            $permission->roles()->attach($roles);
+
             DB::commit();
         } catch(\Exception $e) {
             DB::rollBack();
             return $e->getMessage();
         } 
-
-        return $role;
+        return $permission;
     }
 
-    public function update($role, $data) {
+    public function update($permission, $data) {
 
         try {
             DB::beginTransaction();
-            $permissions = $data['permissions'];
 
-            unset($data['permissions']);
+            $roles = $data['roles'];
 
-            $role->update($data);
+            unset($data['roles']);
 
-            $role->permissions()->sync($permissions);
+            $permission->update($data);
+
+            $permission->roles()->sync($roles);
+
             DB::commit();
         } catch(\Exception $e) {
             DB::rollBack();
             return $e->getMessage();
         } 
-
-        return $role->fresh();
+        return $permission->fresh();
     }
 
-    public function delete($role) {
+    public function delete($permission) {
         try {
             DB::beginTransaction();
 
-            $role->permissions()->detach();
-            $role->delete();
+            $permission->roles()->detach();
+            $permission->delete();
 
             DB::commit();
         } catch(\Exception $e) {

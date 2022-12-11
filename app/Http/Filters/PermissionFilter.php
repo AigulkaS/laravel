@@ -6,7 +6,7 @@ namespace App\Http\Filters;
 
 use Illuminate\Database\Eloquent\Builder;
 
-class RoleFilter extends AbstractFilter
+class PermissionFilter extends AbstractFilter
 {
     public const ID = 'id';
     public const NAME = 'name';
