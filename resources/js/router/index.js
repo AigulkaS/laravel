@@ -85,7 +85,7 @@ const routes = [
 
                     {
                         path: 'roles',
-                        component: () => import('../components/Admin/Roles.vue'),
+                        component: () => import('../components/Admin/Roles/Roles.vue'),
                         name: 'roles',
                     },{
                         path: 'permissions',
@@ -119,6 +119,27 @@ const routes = [
                 }),
                 component: () => import('../components/Admin/Users/Show.vue'),
                 name: 'user_show',
+            },
+            {
+                path: '/admin/roles/create',
+                component: () => import('../components/Admin/Roles/Create.vue'),
+                name: 'role_create',
+            },
+            {
+                path: '/admin/roles/:id/edit',
+                props: route => ({
+                    id: route.params.id,
+                }),
+                component: () => import('../components/Admin/Roles/Edit.vue'),
+                name: 'role_edit',
+            },
+            {
+                path: '/admin/roles/:id/show',
+                props: route => ({
+                    id: route.params.id,
+                }),
+                component: () => import('../components/Admin/Roles/Show.vue'),
+                name: 'role_show',
             },
         ]
     }
