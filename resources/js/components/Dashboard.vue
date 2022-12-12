@@ -69,10 +69,19 @@
 <script>
 export default {
     name: "Dashboard",
-    computed: {
-      auth_user() {
-          return localStorage.getItem('auth_user');
-      }
+    data() {
+        return {
+            auth_user: false,
+        }
+    },
+    mounted() {
+        this.auth_user = localStorage.getItem('auth_user') ? true : false
+    },
+    watch: {
+        $route (to, from) {
+            // this.auth = localStorage.getItem('auth_user') ? true : false
+            this.auth_user = localStorage.getItem('auth_user') ? true : false
+        }
     },
     methods: {
         logout() {
@@ -84,7 +93,10 @@ export default {
                 localStorage.removeItem('auth_user');
                 this.$router.push({name: 'login'});
             }).catch(err => {
-                console.log(err.reserved)
+                console.log(err.reserved);
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('auth_user');
+                this.$router.push({name: 'login'});
             })
         }
     }

@@ -169,7 +169,7 @@ export default {
             roles: null,
             hospitals: null,
             processing: false,
-            verify_email: false,
+            verify_email: 1,
             errors : {},
             success : null,
         }
@@ -193,6 +193,9 @@ export default {
             }).then(res => {
                 console.log(res);
                 this.user = res.data.user;
+                this.verify_email = this.verify_email == 1 ? true : false;
+                this.user.push = this.user.push == 1 ? true : false;
+                this.user.sms = this.user.sms == 1 ? true : false;
                 this.roles = res.data.roles;
                 this.hospitals = res.data.hospitals;
             }).catch(err => {
@@ -205,11 +208,15 @@ export default {
             this.v$.$validate() // checks all inputs
             if (!this.v$.$error) {
                 this.processing = true;
+                this.user.push = this.user.push ? 1 : 0;
+                this.user.sms = this.user.sms ? 1 : 0;
                 axios.patch(`/api/users/${this.id}`, this.user, {
                     headers: {Authorization: localStorage.getItem('access_token')}
                 }).then(res => {
                     console.log(res);
                     this.user = res.data.data;
+                    this.user.push = this.user.push == 1 ? true : false;
+                    this.user.sms = this.user.sms == 1 ? true : false;
                     this.success = 'Данные успешно изменены. Перенаправление...';
                     setTimeout(()=>{
                         this.$router.push({name:'users'})
