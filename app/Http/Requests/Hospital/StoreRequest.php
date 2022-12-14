@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Role;
+namespace App\Http\Requests\Hospital;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -24,9 +24,11 @@ class StoreRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|max:255',
-            'label' => 'required|string|max:255',
-            'permissions' => '',
+            'full_name' => 'required|string',
+            'short_name' => 'required|string',
+            'address' => 'required|string',
+            'hospital_rooms' => '', 
         ];
+
     }
 }
