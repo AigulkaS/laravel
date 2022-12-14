@@ -20,7 +20,8 @@ class PermissionFactory extends Factory
     public function definition()
     {
         return [
-            'name' => fake()->jobTitle()
+            'name' => fake()->jobTitle(),
+            'label' => fake()->jobTitle()
         ];
     }
 }

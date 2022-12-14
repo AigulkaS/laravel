@@ -63,3 +63,13 @@ Route::get('/permissions/{permission}/edit', App\Http\Controllers\Permission\Edi
 Route::patch('/permissions/{permission}', App\Http\Controllers\Permission\UpdateController::class,)->name('permission.update');
 Route::delete('/permissions/{permission}', App\Http\Controllers\Permission\DestroyController::class,)->name('permission.delete');
 // 
+
+// for hospitals
+Route::get('/hospitals', App\Http\Controllers\Hospital\IndexController::class)->name('hospital.index');
+Route::get('/hospitals/create', App\Http\Controllers\Hospital\CreateController::class)->name('hospital.create');
+Route::post('/hospitals', App\Http\Controllers\Hospital\StoreController::class)->name('hospital.store');
+Route::get('/hospitals/{hospital}', App\Http\Controllers\Hospital\ShowController::class,)->name('hospital.show');
+Route::get('/hospitals/{hospital}/edit', App\Http\Controllers\Hospital\EditController::class,)->name('hospital.edit');
+Route::patch('/hospitals/{hospital}', App\Http\Controllers\Hospital\UpdateController::class,)->name('hospital.update');
+Route::delete('/hospitals/{hospital}', App\Http\Controllers\Hospital\DestroyController::class,)->name('hospital.delete');
+// 

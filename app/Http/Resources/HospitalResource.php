@@ -19,6 +19,7 @@ class HospitalResource extends JsonResource
             'full_name' => $this->full_name,
             'short_name' => $this->short_name,
             'address' => $this->address,
+            'rooms' => $this->rooms,
         ];
     }
 }

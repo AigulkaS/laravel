@@ -15,8 +15,11 @@ return new class extends Migration
     {
         Schema::create('hospital_rooms', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('hospital_id');
+            $table->unsignedBigInteger('hospital_id')->nullable();
             $table->string('name');
+            $table->index('hospital_id', 'hospital_rooms_hospital_idx');
+            $table->foreign('hospital_id', 'hospital_rooms_hospital_fk')->on('hospitals')->references('id')->onDelete('cascade');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

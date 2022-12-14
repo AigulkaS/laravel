@@ -25,6 +25,7 @@ class UpdateRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
+            'label' => 'required|string|max:255',
             'roles' => '',
         ];
     }
