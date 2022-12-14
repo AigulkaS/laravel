@@ -4,14 +4,14 @@
             <div v-if="errors" class="alert alert-danger" role="alert">
                 {{errors}}
             </div>
-            <div class="col-12" v-if="role">
+            <div class="col-12" v-if="permission">
 
                 <div class="d-flex my-3">
                     <div class="me-auto ">
-                        <h4 class="my-3">Роль {{role.name}}</h4>
+                        <h4 class="my-3">Разрешение {{permission.name}}</h4>
                     </div>
                     <div class="align-self-center">
-                        <router-link :to="{name: 'role_edit'}" type="button" class="btn btn-warning">
+                        <router-link :to="{name: 'permission_edit'}" type="button" class="btn btn-warning">
                             <font-awesome-icon icon="fa-solid fa-pencil" /> Редактировать
                         </router-link>
                     </div>
@@ -21,45 +21,24 @@
                     <tbody>
                     <tr>
                         <th class="col-2">Наименование</th>
-                        <td class="col-10">{{role.name}}</td>
+                        <td class="col-10">{{permission.name}}</td>
                     </tr>
                     <tr>
                         <th class="col-2">Имя</th>
-                        <td class="col-10">{{role.label ? role.label : 'label'}}</td>
+                        <td class="col-10">{{permission.label ? permission.label : 'label'}}</td>
                     </tr>
                     <tr>
-                        <th class="col-2">Разрешения</th>
+                        <th class="col-2">Роли</th>
                         <td class="col-10">
-                            <div class="col-sm-10" v-if="role.permissions">
-                                <ul v-for="permission in role.permissions">
-                                    <li>{{permission.label}}</li>
+                            <div class="col-sm-10" v-if="permission.roles">
+                                <ul v-for="role in permission.roles">
+                                    <li>{{role.label ? role.label : role.name}}</li>
                                 </ul>
                             </div>
                         </td>
                     </tr>
                     </tbody>
                 </table>
-
-
-
-<!--                <div class="row">-->
-<!--                    <div class="col-sm-2 fw-bold ">Наименование</div>-->
-<!--                    <div class="col-sm-10">{{role.name}}</div>-->
-<!--                </div>-->
-
-<!--                <div class="row">-->
-<!--                    <div class="col-sm-2 fw-bold">Имя</div>-->
-<!--                    <div class="col-sm-10">{{role.label ? role.label : 'label'}}</div>-->
-<!--                </div>-->
-
-<!--                <div class="row">-->
-<!--                    <div class="col-sm-2 fw-bold">Разрешения </div>-->
-<!--                    <div class="col-sm-10" v-if="role.permissions">-->
-<!--                        <ul v-for="permission in role.permissions">-->
-<!--                            <li>{{permission.label}}</li>-->
-<!--                        </ul>-->
-<!--                    </div>-->
-<!--                </div>-->
 
                 <div class="col-12 my-3">
                     <button @click.prevent="$router.go(-1)"  class="btn btn-primary btn-block">
@@ -77,7 +56,7 @@ export default {
     props: ['id'],
     data() {
         return {
-            role: null,
+            permission: null,
             errors : null,
             success : null,
         }
@@ -87,11 +66,11 @@ export default {
     },
     methods: {
         getData() {
-            axios.get(`/api/roles/${this.id}`, {
+            axios.get(`/api/permissions/${this.id}`, {
                 headers: {Authorization: localStorage.getItem('access_token')}
             }).then(res => {
                 console.log(res);
-                this.role = res.data.role;
+                this.permission = res.data.permission;
             }).catch(err => {
                 console.log(err.response);
                 this.errors = err.response.data.message;

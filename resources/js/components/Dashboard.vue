@@ -75,11 +75,11 @@ export default {
         }
     },
     mounted() {
-        this.auth_user = localStorage.getItem('auth_user') ? true : false
+        this.auth_user = localStorage.getItem('auth_user') ? true : false;
     },
     watch: {
         $route (to, from) {
-            // this.auth = localStorage.getItem('auth_user') ? true : false
+            // console.log(this.$route)
             this.auth_user = localStorage.getItem('auth_user') ? true : false
         }
     },

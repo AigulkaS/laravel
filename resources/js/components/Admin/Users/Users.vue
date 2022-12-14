@@ -45,6 +45,72 @@
                     </tr>
                     </tbody>
                 </table>
+
+                <paginate :current_page="current_page" :last_page="last_page"></paginate>
+
+<!--                <nav aria-label="Page navigation example">-->
+<!--                    <ul class="pagination">-->
+<!--                        <li class="page-item">-->
+<!--                            <a class="page-link"-->
+<!--                               @click.prevent="getUsers(current_page-1)" aria-label="Previous"-->
+<!--                               :class="current_page == 1 ? 'page-item disabled' : ''">-->
+<!--                                <span aria-hidden="true">&laquo;</span>-->
+<!--                            </a>-->
+<!--                        </li>-->
+<!--                        <template v-if="last_page <= 2" v-for="page in last_page">-->
+<!--                            <li class="page-item"><a class="page-link" href="#">{{page}}</a></li>-->
+<!--                        </template>-->
+<!--                        <template v-else>-->
+<!--                            <template v-if="current_page<3">-->
+<!--                                <li class="page-item">-->
+<!--                                    <a class="page-link" :class="current_page == 1 ? 'page-item disabled' : ''"-->
+<!--                                       @click.prevent="getUsers(1)">1</a>-->
+<!--                                </li>-->
+<!--                                <li class="page-item">-->
+<!--                                    <a class="page-link" :class="current_page == 2 ? 'page-item disabled' : ''"-->
+<!--                                       @click.prevent="getUsers(2)">2</a>-->
+<!--                                </li>-->
+<!--                                <li v-if="current_page==2" class="page-item"><a class="page-link" @click.prevent="getUsers(3)">3</a></li>-->
+<!--                                <li class="page-item"><a class="page-link page-item disabled" href="#">...</a></li>-->
+<!--                                <li class="page-item"><a class="page-link" @click.prevent="getUsers(last_page-1)">{{last_page-1}}</a></li>-->
+<!--                                <li class="page-item"><a class="page-link" @click.prevent="getUsers(last_page)">{{last_page}}</a></li>-->
+<!--                            </template>-->
+<!--                            <template v-else-if="current_page>=3 && current_page <= last_page-2 ">-->
+<!--                                <li class="page-item"><a class="page-link" @click.prevent="getUsers(1)">1</a></li>-->
+<!--                                <li class="page-item"><a class="page-link page-item disabled" href="#">...</a></li>-->
+<!--                                <li class="page-item active"><a class="page-link page-item disabled" @click.prevent="getUsers(current_page)">{{current_page}}</a></li>-->
+<!--                                <li class="page-item"><a class="page-link page-item disabled" href="#">...</a></li>-->
+<!--                                <li class="page-item"><a class="page-link" @click.prevent="getUsers(last_page)">{{last_page}}</a></li>-->
+<!--                            </template>-->
+<!--                            <template v-else-if="current_page>last_page-2">-->
+<!--                                <li class="page-item"><a class="page-link" @click.prevent="getUsers(1)">1</a></li>-->
+<!--                                <li class="page-item"><a class="page-link" @click.prevent="getUsers(2)">2</a></li>-->
+<!--                                <li class="page-item"><a class="page-link page-item disabled" href="#">...</a></li>-->
+<!--                                <li v-if="current_page==last_page-1" class="page-item">-->
+<!--                                    <a class="page-link" @click.prevent="getUsers(last_page-2)">{{last_page-2}}</a>-->
+<!--                                </li>-->
+<!--                                <li class="page-item">-->
+<!--                                    <a class="page-link" :class="current_page == last_page-1 ? 'page-item disabled' : ''"-->
+<!--                                       @click.prevent="getUsers(last_page-1)">{{last_page-1}}</a>-->
+<!--                                </li>-->
+<!--                                <li class="page-item">-->
+<!--                                    <a class="page-link" :class="current_page == last_page ? 'page-item disabled' : ''"-->
+<!--                                       @click.prevent="getUsers(last_page)">{{last_page}}</a>-->
+<!--                                </li>-->
+<!--                            </template>-->
+
+<!--                        </template>-->
+<!--                        <li class="page-item">-->
+<!--                            <a class="page-link" :class="current_page == last_page ? 'page-item disabled' : ''"-->
+<!--                               @click.prevent="getUsers(current_page+1)" aria-label="Next">-->
+<!--                                <span aria-hidden="true">&raquo;</span>-->
+<!--                            </a>-->
+<!--                        </li>-->
+<!--                    </ul>-->
+<!--                </nav>-->
+
+
+
             </div>
         </div>
 
@@ -56,19 +122,25 @@ export default {
     name: "Users",
     data() {
         return {
-            users: null
+            users: null,
+            current_page: 1,
+            last_page: 1,
+            perPage: 2,
+            total: 100,
         }
     },
     mounted() {
-        this.getUsers();
+        this.getData(this.current_page);
     },
     methods: {
-        getUsers() {
-            axios.get('/api/users', {
+        getData(page) {
+            axios.get(`/api/users?page=${page}`, {
                 headers: {Authorization: localStorage.getItem('access_token')}
             }).then(res => {
                 console.log(res);
                 this.users = res.data.data;
+                this.current_page = res.data.meta.current_page;
+                this.last_page = res.data.meta.last_page;
 
             }).catch(err => {
                 console.log(err.response);
@@ -79,11 +151,11 @@ export default {
                 headers: {Authorization: localStorage.getItem('access_token')}
             }).then(res => {
                 console.log(res);
-                this.getUsers();
+                this.getData(this.current_page);
             }).catch(err => {
                 console.log(err.response)
             })
-        }
+        },
     }
 }
 </script>

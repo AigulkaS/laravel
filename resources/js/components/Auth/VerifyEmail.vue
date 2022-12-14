@@ -57,6 +57,18 @@ export default {
                     // this.success = res.data.message ?  res.data.message  +  ' Redirecting ...' : ' Redirecting ...'
                     console.log(res)
                     this.success = res.data.message;
+                    if (localStorage.getItem('auth_user')) {
+                        let user = JSON.parse(localStorage.getItem('auth_user'))
+                        axios.get(`/api/users/${user.id}`, {
+                            headers: {Authorization: localStorage.getItem('access_token')}
+                        }).then(res => {
+                            console.log(res)
+                            localStorage.setItem('auth_user', JSON.stringify(res.data.data));
+                        }).catch(err => {
+                            console.log(err.response)
+                            this.logout();
+                        })
+                    }
                     setTimeout(()=>{
                         this.$router.push({name:'home'})
                     },3000)
