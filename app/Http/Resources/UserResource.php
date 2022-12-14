@@ -29,7 +29,7 @@ class UserResource extends JsonResource
             'password' => $this->password,
             'push' => $this->push,
             'sms' => $this->sms,
-            'remember_token' => $this->remember_token
+            'email_verified_at' => $this->email_verified_at,
         ];
     }
 }

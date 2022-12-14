@@ -18,9 +18,6 @@ axios.defaults.withCredentials = true;
 
 import Router from './router';
 
-// import "bootstrap-select";
-
-
 const app = createApp({});
 
 import ExampleComponent from './components/ExampleComponent.vue';
@@ -48,15 +45,11 @@ library.add(faUserSecret, faPencil, faTrashCan, faPlus)
 import Multiselect from '@vueform/multiselect'
 
 import { ref, computed } from 'vue';
-let foo = (localStorage.getItem('auth_user')) ? ref(localStorage.getItem('auth_user')) : false;
-// let foo = ref(false);
-app.config.globalProperties.$foo = computed({
-    get: () => foo.value,
-    set: value => (foo.value = value),
-})
+import Paginate from "./components/Paginate.vue";
 
 
 app.use(Router);
 app.component('font-awesome-icon', FontAwesomeIcon);
 app.component('Multiselect', Multiselect);
+app.component('paginate', Paginate);
 app.mount('#app');
