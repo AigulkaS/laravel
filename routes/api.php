@@ -72,4 +72,22 @@ Route::get('/hospitals/{hospital}', App\Http\Controllers\Hospital\ShowController
 Route::get('/hospitals/{hospital}/edit', App\Http\Controllers\Hospital\EditController::class,)->name('hospital.edit');
 Route::patch('/hospitals/{hospital}', App\Http\Controllers\Hospital\UpdateController::class,)->name('hospital.update');
 Route::delete('/hospitals/{hospital}', App\Http\Controllers\Hospital\DestroyController::class,)->name('hospital.delete');
+// for hospital rooms
+Route::delete('/hospital_rooms/{hospital_room}', App\Http\Controllers\Hospital\DestroyRoomController::class,)->name('hospital_room.delete');
+//
+
+// for diseases
+Route::get('/diseases', App\Http\Controllers\Disease\IndexController::class)->name('disease.index');
+Route::get('/diseases/create', App\Http\Controllers\Disease\CreateController::class)->name('disease.create');
+Route::post('/diseases', App\Http\Controllers\Disease\StoreController::class)->name('disease.store');
+Route::get('/diseases/{disease}', App\Http\Controllers\Disease\ShowController::class,)->name('disease.show');
+Route::get('/diseases/{disease}/edit', App\Http\Controllers\Disease\EditController::class,)->name('disease.edit');
+Route::patch('/diseases/{disease}', App\Http\Controllers\Disease\UpdateController::class,)->name('disease.update');
+Route::delete('/diseases/{disease}', App\Http\Controllers\Disease\DestroyController::class,)->name('disease.delete');
+// 
+
+// for today
+Route::get('/todays', App\Http\Controllers\Today\IndexController::class)->name('today.index');
+Route::get('/todays/edit', App\Http\Controllers\Today\EditController::class,)->name('today.edit');
+Route::patch('/todays', App\Http\Controllers\Today\UpdateController::class,)->name('today.update');
 // 

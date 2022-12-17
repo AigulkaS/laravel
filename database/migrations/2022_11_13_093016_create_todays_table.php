@@ -15,12 +15,13 @@ return new class extends Migration
     {
         Schema::create('todays', function (Blueprint $table) {
             $table->id();
-            $table->timestamp('date');
+            $table->timestamp('date')->nullable();
             $table->unsignedBigInteger('hospital_id');
-            $table->unsignedBigInteger('surgeon_id');
-            $table->unsignedBigInteger('cardiologist_id');
-            $table->foreign('surgeon_id')->references('id')->on('users');
-            $table->foreign('cardiologist_id')->references('id')->on('users');
+            $table->unsignedBigInteger('surgeon_id')->nullable();
+            $table->unsignedBigInteger('cardiologist_id')->nullable();
+            $table->foreign('surgeon_id', 'todays_surgeon_fk')->references('id')->on('users');
+            $table->foreign('cardiologist_id', 'todays_cardiologist_fk')->references('id')->on('users');
+            $table->foreign('hospital_id', 'todays_hospital_fk')->references('id')->on('hospitals')->onDelete('cascade');
             $table->timestamps();
         });
     }

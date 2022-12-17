@@ -2,14 +2,16 @@
 
 namespace App\Models;
 
+use App\Models\Traits\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-// use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Disease extends Model
 {
     use HasFactory;
-    // use SoftDeletes;
+    use SoftDeletes;
+    use Filterable;
     
     protected $guarded = false;
     public $timestamps = false;
