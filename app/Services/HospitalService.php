@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Hospital;
 use App\Models\HospitalRoom;
+use App\Models\Today;
 use Illuminate\Support\Facades\DB;
 
 class HospitalService {
@@ -16,6 +17,10 @@ class HospitalService {
 
             $newRooms = $this->getNewRooms($rooms);
             $hospital = Hospital::create($data);
+            $todayData = [
+                'hospital_id' => $hospital->id,
+            ];
+            Today::create($todayData);
             $hospital->rooms()->saveMany($newRooms);
             
             DB::commit();
