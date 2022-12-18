@@ -28,37 +28,49 @@ class RoleService {
     }
 
     public function update($role, $data) {
-
-        try {
-            DB::beginTransaction();
-            $permissions = $data['permissions'];
-
-            unset($data['permissions']);
-
-            $role->update($data);
-
-            $role->permissions()->sync($permissions);
-            DB::commit();
-        } catch(\Exception $e) {
-            DB::rollBack();
-            return $e->getMessage();
-        } 
-
-        return $role->fresh();
+        if ($role->name === 'admin' 
+        || $role->name === 'surgeon' 
+        || $role->name === 'cardiologist') {
+            return 'not access to update';
+        } else {
+            try {
+                DB::beginTransaction();
+                $permissions = $data['permissions'];
+    
+                unset($data['permissions']);
+    
+                $role->update($data);
+    
+                $role->permissions()->sync($permissions);
+                DB::commit();
+            } catch(\Exception $e) {
+                DB::rollBack();
+                return $e->getMessage();
+            } 
+    
+            return $role->fresh();
+        }
     }
 
     public function delete($role) {
-        try {
-            DB::beginTransaction();
-
-            $role->permissions()->detach();
-            $role->delete();
-
-            DB::commit();
-        } catch(\Exception $e) {
-            DB::rollBack();
-            return $e->getMessage();
-        } 
-        return 'delete successfully';
+        if ($role->name === 'admin' 
+        || $role->name === 'surgeon' 
+        || $role->name === 'cardiologist') {
+            return 'not access to delete';
+        } else {
+            try {
+                DB::beginTransaction();
+    
+                $role->permissions()->detach();
+                $role->delete();
+    
+                DB::commit();
+            } catch(\Exception $e) {
+                DB::rollBack();
+                return $e->getMessage();
+            } 
+            return 'delete successfully';
+        }
+        
     }
 }
