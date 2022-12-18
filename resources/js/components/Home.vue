@@ -4,20 +4,32 @@
             <div class="col-12">
                 Главная страница
                 <template v-if="auth_user">
-<!--                    <div>{{auth_user.last_name}} 1111 {{auth_user.first_name}} 2222 {{auth_user.patronymic}}</div>-->
                     <div>{{auth_user}}</div>
+                    <div v-if="!auth_user.email_verified_at" class="alert alert-success">
+                        На ваш почтовый адрес было направлено письмо для подтверждения Email, для продолжения подвердите свою почту.
+                    </div>
                 </template>
                 <template v-else>
                     <div>Гость</div>
                 </template>
+            </div>
+
+
+
+            <div>
+                <HospitalsCard></HospitalsCard>
             </div>
         </div>
     </div>
 </template>
 
 <script>
+import HospitalsCard from "./HospitalsCard.vue";
 export default {
     name: "Home",
+    components: {
+        HospitalsCard
+    },
     mounted() {
         this.getData();
     },

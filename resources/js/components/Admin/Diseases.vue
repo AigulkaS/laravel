@@ -1,14 +1,14 @@
 <template>
     <div class="container">
         <div class="row">
-            users
+            Diseases
         </div>
     </div>
 </template>
 
 <script>
 export default {
-    name: "Users"
+    name: "Diseases"
 }
 </script>
 

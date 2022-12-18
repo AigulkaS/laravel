@@ -1,13 +1,13 @@
-
-// import Vue from 'vue'
-/**
- * First we will load all of this project's JavaScript dependencies which
- * includes Vue and other libraries. It is a great starting point when
- * building robust, powerful web applications using Vue and Laravel.
- */
-
+// import 'jquery';
 import './bootstrap';
-import '../sass/app.scss'
+import '../sass/app.scss';
+import '../css/app.css';
+import "@vueform/multiselect/themes/default.css";
+
+// Import all of Bootstrap's JS
+import * as bootstrap from 'bootstrap'
+
+// import $ from "jquery";
 
 import { createApp } from 'vue';
 
@@ -16,43 +16,40 @@ window.axios = axios;
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 axios.defaults.withCredentials = true;
 
-
-
-
 import Router from './router';
-
-
-/**
- * Next, we will create a fresh Vue application instance. You may then begin
- * registering components with the application instance so they are ready
- * to use in your application's views. An example is included for you.
- */
 
 const app = createApp({});
 
 import ExampleComponent from './components/ExampleComponent.vue';
 app.component('example-component', ExampleComponent);
 import Dashboard from "./components/Dashboard.vue";
-import router from "./router";
 app.component('dashboard', Dashboard);
 
-/**
- * The following block of code may be used to automatically register your
- * Vue components. It will recursively scan this directory for the Vue
- * components and automatically register them with their "basename".
- *
- * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
- */
 
 // Object.entries(import.meta.globEager('./**/*.vue')).forEach(([path, definition]) => {
 //     app.component(path.split('/').pop().replace(/\.\w+$/, ''), definition.default);
 // });
 
-/**
- * Finally, we will attach the application instance to a HTML element with
- * an "id" attribute of "app". This element is included with the "auth"
- * scaffolding. Otherwise, you will need to add an element yourself.
- */
+/* import the fontawesome core */
+import { library } from '@fortawesome/fontawesome-svg-core'
+
+/* import font awesome icon component */
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+
+/* import specific icons */
+import { faUserSecret, faPencil, faTrashCan, faPlus } from '@fortawesome/free-solid-svg-icons'
+
+/* add icons to the library */
+library.add(faUserSecret, faPencil, faTrashCan, faPlus)
+
+import Multiselect from '@vueform/multiselect'
+
+import { ref, computed } from 'vue';
+import Paginate from "./components/Paginate.vue";
+
 
 app.use(Router);
+app.component('font-awesome-icon', FontAwesomeIcon);
+app.component('Multiselect', Multiselect);
+app.component('paginate', Paginate);
 app.mount('#app');
