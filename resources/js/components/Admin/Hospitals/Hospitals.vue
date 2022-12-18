@@ -1,13 +1,13 @@
 <template>
     <div class="container">
-        <div class="row" v-if="roles">
+        <div class="row" v-if="hospitals">
             <div class="d-flex my-3">
                 <div class="me-auto ">
-                    <h4 class="my-3">Роли</h4>
+                    <h4 class="my-3">Больницы</h4>
                 </div>
                 <div class="align-self-center">
-                    <router-link :to="{name: 'role_create'}" type="button" class="btn btn-primary">
-                        <font-awesome-icon icon="fa-solid fa-plus" /> Добавить роль
+                    <router-link :to="{name: 'hospital_create'}" type="button" class="btn btn-primary">
+                        <font-awesome-icon icon="fa-solid fa-plus" /> Добавить новую больницу
                     </router-link>
                 </div>
             </div>
@@ -25,30 +25,34 @@
                     <tr>
                         <th scope="col">id</th>
                         <th scope="col">Наименование</th>
-                        <th scope="col">Разрешения</th>
+                        <th scope="col">Адрес</th>
+                        <th scope="col">Кабинеты</th>
                         <th scope="col"></th>
                         <th scope="col"></th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr v-for="(role, index) in roles">
-                        <td scope="row" data-label="id">{{role.id}}</td>
-                        <td data-label="Название">
-                            <router-link :to="{name: 'role_show', params: {id: role.id}}">
-                                {{role.name}}</router-link>
+                    <tr v-for="(hospital, index) in hospitals">
+                        <td scope="row" data-label="id">{{hospital.id}}</td>
+                        <td data-label="Наименование">
+                            <router-link :to="{name: 'hospital_show', params: {id: hospital.id}}">
+                                {{hospital.short_name}}</router-link>
                         </td>
-                        <td data-label="Разрешения">
-                            <ul v-for="permission in role.permissions" class="list-style-none my-1 px-1">
-                                <li>{{permission.label}}</li>
+                        <td data-label="Адрес">
+                            {{hospital.address}}
+                        </td>
+                        <td data-label="Кабинеты">
+                            <ul class="list-style-none my-1 px-1" v-for="room in hospital.rooms">
+                                <li class="pl-1">{{ room.name }}</li>
                             </ul>
                         </td>
                         <td data-label="Редактировать">
-                            <router-link :to="{name: 'role_edit', params: {'id': role.id}}" tag="button" class="btn btn-warning" title="Редактировать">
+                            <router-link :to="{name: 'hospital_edit', params: {'id': hospital.id}}" tag="button" class="btn btn-warning" title="Редактировать">
                                 <font-awesome-icon icon="fa-solid fa-pencil" :style="{ color: 'black' }" />
                             </router-link>
                         </td>
                         <td data-label="Удалить">
-                            <button @click.prevent="deleteRole(role.id)" class="btn btn-danger" title="Удалить">
+                            <button @click.prevent="deleteItem(hospital.id)" class="btn btn-danger" title="Удалить">
                                 <font-awesome-icon icon="fa-solid fa-trash-can" :style="{ color: 'white' }" />
                             </button>
                         </td>
@@ -62,35 +66,35 @@
 
 <script>
 export default {
-    name: "Roles",
+    name: "Hospitals",
     data() {
         return {
-            roles: null,
+            hospitals: null,
             errors : null,
             success : null,
         }
     },
     mounted() {
-        this.getRoles();
+        this.getData();
     },
     methods: {
-        getRoles() {
-            axios.get('/api/roles', {
+        getData() {
+            axios.get('/api/hospitals', {
                 headers: {Authorization: localStorage.getItem('access_token')}
             }).then(res => {
                 console.log(res);
-                this.roles = res.data.data;
+                this.hospitals = res.data.data;
             }).catch(err => {
                 console.log(err.response)
             })
         },
-        deleteRole(role_id) {
-            axios.delete(`/api/roles/${role_id}`, {
+        deleteItem(hospital_id) {
+            axios.delete(`/api/hospitals/${hospital_id}`, {
                 headers: {Authorization: localStorage.getItem('access_token')}
             }).then(res => {
                 console.log(res);
-                this.getRoles();
-                this.success = 'Вы удалили роль';
+                this.getData();
+                this.success = 'Вы удалили больницу';
                 setTimeout(()=>{
                     this.success = null;
                 },1500)

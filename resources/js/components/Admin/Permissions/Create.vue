@@ -35,10 +35,23 @@
                     </div>
 
                     <div class="form-group row my-1">
+                        <label class="col-sm-2 col-form-label fw-bold ">Наименование</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control"
+                                   v-model.lazy="v$.permission.label.$model"
+                                   :class="v$.permission.label.$error ? 'border-danger' : ''"
+                            >
+                            <span v-if="v$.permission.label.$error" :class="v$.permission.label.$error ? 'text-danger' : ''">
+                                  Наименование обязательное поле для заполнения
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="form-group row my-1">
                         <label class="col-sm-2 col-form-label fw-bold">
                             Роли
                         </label>
-                        <div class="col-sm-10" v-if="roles">
+                        <div class="col-sm-10">
                             <Multiselect
                                 v-model="value"
                                 mode="multiple"
@@ -58,7 +71,6 @@
                         </div>
                     </div>
 
-
                     <div class="col-12 my-3 text-center">
                         <button type="submit" :disabled="processing" class="btn btn-primary btn-block">
                             {{ processing ? "Please wait" : "Сохранить" }}
@@ -72,18 +84,18 @@
 
 <script>
 import useValidate from '@vuelidate/core';
-import { required, email, minLength, sameAs } from '@vuelidate/validators';
-import Multiselect from '@vueform/multiselect'
+import { required} from '@vuelidate/validators';
+// import Multiselect from '@vueform/multiselect'
 export default {
     name: "Create",
-    components: {
-        Multiselect,
-    },
+    // components: {
+    //     Multiselect,
+    // },
     data() {
         return {
             v$: useValidate(),
             permission: {name: null},
-            roles: null,
+            roles: [],
             processing: false,
             errors : {},
             success : null,
@@ -96,7 +108,8 @@ export default {
     validations() {
         return {
             permission: {
-                name: {required}
+                name: {required},
+                label: {required},
             }
         }
     },
@@ -113,7 +126,7 @@ export default {
         },
         store() {
             // console.log(this.value)
-            console.log(Array.from(this.value));
+            // console.log(Array.from(this.value));
 
             this.errors = null
             this.success = null;
@@ -121,7 +134,7 @@ export default {
             if (!this.v$.$error) {
                 this.processing = true;
                 axios.post(`/api/permissions`,
-                    {name: this.permission.name, roles: Array.from(this.value)},
+                    {name: this.permission.name, label: this.permission.label, roles: Array.from(this.value)},
                     {headers: {Authorization: localStorage.getItem('access_token')}
                 }).then(res => {
                     console.log(res);
@@ -158,11 +171,11 @@ export default {
 }
 </script>
 <style>
-.multiselect-option.is-selected {
-    background: #0d6efd !important;
-}
+/*.multiselect-option.is-selected {*/
+/*    background: #0d6efd !important;*/
+/*}*/
 </style>
-<style src="@vueform/multiselect/themes/default.css"></style>
+<!--<style src="@vueform/multiselect/themes/default.css"></style>-->
 
 <style scoped>
 

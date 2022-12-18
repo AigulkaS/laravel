@@ -35,10 +35,23 @@
                     </div>
 
                     <div class="form-group row my-1">
+                        <label class="col-sm-2 col-form-label fw-bold ">Наименование</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control"
+                                   v-model.lazy="v$.role.label.$model"
+                                   :class="v$.role.label.$error ? 'border-danger' : ''"
+                            >
+                            <span v-if="v$.role.label.$error" :class="v$.role.label.$error ? 'text-danger' : ''">
+                                  Наименование обязательное поле для заполнения
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="form-group row my-1">
                         <label class="col-sm-2 col-form-label fw-bold">
                             Разрешения
                         </label>
-                        <div class="col-sm-10">
+                        <div class="col-sm-10" v-if="permissions">
                             <Multiselect
                                 v-model="value"
                                 mode="multiple"
@@ -46,14 +59,7 @@
                                 :hide-selected="false"
                                 label="name"
                                 valueProp="id"
-                                :options="[
-                                    {id: 1, name: 123},
-                                    {id: 2, name: 456},
-                                    {id: 3, name: 789},
-                                    {id: 4, name: 222},
-                                    {id: 5, name: 333},
-                                    {id: 6, name: 444},
-                                  ]"
+                                :options="permissions"
                             >
                                 <template v-slot:multiplelabel="{ values }">
                                     <div>
@@ -79,17 +85,17 @@
 
 <script>
 import useValidate from '@vuelidate/core';
-import { required, email, minLength, sameAs } from '@vuelidate/validators';
-import Multiselect from '@vueform/multiselect'
+import { required } from '@vuelidate/validators';
+// import Multiselect from '@vueform/multiselect'
 export default {
     name: "Create",
-    components: {
-        Multiselect,
-    },
+    // components: {
+    //     Multiselect,
+    // },
     data() {
         return {
             v$: useValidate(),
-            role: {name: null},
+            role: {name: null, label: null},
             permissions: null,
             processing: false,
             errors : {},
@@ -103,27 +109,35 @@ export default {
     validations() {
         return {
             role: {
-                name: {required}
+                name: {required},
+                label: {required},
             }
         }
     },
     methods: {
         getData() {
-            //Вызвать permissions
+            axios.get('/api/roles/create', {
+                headers: {Authorization: localStorage.getItem('access_token')}
+            }).then(res => {
+                console.log(res);
+                this.permissions = res.data.permissions;
+            }).catch(err => {
+                console.log(err.response)
+            })
         },
         store() {
-            console.log(this.value)
-            this.value.map(v => {
-                console.log(v)
-            })
-
+            // console.log(this.value)
+            // this.value.map(v => {
+            //     console.log(v)
+            // })
             this.errors = null
             this.success = null;
             this.v$.$validate() // checks all inputs
             if (!this.v$.$error) {
                 this.processing = true;
-                axios.post(`/api/roles`, this.role, {
-                    headers: {Authorization: localStorage.getItem('access_token')}
+                axios.post(`/api/roles`,
+                    {name: this.role.name, label: this.role.label, permissions: Array.from(this.value)},
+                    {headers: {Authorization: localStorage.getItem('access_token')}
                 }).then(res => {
                     console.log(res);
                     this.role = res.data.data;
@@ -162,7 +176,7 @@ export default {
     background: #0d6efd !important;
 }
 </style>
-<style src="@vueform/multiselect/themes/default.css"></style>
+<!--<style src="@vueform/multiselect/themes/default.css"></style>-->
 
 <style scoped>
 

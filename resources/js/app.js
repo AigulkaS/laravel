@@ -37,10 +37,10 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 /* import specific icons */
-import { faUserSecret, faPencil, faTrashCan, faPlus } from '@fortawesome/free-solid-svg-icons'
+import { faUserSecret, faPencil, faTrashCan, faPlus, faMinus } from '@fortawesome/free-solid-svg-icons'
 
 /* add icons to the library */
-library.add(faUserSecret, faPencil, faTrashCan, faPlus)
+library.add(faUserSecret, faPencil, faTrashCan, faPlus, faMinus)
 
 import Multiselect from '@vueform/multiselect'
 

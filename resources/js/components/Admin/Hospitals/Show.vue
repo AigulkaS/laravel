@@ -4,14 +4,14 @@
             <div v-if="errors" class="alert alert-danger" role="alert">
                 {{errors}}
             </div>
-            <div class="col-12" v-if="permission">
+            <div class="col-12" v-if="hospital">
 
                 <div class="d-flex my-3">
                     <div class="me-auto ">
-                        <h4 class="my-3">Разрешение {{permission.name}}</h4>
+                        <h4 class="my-3">Больница {{hospital.short_name}}</h4>
                     </div>
                     <div class="align-self-center">
-                        <router-link :to="{name: 'permission_edit'}" type="button" class="btn btn-warning">
+                        <router-link :to="{name: 'hospital_edit'}" type="button" class="btn btn-warning">
                             <font-awesome-icon icon="fa-solid fa-pencil" /> Редактировать
                         </router-link>
                     </div>
@@ -20,21 +20,23 @@
                 <table class="table table-bordered">
                     <tbody>
                     <tr>
-                        <th class="col-2">Разрешение</th>
-                        <td class="col-10">{{permission.name}}</td>
+                        <th class="col-2">Полное наименование</th>
+                        <td class="col-10">{{hospital.full_name}}</td>
                     </tr>
                     <tr>
-                        <th class="col-2">Наименование</th>
-                        <td class="col-10">{{permission.label}}</td>
+                        <th class="col-2">Кароткое наименование</th>
+                        <td class="col-10">{{hospital.short_name}}</td>
                     </tr>
                     <tr>
-                        <th class="col-2">Роли</th>
+                        <th class="col-2">Адрес</th>
+                        <td class="col-10">{{hospital.address}}</td>
+                    </tr>
+                    <tr>
+                        <th class="col-2">Кабинеты</th>
                         <td class="col-10">
-                            <div class="col-sm-10" v-if="permission.roles">
-                                <ul v-for="role in permission.roles">
-                                    <li>{{role.name}}</li>
-                                </ul>
-                            </div>
+                            <span v-for="(room, index) in hospital.rooms">
+                                {{(index+1 !== hospital.rooms.length) ? `${room.name}, ` : room.name}}
+                            </span>
                         </td>
                     </tr>
                     </tbody>
@@ -56,7 +58,7 @@ export default {
     props: ['id'],
     data() {
         return {
-            permission: null,
+            hospital: null,
             errors : null,
             success : null,
         }
@@ -66,11 +68,11 @@ export default {
     },
     methods: {
         getData() {
-            axios.get(`/api/permissions/${this.id}`, {
+            axios.get(`/api/hospitals/${this.id}`, {
                 headers: {Authorization: localStorage.getItem('access_token')}
             }).then(res => {
                 console.log(res);
-                this.permission = res.data.permission;
+                this.hospital = res.data.data;
             }).catch(err => {
                 console.log(err.response);
                 this.errors = err.response.data.message;

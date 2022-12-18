@@ -60,6 +60,13 @@
                 </div>
             </div>
         </nav>
+<!--        <div class="container my-3">-->
+<!--            <nav aria-label="breadcrumb">-->
+<!--                <ol class="breadcrumb">-->
+<!--                    <li class="breadcrumb-item active" aria-current="page">Home</li>-->
+<!--                </ol>-->
+<!--            </nav>-->
+<!--        </div>-->
         <main class="mt-3">
             <router-view></router-view>
         </main>
