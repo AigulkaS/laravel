@@ -35,6 +35,19 @@
                     </div>
 
                     <div class="form-group row my-1">
+                        <label class="col-sm-2 col-form-label fw-bold ">Наименование</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control"
+                                   v-model.lazy="v$.role.label.$model"
+                                   :class="v$.role.label.$error ? 'border-danger' : ''"
+                            >
+                            <span v-if="v$.role.label.$error" :class="v$.role.label.$error ? 'text-danger' : ''">
+                                  Наименование обязательное поле для заполнения
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="form-group row my-1">
                         <label class="col-sm-2 col-form-label fw-bold">
                             Разрешения
                         </label>
@@ -44,21 +57,14 @@
                                 mode="multiple"
                                 :close-on-select="false"
                                 :hide-selected="false"
-                                label="name"
+                                label="label"
                                 valueProp="id"
-                                :options="[
-                                    {id: 1, name: 123},
-                                    {id: 2, name: 456},
-                                    {id: 3, name: 789},
-                                    {id: 4, name: 222},
-                                    {id: 5, name: 333},
-                                    {id: 6, name: 444},
-                                  ]"
+                                :options="permissions"
                             >
                                 <template v-slot:multiplelabel="{ values }">
                                     <div>
                                         <span v-for="value in values" class="badge bg-primary">
-                                            {{ value.name }}545454545465456</span>
+                                            {{ value.label }}</span>
                                     </div>
                                 </template>
                             </Multiselect>
@@ -91,7 +97,7 @@ export default {
         return {
             v$: useValidate(),
             role: null,
-            permissions: null,
+            permissions: [],
             processing: false,
             errors : {},
             success : null,
@@ -104,7 +110,8 @@ export default {
     validations() {
         return {
             role: {
-                name: {required}
+                name: {required},
+                label: {required},
             }
         }
     },
@@ -115,23 +122,30 @@ export default {
             }).then(res => {
                 console.log(res);
                 this.role = res.data.role;
+                this.permissions = res.data.permissions;
+                if (this.role.permissions) {
+                    this.value = this.role.permissions.map(function (obj) {
+                        return obj.id;
+                    });
+                }
             }).catch(err => {
                 console.log(err.response);
             });
         },
         update() {
-            console.log(this.value)
-            this.value.map(v => {
-                console.log(v)
-            })
+            // console.log(this.value)
+            // this.value.map(v => {
+            //     console.log(v)
+            // })
 
             this.errors = null
             this.success = null;
             this.v$.$validate() // checks all inputs
             if (!this.v$.$error) {
                 this.processing = true;
-                axios.patch(`/api/roles/${this.id}`, this.role, {
-                    headers: {Authorization: localStorage.getItem('access_token')}
+                axios.patch(`/api/roles/${this.id}`,
+                    {name: this.role.name, label: this.role.label, permissions: Array.from(this.value)},
+                    {headers: {Authorization: localStorage.getItem('access_token')}
                 }).then(res => {
                     console.log(res);
                     this.role = res.data.data;

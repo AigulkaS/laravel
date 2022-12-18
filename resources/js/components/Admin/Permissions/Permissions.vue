@@ -33,9 +33,9 @@
                     <tbody>
                     <tr v-for="(permission, index) in permissions">
                         <td scope="row" data-label="id">{{permission.id}}</td>
-                        <td data-label="Название">
+                        <td data-label="Наименование">
                             <router-link :to="{name: 'permission_show', params: {id: permission.id}}">
-                                {{permission.name}}</router-link>
+                                {{permission.label}}</router-link>
                         </td>
                         <td data-label="Разрешения">
                             <ul class="list-style-none my-1 px-1" v-for="role in permission.roles">

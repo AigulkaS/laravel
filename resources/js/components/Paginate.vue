@@ -9,7 +9,7 @@
                     <span aria-hidden="true">&laquo;</span>
                 </a>
             </li>
-            <template v-if="last_page <= 2" v-for="page in last_page">
+            <template v-if="last_page <= 6" v-for="page in last_page">
                 <li class="page-item">
                     <a class="page-link" :class="current_page == page ? 'page-item disabled' : ''"
                        @click.prevent="$parent.getData(page)">{{page}}</a>

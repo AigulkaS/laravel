@@ -20,12 +20,12 @@
                 <table class="table table-bordered">
                     <tbody>
                     <tr>
-                        <th class="col-2">Наименование</th>
+                        <th class="col-2">Роль</th>
                         <td class="col-10">{{role.name}}</td>
                     </tr>
                     <tr>
-                        <th class="col-2">Имя</th>
-                        <td class="col-10">{{role.label ? role.label : 'label'}}</td>
+                        <th class="col-2">Наименование</th>
+                        <td class="col-10">{{role.label}}</td>
                     </tr>
                     <tr>
                         <th class="col-2">Разрешения</th>
@@ -39,28 +39,6 @@
                     </tr>
                     </tbody>
                 </table>
-
-
-
-<!--                <div class="row">-->
-<!--                    <div class="col-sm-2 fw-bold ">Наименование</div>-->
-<!--                    <div class="col-sm-10">{{role.name}}</div>-->
-<!--                </div>-->
-
-<!--                <div class="row">-->
-<!--                    <div class="col-sm-2 fw-bold">Имя</div>-->
-<!--                    <div class="col-sm-10">{{role.label ? role.label : 'label'}}</div>-->
-<!--                </div>-->
-
-<!--                <div class="row">-->
-<!--                    <div class="col-sm-2 fw-bold">Разрешения </div>-->
-<!--                    <div class="col-sm-10" v-if="role.permissions">-->
-<!--                        <ul v-for="permission in role.permissions">-->
-<!--                            <li>{{permission.label}}</li>-->
-<!--                        </ul>-->
-<!--                    </div>-->
-<!--                </div>-->
-
                 <div class="col-12 my-3">
                     <button @click.prevent="$router.go(-1)"  class="btn btn-primary btn-block">
                         Назад

@@ -84,7 +84,6 @@ const routes = [
                         component: () => import('../components/Admin/Users/Users.vue'),
                         name: 'users',
                     },
-
                     {
                         path: 'roles',
                         component: () => import('../components/Admin/Roles/Roles.vue'),
@@ -96,7 +95,7 @@ const routes = [
                     },
                     {
                         path: 'hospitals',
-                        component: () => import('../components/Admin/Hospitals.vue'),
+                        component: () => import('../components/Admin/Hospitals/Hospitals.vue'),
                         name: 'hospitals',
                     },
                     {
@@ -106,6 +105,8 @@ const routes = [
                     }
                 ]
             },
+
+
             {
                 path: '/admin/users/:id/edit',
                 props: route => ({
@@ -130,6 +131,8 @@ const routes = [
                     requiresAuth: true,
                 },
             },
+
+
             {
                 path: '/admin/roles/create',
                 component: () => import('../components/Admin/Roles/Create.vue'),
@@ -163,6 +166,8 @@ const routes = [
                     requiresAuth: true,
                 },
             },
+
+
             {
                 path: '/admin/permissions/create',
                 component: () => import('../components/Admin/Permissions/Create.vue'),
@@ -191,6 +196,41 @@ const routes = [
                 }),
                 component: () => import('../components/Admin/Permissions/Show.vue'),
                 name: 'permission_show',
+                meta : {
+                    email_verified: true,
+                    requiresAuth: true,
+                },
+            },
+
+
+            {
+                path: '/admin/hospitals/create',
+                component: () => import('../components/Admin/Hospitals/Create.vue'),
+                name: 'hospital_create',
+                meta : {
+                    email_verified: true,
+                    requiresAuth: true,
+                },
+            },
+            {
+                path: '/admin/hospitals/:id/edit',
+                props: route => ({
+                    id: route.params.id,
+                }),
+                component: () => import('../components/Admin/Hospitals/Edit.vue'),
+                name: 'hospital_edit',
+                meta : {
+                    email_verified: true,
+                    requiresAuth: true,
+                },
+            },
+            {
+                path: '/admin/hospitals/:id/show',
+                props: route => ({
+                    id: route.params.id,
+                }),
+                component: () => import('../components/Admin/Hospitals/Show.vue'),
+                name: 'hospital_show',
                 meta : {
                     email_verified: true,
                     requiresAuth: true,
