@@ -32,10 +32,7 @@ class BookingFactory extends Factory
             'room_id' => HospitalRoom::get()->random()->id,
             'hospital_id' => Hospital::get()->random()->id,
             'disease_id' => Disease::get()->random()->id,
-            'brigade' => Brigade::get()->random()->name,
-            'start_time' => fake()->date(),
-            'end_time' => fake()->date(),
-            
+            'date_time' => fake()->dateTime(),
         ];
     }
 }

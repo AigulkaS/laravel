@@ -91,3 +91,13 @@ Route::get('/todays', App\Http\Controllers\Today\IndexController::class)->name('
 Route::get('/todays/edit', App\Http\Controllers\Today\EditController::class,)->name('today.edit');
 Route::patch('/todays', App\Http\Controllers\Today\UpdateController::class,)->name('today.update');
 // 
+
+// for booking
+Route::get('/bookings', App\Http\Controllers\Booking\IndexController::class)->name('booking.index');
+// Route::get('/bookings/create', App\Http\Controllers\Booking\CreateController::class)->name('booking.create');
+// Route::post('/bookings', App\Http\Controllers\Booking\StoreController::class)->name('booking.store');
+// Route::get('/bookings/{booking}', App\Http\Controllers\Booking\ShowController::class,)->name('booking.show');
+// Route::get('/bookings/{booking}/edit', App\Http\Controllers\Booking\EditController::class,)->name('booking.edit');
+// Route::patch('/bookings/{booking}', App\Http\Controllers\Booking\UpdateController::class,)->name('booking.update');
+// Route::delete('/bookings/{booking}', App\Http\Controllers\Booking\DestroyController::class,)->name('booking.delete');
+// 
