@@ -1,4 +1,5 @@
 import { createWebHistory, createRouter } from 'vue-router'
+import {isNull} from "lodash/lang";
 
 // const Dashboard = () => import('../components/Dashboard.vue');
 // const Login = () => import('@/components/Login.vue');
@@ -10,7 +11,6 @@ const routes = [
         name: 'dashboard',
         path: "/",
         component: () => import('../components/Dashboard.vue'),
-        // component: Dashboard
         children: [
             {
                 name: 'home',
@@ -75,14 +75,126 @@ const routes = [
                 name: 'admin_page',
                 meta : {
                     // guest : true
+                    email_verified: true,
+                    requiresAuth: true,
                 },
                 children: [
                     {
                         path: 'users',
-                        component: () => import('../components/Admin/Users.vue'),
+                        component: () => import('../components/Admin/Users/Users.vue'),
                         name: 'users',
+                    },
+
+                    {
+                        path: 'roles',
+                        component: () => import('../components/Admin/Roles/Roles.vue'),
+                        name: 'roles',
+                    },{
+                        path: 'permissions',
+                        component: () => import('../components/Admin/Permissions/Permissions.vue'),
+                        name: 'permissions',
+                    },
+                    {
+                        path: 'hospitals',
+                        component: () => import('../components/Admin/Hospitals.vue'),
+                        name: 'hospitals',
+                    },
+                    {
+                        path: 'diseases',
+                        component: () => import('../components/Admin/Diseases.vue'),
+                        name: 'diseases',
                     }
                 ]
+            },
+            {
+                path: '/admin/users/:id/edit',
+                props: route => ({
+                    id: route.params.id,
+                }),
+                component: () => import('../components/Admin/Users/Edit.vue'),
+                name: 'user_edit',
+                meta : {
+                    email_verified: true,
+                    requiresAuth: true,
+                },
+            },
+            {
+                path: '/admin/users/:id/show',
+                props: route => ({
+                    id: route.params.id,
+                }),
+                component: () => import('../components/Admin/Users/Show.vue'),
+                name: 'user_show',
+                meta : {
+                    email_verified: true,
+                    requiresAuth: true,
+                },
+            },
+            {
+                path: '/admin/roles/create',
+                component: () => import('../components/Admin/Roles/Create.vue'),
+                name: 'role_create',
+                meta : {
+                    email_verified: true,
+                    requiresAuth: true,
+                },
+            },
+            {
+                path: '/admin/roles/:id/edit',
+                props: route => ({
+                    id: route.params.id,
+                }),
+                component: () => import('../components/Admin/Roles/Edit.vue'),
+                name: 'role_edit',
+                meta : {
+                    email_verified: true,
+                    requiresAuth: true,
+                },
+            },
+            {
+                path: '/admin/roles/:id/show',
+                props: route => ({
+                    id: route.params.id,
+                }),
+                component: () => import('../components/Admin/Roles/Show.vue'),
+                name: 'role_show',
+                meta : {
+                    email_verified: true,
+                    requiresAuth: true,
+                },
+            },
+            {
+                path: '/admin/permissions/create',
+                component: () => import('../components/Admin/Permissions/Create.vue'),
+                name: 'permission_create',
+                meta : {
+                    email_verified: true,
+                    requiresAuth: true,
+                },
+            },
+            {
+                path: '/admin/permissions/:id/edit',
+                props: route => ({
+                    id: route.params.id,
+                }),
+                component: () => import('../components/Admin/Permissions/Edit.vue'),
+                name: 'permission_edit',
+                meta : {
+                    email_verified: true,
+                    requiresAuth: true,
+                },
+            },
+            {
+                path: '/admin/permissions/:id/show',
+                props: route => ({
+                    id: route.params.id,
+                }),
+                component: () => import('../components/Admin/Permissions/Show.vue'),
+                name: 'permission_show',
+                meta : {
+                    email_verified: true,
+                    requiresAuth: true,
+                },
             },
         ]
     }
@@ -157,7 +269,7 @@ router.beforeEach((to, from, next) => {
                 params: { nextUrl: to.fullPath }
             })
         } else {
-            let user = JSON.parse(localStorage.getItem('user'))
+            let user = JSON.parse(localStorage.getItem('auth_user'))
             if(to.matched.some(record => record.meta.is_admin)) {
                 if(user.is_admin == 1){
                     next()
@@ -165,7 +277,11 @@ router.beforeEach((to, from, next) => {
                 else{
                     next({ name: 'userboard'})
                 }
-            }else {
+            }else if (to.matched.some(record => record.meta.email_verified)) {
+                if (isNull(user.email_verified_at)) {
+                    next({ name: 'home'})
+                } else next();
+            } else {
                 next()
             }
         }

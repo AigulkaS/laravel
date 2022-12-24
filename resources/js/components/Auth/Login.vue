@@ -82,6 +82,13 @@ export default {
             processing:false
         }
     },
+    computed: {
+        auth_user() {
+            console.log(7777)
+            return localStorage.getItem('auth_user');
+            // return this.$foo.value;
+        },
+    },
     validations() {
         return {
             auth: {
@@ -97,9 +104,8 @@ export default {
         async login(){
             this.v$.$validate() // checks all inputs
             if (!this.v$.$error) {
-                console.log(55555);
                 axios.get('/sanctum/csrf-cookie').then(response => {
-                    console.log(9999);
+                    console.log(789456);
                     axios.post('/api/login', {
                         email: this.auth.email,
                         password: this.auth.password,
@@ -109,6 +115,7 @@ export default {
                             console.log(res);
                             localStorage.setItem('access_token', `${res.data.token_type} ${res.data.access_token}`);
                             localStorage.setItem('auth_user', JSON.stringify(res.data.auth_user));
+                            // console.log(this.$parent);
                             this.$router.push({name: "home"})
                         })
                         .catch(err => {

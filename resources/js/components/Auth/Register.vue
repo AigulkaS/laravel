@@ -7,11 +7,16 @@
                         <h1 class="text-center">Регистрация</h1>
                         <hr/>
                         <form action="javascript:void(0)" @submit="register" class="row" method="post" ref="registr_form">
-                            <div class="col-12" v-if="Object.keys(validationErrors).length > 0">
+                            <div class="col-12" v-if="validationErrors && Object.keys(validationErrors).length > 0">
                                 <div class="alert alert-danger">
-                                    <ul class="mb-0">
-                                        <li v-for="(value, key) in validationErrors" :key="key">{{ value[0] }}</li>
-                                    </ul>
+                                    <template v-if="typeof validationErrors == 'object'">
+                                        <ul class="mb-0">
+                                            <li v-for="(value, key) in validationErrors" :key="key">{{ value[0] }}</li>
+                                        </ul>
+                                    </template>
+                                    <template v-else>
+                                        <div>{{validationErrors}}</div>
+                                    </template>
                                 </div>
                             </div>
                             <div class="form-group col-12 my-2 ">
@@ -71,6 +76,43 @@
                                     </template>
                                 </span>
                             </div>
+
+                            <div class="form-group col-12 my-2">
+                                <label class="font-weight-bold" :class="v$.user.hospital_id.$error ? 'text-danger' : ''">
+                                    Больница<span class="text-danger">*</span>
+                                </label>
+                                <Multiselect
+                                    v-model="user.hospital_id"
+                                    :close-on-select="true"
+                                    :hide-selected="false"
+                                    label="full_name"
+                                    valueProp="id"
+                                    :options="hospitals ? hospitals : []"
+                                />
+                                <span v-if="v$.user.hospital_id.$error"
+                                      :class="v$.user.hospital_id.$error ? 'text-danger' : ''">
+                                      Больница обязательное поле для заполнения
+                                </span>
+                            </div>
+
+                            <div class="form-group col-12 my-2">
+                                <label class="font-weight-bold" :class="v$.user.role_id.$error ? 'text-danger' : ''">
+                                    Роль<span class="text-danger">*</span>
+                                </label>
+                                <Multiselect
+                                    v-model="user.role_id"
+                                    :close-on-select="true"
+                                    :hide-selected="false"
+                                    label="name"
+                                    valueProp="id"
+                                    :options="roles ? roles : []"
+                                />
+                                <span v-if="v$.user.role_id.$error"
+                                      :class="v$.user.role_id.$error ? 'text-danger' : ''">
+                                      Роль обязательное поле для заполнения
+                                </span>
+                            </div>
+
                             <div class="form-group col-12">
                                 <label for="last_name" class="font-weight-bold" :class="v$.user.last_name.$error ? 'text-danger' : ''">
                                     Фамилия<span class="text-danger">*</span>
@@ -159,11 +201,15 @@ export default {
                 email:"",
                 password:"",
                 password_confirmation:"",
+                hospital_id: "",
                 last_name:"",
                 first_name: "",
                 patronymic: "",
                 phone: ""
             },
+            hospitals: null,
+            roles: null,
+            value: null,
             validationErrors:{},
             processing:false
         }
@@ -174,33 +220,44 @@ export default {
                 email: { required, email },
                 password: { required, minLength: minLength(6) },
                 password_confirmation: { required, sameAs: sameAs(this.user.password)},
+                hospital_id: {required},
+                role_id: {required},
                 last_name: {required, minLength: minLength(5)},
                 first_name: {required, minLength: minLength(3)},
                 patronymic: {required, minLength: minLength(5)},
             }
         }
     },
+    mounted() {
+        this.getData();
+    },
     methods:{
-        // ...mapActions({
-        //     signIn:'auth/login'
-        // }),
-        async register(){
+        getData() {
+            axios.get('api/users/create').then(res => {
+                console.log(res);
+                this.hospitals = res.data.hospitals;
+                this.roles = res.data.roles;
+            }).catch(err => {
+                console.log(err.response)
+            })
+        },
+        register(){
+            // {
+            //     role_id: 1,
+            //         hospital_id: 1,
+            //     last_name: this.user.last_name,
+            //     first_name: this.user.first_name,
+            //     patronymic: this.user.patronymic,
+            //     phone: this.user.phone,
+            //     email: this.user.email,
+            //     password: this.user.password,
+            //     password_confirmation: this.user.password_confirmation
+            // }
             this.v$.$validate() // checks all inputs
             if (!this.v$.$error) {
-                console.log(55555);
                 this.processing = true
                 axios.get('/sanctum/csrf-cookie').then(response => {
-                    axios.post('/api/register', {
-                        role_id: 1,
-                        hospital_id: 1,
-                        last_name: this.user.last_name,
-                        first_name: this.user.first_name,
-                        patronymic: this.user.patronymic,
-                        phone: this.user.phone,
-                        email: this.user.email,
-                        password: this.user.password,
-                        password_confirmation: this.user.password_confirmation
-                    })
+                    axios.post('/api/register', this.user)
                         .then(res => {
                             this.validationErrors = {};
                             console.log(res);
@@ -231,26 +288,10 @@ export default {
                 window.scrollTo(0,0);
                 // this.$refs.registr_form.scrollTop = 0;
             }
-            // this.processing = true
-            // await axios.get('/sanctum/csrf-cookie')
-            // await axios.post('/register',this.user).then(response=>{
-            //     this.validationErrors = {}
-            //     this.signIn()
-            // }).catch(({response})=>{
-            //     if(response.status===422){
-            //         this.validationErrors = response.data.errors
-            //     }else{
-            //         this.validationErrors = {}
-            //         alert(response.data.message)
-            //     }
-            // }).finally(()=>{
-            //     this.processing = false
-            // })
         }
     }
 }
 </script>
 
 <style scoped>
-
 </style>
