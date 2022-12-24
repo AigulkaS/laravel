@@ -19,4 +19,12 @@ class Hospital extends Model
     public function rooms() {
         return $this->hasMany(HospitalRoom::class, 'hospital_id', 'id');
     }
+
+    public function bookings() {
+        return $this->hasMany(Booking::class);
+    }
+
+    public function today() {
+        return $this->hasOne(Today::class, 'hospital_id', 'id');
+    }
 }

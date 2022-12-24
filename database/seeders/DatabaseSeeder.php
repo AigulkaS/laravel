@@ -53,10 +53,10 @@ class DatabaseSeeder extends Seeder
         HospitalRoom::factory(5)->create();
         Disease::factory(2)->create();
         Brigade::factory(5)->create();
-        User::factory(10)->create();
+        User::factory(100)->create();
         // Today::factory(1)->create();
         $this->todaysFactoryCreate();
-        Booking::factory(5)->create();
+        Booking::factory(100)->create();
     }
 
     private function permissionRoleFactoryCreate() {
