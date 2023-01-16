@@ -7,3 +7,44 @@
 // Bootstrap
 //@import 'bootstrap/scss/bootstrap';
 @import "~bootstrap/scss/bootstrap";
+
+//$min-width: 320px;
+//$number-of-days: 6;
+//$column-width: percentage(1/$number-of-days);
+//
+//.grid-calendar {
+//    min-width: $min-width;
+//    .row {
+//        padding: 0;
+//        margin: 0 auto;
+//    }
+//    .calendar-week .grid-cell {
+//        background-color: #f6f6f6;
+//        border: 3px solid #fff;
+//    }
+//    .grid-cell {
+//        display: inline-block;
+//        float: left;
+//        min-height: 1px;
+//        padding: 0;
+//        position: relative;
+//        width: $column-width;
+//
+//
+//        > div {
+//            display: flex;
+//            justify-content: center;
+//            align-items: center;
+//            cursor: pointer;
+//            aspect-ratio: 1;
+//            width: 100%;
+//
+//            > div {
+//                //height: 0;
+//                //padding: 50% 0;
+//                //aspect-ratio: 1;
+//                //width: 100%;
+//            }
+//        }
+//    }
+//}

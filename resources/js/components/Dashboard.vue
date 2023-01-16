@@ -20,6 +20,11 @@
                                 Админка
                             </router-link>
                         </li>
+                        <li class="nav-item">
+                            <router-link :to="{name:'hospital_booking', params: {id: 1}}" class="nav-link">
+                                Бронирование
+                            </router-link>
+                        </li>
                     </ul>
                     <div class="d-flex">
                         <ul class="navbar-nav">

@@ -100,7 +100,7 @@ const routes = [
                     },
                     {
                         path: 'diseases',
-                        component: () => import('../components/Admin/Diseases.vue'),
+                        component: () => import('../components/Admin/Diseases/Diseases.vue'),
                         name: 'diseases',
                     }
                 ]
@@ -236,6 +236,54 @@ const routes = [
                     requiresAuth: true,
                 },
             },
+
+            {
+                path: '/admin/diseases/create',
+                component: () => import('../components/Admin/Diseases/Create.vue'),
+                name: 'disease_create',
+                meta : {
+                    email_verified: true,
+                    requiresAuth: true,
+                },
+            },
+            {
+                path: '/admin/diseases/:id/edit',
+                props: route => ({
+                    id: route.params.id,
+                }),
+                component: () => import('../components/Admin/Diseases/Edit.vue'),
+                name: 'disease_edit',
+                meta : {
+                    email_verified: true,
+                    requiresAuth: true,
+                },
+            },
+            {
+                path: '/admin/diseases/:id/show',
+                props: route => ({
+                    id: route.params.id,
+                }),
+                component: () => import('../components/Admin/Diseases/Show.vue'),
+                name: 'disease_show',
+                meta : {
+                    email_verified: true,
+                    requiresAuth: true,
+                },
+            },
+
+            {
+                path: '/hospitals/:id/booking',
+                props: route => ({
+                    id: route.params.id,
+                }),
+                component: () => import('../components/HospitalBooking.vue'),
+                name: 'hospital_booking',
+                meta : {
+                    // email_verified: true,
+                    // requiresAuth: true,
+                },
+            },
+
         ]
     }
     // {

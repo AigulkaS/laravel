@@ -2,9 +2,9 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-12">
-                Главная страница
+<!--                Главная страница-->
                 <template v-if="auth_user">
-                    <div>{{auth_user}}</div>
+<!--                    <div>{{auth_user}}</div>-->
                     <div v-if="!auth_user.email_verified_at" class="alert alert-success">
                         На ваш почтовый адрес было направлено письмо для подтверждения Email, для продолжения подвердите свою почту.
                     </div>
