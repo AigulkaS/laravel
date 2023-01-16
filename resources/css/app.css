@@ -7,6 +7,16 @@
     background-color: #f8fafc !important;
 }
 
+.bg-red-300 {
+    background-color: #ea868f;
+}
+.bg-green-300 {
+    background-color: #75b798;
+}
+.bg-yellow-300 {
+    background-color: #ffda6a;
+}
+
 @media screen and (max-width: 767.98px) {
     .table-mobile table {
         /*border: 0;*/

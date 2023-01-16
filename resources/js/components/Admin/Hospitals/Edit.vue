@@ -1,8 +1,8 @@
 <template>
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-12" v-if="permission">
-                <h5 class="fw-bold">Редактирвать разрешение - {{permission.name}} </h5>
+            <div class="col-12" v-if="hospital">
+                <h5 class="fw-bold">Редактирвать разрешение - {{hospital.short_name}} </h5>
 
                 <div v-if="success" class="alert alert-success" role="alert">
                     {{success}}
@@ -22,55 +22,86 @@
 
                 <form @submit.prevent="update" class="row" >
                     <div class="form-group row my-1">
-                        <label class="col-sm-2 col-form-label fw-bold ">Разрешение</label>
+                        <label class="col-sm-2 col-form-label fw-bold ">Полное наименование</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control"
-                                   v-model.lazy="v$.permission.name.$model"
-                                   :class="v$.permission.name.$error ? 'border-danger' : ''"
+                                   v-model.lazy="v$.hospital.full_name.$model"
+                                   :class="v$.hospital.full_name.$error ? 'border-danger' : ''"
                             >
-                            <span v-if="v$.permission.name.$error" :class="v$.permission.name.$error ? 'text-danger' : ''">
-                                  Разрешение обязательное поле для заполнения
+                            <span v-if="v$.hospital.full_name.$error" :class="v$.hospital.full_name.$error ? 'text-danger' : ''">
+                                  Полное наименование обязательное поле для заполнения
                             </span>
                         </div>
                     </div>
 
                     <div class="form-group row my-1">
-                        <label class="col-sm-2 col-form-label fw-bold ">Наименование</label>
+                        <label class="col-sm-2 col-form-label fw-bold ">Кароткое наименование</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control"
-                                   v-model.lazy="v$.permission.label.$model"
-                                   :class="v$.permission.label.$error ? 'border-danger' : ''"
+                                   v-model.lazy="v$.hospital.short_name.$model"
+                                   :class="v$.hospital.short_name.$error ? 'border-danger' : ''"
                             >
-                            <span v-if="v$.permission.label.$error" :class="v$.permission.label.$error ? 'text-danger' : ''">
-                                  Наименование обязательное поле для заполнения
+                            <span v-if="v$.hospital.short_name.$error" :class="v$.hospital.short_name.$error ? 'text-danger' : ''">
+                                  Кароткое наименование обязательное поле для заполнения
                             </span>
                         </div>
                     </div>
 
                     <div class="form-group row my-1">
-                        <label class="col-sm-2 col-form-label fw-bold">
-                            Роли
-                        </label>
+                        <label class="col-sm-2 col-form-label fw-bold ">Адрес</label>
                         <div class="col-sm-10">
-                            <Multiselect
-                                v-model="value"
-                                mode="multiple"
-                                :close-on-select="false"
-                                :hide-selected="false"
-                                label="name"
-                                valueProp="id"
-                                :options="roles"
-                            >
-                                <template v-slot:multiplelabel="{ values }">
-                                    <div>
-                                        <span v-for="value in values" class="badge bg-primary">
-                                            {{ value.name }}</span>
+                            <vue-dadata
+                                v-model="query"
+                                :token="token"
+                                v-model:suggestion="suggestion"
+                                :locationOptions="locationOptions"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="form-group row my-1">
+                        <label class="col-sm-2 col-form-label fw-bold ">Кабинет</label>
+                        <div class="col-sm-10">
+                            <div class="row my-1" v-for="(room, index) in this.hospital.rooms">
+                                <div class="col-7 col-sm-5">
+                                    <input type="text" class="form-control" v-model="room.name">
+                                </div>
+                                <div class="col col-sm-3">
+                                    <button type="button" @click.prevent="removeRoomm(index, room.id)" class="ml-1 mt-1 btn btn-danger btn-circle">
+                                        <font-awesome-icon icon="fa-solid fa-trash-can" :style="{ color: 'white' }" />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="my-4 row">
+                        <div class="col-sm-3">
+                            <button type="button" @click.prevent="createRooms" class="btn btn-warning btn-block">
+                                Добавить кабинеты
+                            </button>
+                        </div>
+                        <div class="col-sm-8" v-if="rooms_show">
+                            <template v-for="(room, index) in rooms">
+                                <div class="row my-1">
+                                    <label class="col col-sm-2 col-form-label fw-bold ">Кабинет</label>
+                                    <div class="col-5 col-sm-5">
+                                        <input type="text" class="form-control" v-model="room.name">
                                     </div>
-                                </template>
-                            </Multiselect>
-                        </div>
-                    </div>
+                                    <div class="col col-sm-3">
+                                        <button type="button" @click.prevent="addRoomm(index)" class="mt-1 btn btn-success btn-circle">
+                                            <font-awesome-icon icon="fa-solid fa-plus" />
+                                        </button>
+                                        <button type="button" @click.prevent="deleteRoomm(index)" class="ml-1 mt-1 btn btn-danger btn-circle">
+                                            <font-awesome-icon icon="fa-solid fa-minus" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </template>
 
+                        </div>
+
+                    </div>
 
                     <div class="col-12 my-3 text-center">
                         <button type="submit" :disabled="processing" class="btn btn-primary btn-block">
@@ -86,95 +117,174 @@
 <script>
 import useValidate from '@vuelidate/core';
 import { required, email, minLength, sameAs } from '@vuelidate/validators';
-export default {
+import { defineComponent, ref } from 'vue';
+import { VueDadata } from 'vue-dadata';
+import 'vue-dadata/dist/style.css';
+export default defineComponent ({
     name: "Edit",
     props: ['id'],
+    components: {
+        VueDadata
+    },
+    setup() {
+        const query = ref('');
+        const suggestion = ref(undefined);
+
+        return {
+            token: import.meta.env.VITE_APP_DADATA_API_KEY,
+            query,
+            suggestion,
+            locationOptions: {
+                locations: {
+                    "country_iso_code": "RU",
+                    "region_iso_code": "RU-BA"
+                }
+            }
+        };
+    },
     data() {
         return {
             v$: useValidate(),
-            permission: null,
-            roles: null,
+            hospital: null,
             processing: false,
             errors : {},
             success : null,
-            value: [],
+            rooms_show: false,
+            rooms: [],
         }
     },
     mounted() {
         this.getData();
+        console.log(this.$refs)
     },
     validations() {
         return {
-            permission: {
-                name: {required},
-                label: {required},
+            hospital: {
+                full_name: {required},
+                short_name: {required},
             }
         }
     },
     methods: {
         getData() {
-            axios.get(`/api/permissions/${this.id}/edit`, {
+            axios.get(`/api/hospitals/${this.id}/edit`, {
                 headers: {Authorization: localStorage.getItem('access_token')}
             }).then(res => {
                 console.log(res);
-                this.permission = res.data.permission;
-                this.roles = res.data.roles;
-                if (this.permission.roles) {
-                    this.value = this.permission.roles.map(function (obj) {
-                        return obj.id;
-                    });
-                }
+                this.hospital = res.data.data;
+                this.query = this.hospital.address;
+                // this.suggestion = this.hospital.address;
             }).catch(err => {
                 console.log(err.response);
             });
         },
+        createRooms() {
+            if (this.rooms.length == 0) {
+                this.rooms.push({name: null})
+            }
+            this.rooms_show = !this.rooms_show;
+        },
+        addRoomm(index) {
+            this.rooms.splice(index+1, 0, {name: null})
+        },
+        deleteRoomm(index) {
+            this.rooms.splice(index, 1);
+            if (this.rooms.length == 0) this.rooms_show=false;
+        },
+        removeRoomm(index, room_id) {
+            axios.delete(`/api/hospital_rooms/${room_id}`, {
+                headers: {Authorization: localStorage.getItem('access_token')}
+            }).then(res => {
+                console.log(res)
+                this.hospital.rooms.splice(index, 1);
+            }).catch(err => {
+                this.errMessage(err);
+            })
+        },
         update() {
-            // console.log(this.value)
-            // this.value.map(v => {
-            //     console.log(v)
-            // })
             this.errors = null
             this.success = null;
             this.v$.$validate() // checks all inputs
+            this.rooms = this.rooms.filter((el, index) => {
+                return  el.name !== null && el.name !== ''
+            });
+            let rooms = this.hospital.rooms.concat(this.rooms);
             if (!this.v$.$error) {
                 this.processing = true;
-                axios.patch(`/api/permissions/${this.id}`,
-                    {name: this.permission.name, label: this.permission.label, roles: Array.from(this.value)},
+                axios.patch(`/api/hospitals/${this.id}`, {
+                        full_name: this.hospital.full_name,
+                        short_name: this.hospital.short_name,
+                        address: (typeof this.suggestion == 'undefined') ? this.query : this.suggestion.unrestricted_value,
+                        hospital_rooms: rooms
+                    },
                     {headers: {Authorization: localStorage.getItem('access_token')}
                 }).then(res => {
                     console.log(res);
-                    this.permission = res.data.data;
+                    this.hospital = res.data.data;
                     this.success = 'Данные успешно изменены. Перенаправление...';
                     setTimeout(()=>{
-                        this.$router.push({name:'permissions'})
+                        this.$router.push({name:'hospitals'})
                     },3000)
                 }).catch(err => {
-                    console.log(err.response);
-                    if(err.response.status == 422){
-                        this.errors = err.response.data.errors
-                    }
-                    else if (err.response.status == 500) {
-                        //что то придумать с ошикой 404 и 500, записала в тетрадь
-                        this.errors = {}
-                        this.errors = err.response.data.message
-                    }
-                    else{
-                        this.errors = {}
-                        this.errors = err.response.data.errors
-                    }
-
+                    this.errMessage(err);
                 }).finally(() => {
                     this.processing = false;
                 })
             } else {
                 window.scrollTo(0,0);
             }
-
+        },
+        errMessage(err) {
+            console.log(err.response);
+            if(err.response.status == 422){
+                this.errors = err.response.data.errors
+            }
+            else if (err.response.status == 500) {
+                //что то придумать с ошикой 404 и 500, записала в тетрадь
+                this.errors = {}
+                this.errors = err.response.data.message
+            }
+            else {
+                this.errors = {}
+                this.errors = err.response.data.errors
+            }
         }
+
     }
-}
+});
 </script>
-
+<style>
+.vue-dadata__input {
+    display: block;
+    width: 100%;
+    height: 37.04px;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.9rem;
+    font-weight: 400;
+    line-height: 1.6;
+    color: #212529;
+    background-color: #f8fafc;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    appearance: none;
+    border-radius: 0.375rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+.vue-dadata__input:focus-within {
+    border-color: #0d6efd;
+    outline: 0;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6);
+}
+</style>
 <style scoped>
-
+.btn-circle {
+    width: 30px;
+    height: 30px;
+    padding: 6px 0px;
+    border-radius: 15px;
+    text-align: center;
+    font-size: 12px;
+    line-height: 1.42857;
+}
 </style>

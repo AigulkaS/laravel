@@ -55,7 +55,6 @@
                                 <router-link :to="{name: 'forgot-password'}">Забыли свой пароль</router-link>
                             </div>
                             <div class="col-12 text-center">
-<!--                                <label>Don't have an account? <router-link :to="{name:'register'}">Register Now!</router-link></label>-->
                                 <label>У вас нет аккаунта? <router-link :to="{name:'register'}">Зарегистрируйтесь сейчас!</router-link></label>
                             </div>
                         </form>

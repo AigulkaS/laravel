@@ -85,25 +85,8 @@
                                     </div>
                                 </div>
                             </template>
-
                         </div>
-
                     </div>
-
-<!--                    <div class="form-group row text-center my-1">-->
-<!--                        <label class="col-sm-2 col-form-label fw-bold ">Кабинет</label>-->
-<!--                        <div class="col-sm-3">-->
-<!--                            <input type="text" class="form-control" v-model="rooms">-->
-<!--                        </div>-->
-<!--                        <div class="col-sm-1">-->
-<!--                            <button type="button" class="btn btn-success btn-circle">-->
-<!--                                <font-awesome-icon icon="fa-solid fa-plus" />-->
-<!--                            </button>-->
-<!--                        </div>-->
-<!--                    </div>-->
-
-
-
 
                     <div class="col-12 my-3 text-center">
                         <button type="submit" :disabled="processing" class="btn btn-primary btn-block">
@@ -138,8 +121,10 @@ export default defineComponent ({
             locationOptions: {
                 locations: {
                     "country_iso_code": "RU",
-                    "region_iso_code": "RU-BA"
-                }
+                    "region_iso_code": "RU-BA",
+                    "restrict_value": true,
+                },
+
             }
 
 
@@ -198,7 +183,8 @@ export default defineComponent ({
             if (this.rooms.length == 0) this.rooms_show=false;
         },
         store() {
-            console.log(this.suggestion.unrestricted_value)
+            // console.log(this.suggestion)
+            // console.log(this.suggestion.unrestricted_value)
 
             this.errors = null
             this.success = null;
