@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('full_name');
             $table->string('short_name');
             $table->string('address');
+            $table->string('geo_lat');
+            $table->string('geo_lon');
             $table->softDeletes();
             $table->timestamps();
         });

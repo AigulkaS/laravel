@@ -44,19 +44,31 @@ class DatabaseSeeder extends Seeder
             'name' => 'cardiologist',
             'label' => 'кардиолог',
         ]);
+        DB::table('roles')->insert([
+            'name' => 'dispatcher',
+            'label' => 'дистпетчер',
+        ]);
         // Role::factory(4)->create();
         Permission::factory(3)->create();
         for ($i = 1; $i <= 5; $i++) {
             $this->permissionRoleFactoryCreate();
         }
-        Hospital::factory(5)->create();
-        HospitalRoom::factory(5)->create();
-        Disease::factory(2)->create();
-        Brigade::factory(5)->create();
-        User::factory(100)->create();
+        Hospital::factory(3)->create();
+        HospitalRoom::factory(4)->create();
+        DB::table('diseases')->insert([
+            'name' => 'OKC ST+',
+            'code' => 101,
+        ]);
+        DB::table('diseases')->insert([
+            'name' => 'OKC ST-',
+            'code' => 102,
+        ]);
+        // Disease::factory(2)->create();
+        // Brigade::factory(5)->create();
+        User::factory(10)->create();
         // Today::factory(1)->create();
         $this->todaysFactoryCreate();
-        Booking::factory(100)->create();
+        Booking::factory(10)->create();
     }
 
     private function permissionRoleFactoryCreate() {
