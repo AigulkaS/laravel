@@ -24,6 +24,8 @@ class HospitalFactory extends Factory
             'full_name' => $this->faker->name,
             'short_name' => $this->faker->title,
             'address' => $this->faker->address,
+            'geo_lat' => $this->faker->latitude,
+            'geo_lon' => $this->faker->longitude,
         ];
     }
 }
