@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Http\Resources\BookingResource;
 use App\Models\Booking;
 use App\Models\Hospital;
 use App\Models\Today;
@@ -303,9 +304,22 @@ class BookingService {
         $bookings = [];
 
         try {
+            DB::beginTransaction();
             for ($i = 0; $i < $data['booking_hours']; $i++) {
                 $storeData['date_time'] = $dateTime->format('Y-m-d H:00:00');
-                $booking = Booking::create($storeData);
+
+                $booking = Booking::where('date_time', $storeData['date_time'])
+                    ->where('hospital_id', $hospital->id)
+                    ->where('room_id', $room->id)
+                    ->first();
+
+                if ($booking == null) {
+                    $booking = Booking::create($storeData);
+                } else {
+                    $booking->update($storeData);
+                    $booking->fresh();
+                }
+                
                 $bookings[]=$booking;
                 $dateTime->add(new DateInterval('PT1H'));
             }
@@ -317,10 +331,49 @@ class BookingService {
         return collect($bookings);
     }
 
-    // public function update($booking, $data) {
-    //     $booking->update($data);
-    //     return $booking->fresh();
-    // }
+    public function update($data) {
+        $storeData = [
+            'hospital_id' => $data['hospital_id'],
+            'disease_id' => $data['status'],
+            'status' => $data['status'],
+            'room_id' => $data['room_id'],
+        ];
+        $today = Today::where('hospital_id', $data['hospital_id'])->first();
+
+        $storeData['surgeon_id'] = $today->surgeon_id;
+        $storeData['cardiologist_id'] = $today->cardiologist_id;
+
+        $dateTime = new DateTime($data['date_time']);
+        $bookings = [];
+
+        try {
+            DB::beginTransaction();
+            for ($i = 0; $i < $data['booking_hours']; $i++) {
+                $storeData['date_time'] = $dateTime->format('Y-m-d H:00:00');
+
+                $booking = Booking::where('date_time', $storeData['date_time'])
+                    ->where('hospital_id',$storeData['hospital_id'])
+                    ->where('room_id', $storeData['room_id'])
+                    ->first();
+                    
+                if ($booking == null) {
+                    $booking = Booking::create($storeData);
+                } else {
+                    $storeData['dispatcher_id'] = $storeData['surgeon_id'];
+                    $booking->update($storeData);
+                    $booking->fresh();
+                }
+            
+                $bookings[]=$booking;
+                $dateTime->add(new DateInterval('PT1H'));
+            }
+            DB::commit();
+        } catch(\Exception $e) {
+            DB::rollBack();
+            return $e->getMessage();
+        } 
+        return collect($bookings);
+    }
 
     // public function delete($booking) {
     //     try {

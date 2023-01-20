@@ -21,7 +21,8 @@ return new class extends Migration
             $table->unsignedBigInteger('cardiologist_id')->nullable();
             $table->foreign('surgeon_id', 'todays_surgeon_fk')->references('id')->on('users');
             $table->foreign('cardiologist_id', 'todays_cardiologist_fk')->references('id')->on('users');
-            $table->foreign('hospital_id', 'todays_hospital_fk')->references('id')->on('hospitals')->onDelete('cascade');
+            $table->foreign('hospital_id', 'todays_hospital_fk')->references('id')->on('hospitals');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

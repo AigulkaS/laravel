@@ -97,8 +97,6 @@ Route::get('/bookings', App\Http\Controllers\Booking\IndexController::class)->na
 Route::get('/bookings/create/disease', [\App\Http\Controllers\Booking\CreateController::class, 'disease'])->name('disease');
 Route::get('/bookings/create/hospital', [\App\Http\Controllers\Booking\CreateController::class, 'hospital'])->name('hospital');
 Route::post('/bookings', App\Http\Controllers\Booking\StoreController::class)->name('booking.store');
-// Route::get('/bookings/{booking}', App\Http\Controllers\Booking\ShowController::class,)->name('booking.show');
-// Route::get('/bookings/{booking}/edit', App\Http\Controllers\Booking\EditController::class,)->name('booking.edit');
-// Route::patch('/bookings/{booking}', App\Http\Controllers\Booking\UpdateController::class,)->name('booking.update');
+Route::patch('/bookings', App\Http\Controllers\Booking\UpdateController::class,)->name('booking.update');
 // Route::delete('/bookings/{booking}', App\Http\Controllers\Booking\DestroyController::class,)->name('booking.delete');
 // 
