@@ -81,195 +81,206 @@ const routes = [
                 children: [
                     {
                         path: 'users',
-                        component: () => import('../components/Admin/Users/Users.vue'),
+                        component:() => import('../components/Admin/Users/Users.vue'),
                         name: 'users',
+                        children: [
+                            {
+                                path: ':id/edit',
+                                props: route => ({
+                                    id: route.params.id,
+                                }),
+                                component: () => import('../components/Admin/Users/Edit.vue'),
+                                name: 'user_edit',
+                                meta : {
+                                    email_verified: true,
+                                    requiresAuth: true,
+                                },
+                            },
+                            {
+                                path: ':id/show',
+                                props: route => ({
+                                    id: route.params.id,
+                                }),
+                                component: () => import('../components/Admin/Users/Show.vue'),
+                                name: 'user_show',
+                                meta : {
+                                    email_verified: true,
+                                    requiresAuth: true,
+                                },
+                            },
+                        ]
                     },
                     {
                         path: 'roles',
                         component: () => import('../components/Admin/Roles/Roles.vue'),
                         name: 'roles',
+                        children: [
+                            {
+                                path: '/admin/roles/create',
+                                component: () => import('../components/Admin/Roles/Create.vue'),
+                                name: 'role_create',
+                                meta : {
+                                    email_verified: true,
+                                    requiresAuth: true,
+                                },
+                            },
+                            {
+                                path: '/admin/roles/:id/edit',
+                                props: route => ({
+                                    id: route.params.id,
+                                }),
+                                component: () => import('../components/Admin/Roles/Edit.vue'),
+                                name: 'role_edit',
+                                meta : {
+                                    email_verified: true,
+                                    requiresAuth: true,
+                                },
+                            },
+                            {
+                                path: '/admin/roles/:id/show',
+                                props: route => ({
+                                    id: route.params.id,
+                                }),
+                                component: () => import('../components/Admin/Roles/Show.vue'),
+                                name: 'role_show',
+                                meta : {
+                                    email_verified: true,
+                                    requiresAuth: true,
+                                },
+                            },
+                        ]
                     },{
                         path: 'permissions',
                         component: () => import('../components/Admin/Permissions/Permissions.vue'),
                         name: 'permissions',
+                        children: [
+                            {
+                                path: '/admin/permissions/create',
+                                component: () => import('../components/Admin/Permissions/Create.vue'),
+                                name: 'permission_create',
+                                meta : {
+                                    email_verified: true,
+                                    requiresAuth: true,
+                                },
+                            },
+                            {
+                                path: '/admin/permissions/:id/edit',
+                                props: route => ({
+                                    id: route.params.id,
+                                }),
+                                component: () => import('../components/Admin/Permissions/Edit.vue'),
+                                name: 'permission_edit',
+                                meta : {
+                                    email_verified: true,
+                                    requiresAuth: true,
+                                },
+                            },
+                            {
+                                path: '/admin/permissions/:id/show',
+                                props: route => ({
+                                    id: route.params.id,
+                                }),
+                                component: () => import('../components/Admin/Permissions/Show.vue'),
+                                name: 'permission_show',
+                                meta : {
+                                    email_verified: true,
+                                    requiresAuth: true,
+                                },
+                            },
+                        ]
                     },
                     {
                         path: 'hospitals',
                         component: () => import('../components/Admin/Hospitals/Hospitals.vue'),
                         name: 'hospitals',
+                        children: [
+                            {
+                                path: '/admin/hospitals/create',
+                                component: () => import('../components/Admin/Hospitals/Create.vue'),
+                                name: 'hospital_create',
+                                meta : {
+                                    email_verified: true,
+                                    requiresAuth: true,
+                                },
+                            },
+                            {
+                                path: '/admin/hospitals/:id/edit',
+                                props: route => ({
+                                    id: route.params.id,
+                                }),
+                                component: () => import('../components/Admin/Hospitals/Edit.vue'),
+                                name: 'hospital_edit',
+                                meta : {
+                                    email_verified: true,
+                                    requiresAuth: true,
+                                },
+                            },
+                            {
+                                path: '/admin/hospitals/:id/show',
+                                props: route => ({
+                                    id: route.params.id,
+                                }),
+                                component: () => import('../components/Admin/Hospitals/Show.vue'),
+                                name: 'hospital_show',
+                                meta : {
+                                    email_verified: true,
+                                    requiresAuth: true,
+                                },
+                            },
+                        ]
                     },
                     {
                         path: 'diseases',
                         component: () => import('../components/Admin/Diseases/Diseases.vue'),
                         name: 'diseases',
+                        children: [
+                            {
+                                path: '/admin/diseases/create',
+                                component: () => import('../components/Admin/Diseases/Create.vue'),
+                                name: 'disease_create',
+                                meta : {
+                                    email_verified: true,
+                                    requiresAuth: true,
+                                },
+                            },
+                            {
+                                path: '/admin/diseases/:id/edit',
+                                props: route => ({
+                                    id: route.params.id,
+                                }),
+                                component: () => import('../components/Admin/Diseases/Edit.vue'),
+                                name: 'disease_edit',
+                                meta : {
+                                    email_verified: true,
+                                    requiresAuth: true,
+                                },
+                            },
+                            {
+                                path: '/admin/diseases/:id/show',
+                                props: route => ({
+                                    id: route.params.id,
+                                }),
+                                component: () => import('../components/Admin/Diseases/Show.vue'),
+                                name: 'disease_show',
+                                meta : {
+                                    email_verified: true,
+                                    requiresAuth: true,
+                                },
+                            },
+                        ]
                     }
                 ]
             },
 
 
-            {
-                path: '/admin/users/:id/edit',
-                props: route => ({
-                    id: route.params.id,
-                }),
-                component: () => import('../components/Admin/Users/Edit.vue'),
-                name: 'user_edit',
-                meta : {
-                    email_verified: true,
-                    requiresAuth: true,
-                },
-            },
-            {
-                path: '/admin/users/:id/show',
-                props: route => ({
-                    id: route.params.id,
-                }),
-                component: () => import('../components/Admin/Users/Show.vue'),
-                name: 'user_show',
-                meta : {
-                    email_verified: true,
-                    requiresAuth: true,
-                },
-            },
 
 
-            {
-                path: '/admin/roles/create',
-                component: () => import('../components/Admin/Roles/Create.vue'),
-                name: 'role_create',
-                meta : {
-                    email_verified: true,
-                    requiresAuth: true,
-                },
-            },
-            {
-                path: '/admin/roles/:id/edit',
-                props: route => ({
-                    id: route.params.id,
-                }),
-                component: () => import('../components/Admin/Roles/Edit.vue'),
-                name: 'role_edit',
-                meta : {
-                    email_verified: true,
-                    requiresAuth: true,
-                },
-            },
-            {
-                path: '/admin/roles/:id/show',
-                props: route => ({
-                    id: route.params.id,
-                }),
-                component: () => import('../components/Admin/Roles/Show.vue'),
-                name: 'role_show',
-                meta : {
-                    email_verified: true,
-                    requiresAuth: true,
-                },
-            },
 
 
-            {
-                path: '/admin/permissions/create',
-                component: () => import('../components/Admin/Permissions/Create.vue'),
-                name: 'permission_create',
-                meta : {
-                    email_verified: true,
-                    requiresAuth: true,
-                },
-            },
-            {
-                path: '/admin/permissions/:id/edit',
-                props: route => ({
-                    id: route.params.id,
-                }),
-                component: () => import('../components/Admin/Permissions/Edit.vue'),
-                name: 'permission_edit',
-                meta : {
-                    email_verified: true,
-                    requiresAuth: true,
-                },
-            },
-            {
-                path: '/admin/permissions/:id/show',
-                props: route => ({
-                    id: route.params.id,
-                }),
-                component: () => import('../components/Admin/Permissions/Show.vue'),
-                name: 'permission_show',
-                meta : {
-                    email_verified: true,
-                    requiresAuth: true,
-                },
-            },
 
 
-            {
-                path: '/admin/hospitals/create',
-                component: () => import('../components/Admin/Hospitals/Create.vue'),
-                name: 'hospital_create',
-                meta : {
-                    email_verified: true,
-                    requiresAuth: true,
-                },
-            },
-            {
-                path: '/admin/hospitals/:id/edit',
-                props: route => ({
-                    id: route.params.id,
-                }),
-                component: () => import('../components/Admin/Hospitals/Edit.vue'),
-                name: 'hospital_edit',
-                meta : {
-                    email_verified: true,
-                    requiresAuth: true,
-                },
-            },
-            {
-                path: '/admin/hospitals/:id/show',
-                props: route => ({
-                    id: route.params.id,
-                }),
-                component: () => import('../components/Admin/Hospitals/Show.vue'),
-                name: 'hospital_show',
-                meta : {
-                    email_verified: true,
-                    requiresAuth: true,
-                },
-            },
 
-            {
-                path: '/admin/diseases/create',
-                component: () => import('../components/Admin/Diseases/Create.vue'),
-                name: 'disease_create',
-                meta : {
-                    email_verified: true,
-                    requiresAuth: true,
-                },
-            },
-            {
-                path: '/admin/diseases/:id/edit',
-                props: route => ({
-                    id: route.params.id,
-                }),
-                component: () => import('../components/Admin/Diseases/Edit.vue'),
-                name: 'disease_edit',
-                meta : {
-                    email_verified: true,
-                    requiresAuth: true,
-                },
-            },
-            {
-                path: '/admin/diseases/:id/show',
-                props: route => ({
-                    id: route.params.id,
-                }),
-                component: () => import('../components/Admin/Diseases/Show.vue'),
-                name: 'disease_show',
-                meta : {
-                    email_verified: true,
-                    requiresAuth: true,
-                },
-            },
+
 
             {
                 path: '/hospitals/:id/booking',

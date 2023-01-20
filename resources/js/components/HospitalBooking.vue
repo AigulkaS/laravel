@@ -1,69 +1,100 @@
 <template>
-    <div class="container">
-        <h4>Больница № 5</h4>
-        <div class="d-flex my-3">
-            <div class="me-auto ">
-                <div>
-                    <span class="fw-bold">Деж. хирург: </span>
-                    <span>Иванов Иван Иванович</span>
-                </div>
-                <div>
-                    <span class="fw-bold">Деж. кардиолог: </span>
-                    <span>Иванов Иван Иванович</span>
-                </div>
-            </div>
-            <div class="align-self-center">
-                <h5>28.12.2022 (СР)</h5>
-            </div>
-        </div>
-        <div>
-            <h3 v-for="status in statuses" class="d-inline-flex me-1">
-                <span class="badge" :class="'bg-'+status.color+'-300'" style="color: black">{{status.label}}</span>
-            </h3>
-        </div>
+    <div class="container" v-if="orderly">
+        <h4 v-if="orderly">{{orderly.hospital_name}}</h4>
 
-        <!--time columns-->
-        <div class="row row-cols-3 row-cols-sm-6 p-0 mx-1">
-            <div class="col text-center border-white p-0" v-for="(clock, i) in clocks" :key="i">
-                <template v-if="clock.rooms.length > 1">
-                    <div class="square"
-                         :style="gradientColor(clock.rooms[0].status, clock.rooms[1].status)"
-                    >
-                        <div>
-                            <div><h4 class="fw-bold">{{clock.time }}</h4></div>
-                            <div class="row">
-                                <div class="col">
-                                    <div class="fw-bolder">{{clock.rooms[0].name}}</div>
-                                    <div class="room1" @click="bookingRoom(clock.time, clock.rooms[0])"
-                                         data-bs-toggle="modal"
-                                         data-bs-target="#statusModal"></div>
-                                </div>
-                                <div class="col">
-                                    <div class="fw-bolder">{{clock.rooms[1].name}}</div>
-                                    <div class="room2" @click="bookingRoom(clock.time, clock.rooms[1])"
-                                         data-bs-toggle="modal"
-                                         data-bs-target="#statusModal"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
+        <!--Errors-->
+        <div class="col-12" v-if="errors && Object.keys(errors).length > 0">
+            <div class="alert alert-danger">
+                <template v-if="typeof errors == 'object'">
+                    <ul class="mb-0">
+                        <li v-for="(value, key) in errors" :key="key">{{ value[0] }}</li>
+                    </ul>
                 </template>
                 <template v-else>
-                    <div class="square" @click="bookingRoom(clock.time, clock.rooms[0])"
-                         data-bs-toggle="modal"
-                         data-bs-target="#statusModal"
-                         :class="clock.rooms[0].status == 0 ? 'bg-green-300'
-                             : clock.rooms[0].status == 1 ? 'bg-red-300' : 'bg-yellow-300'">
-                        <div>
-                            <div><h4 class="fw-bold">{{clock.time }}</h4></div>
-                        </div>
-                    </div>
+                    <div>{{errors}}</div>
                 </template>
             </div>
         </div>
 
-        <!-- Modal -->
+        <!--Add Orderlies-->
+        <div v-if="!orderly || orderly.surgeon_id == ''" class="alert alert-warning fw-bolder" role="alert">
+            Для просмотра и редактирования графика занятости операционных укажите
+            дежурного хирирга и кардиолога на {{ $dayjs().format('DD.MM.YYYY') }}.
+            <div class="mt-3">
+                <button type="button" @click="modalOrder()" class="btn btn-primary"
+
+                        >
+<!--                    data-bs-target="#modalOrderly"-->
+<!--                    data-bs-toggle="modal"-->
+                    <font-awesome-icon icon="fa-solid fa-pencil" /> Добавить дежурных
+                </button>
+            </div>
+        </div>
+
+        <!--Orderly FIO-->
+        <div v-else>
+            <div class="mt-3">
+                <button type="button" @click="modalOrder()" class="btn btn-primary">
+                    <font-awesome-icon icon="fa-solid fa-pencil" /> Сменить дежурных
+                </button>
+            </div>
+            <div class="d-flex my-3">
+                <div class="me-auto fs-5">
+                    <div>
+                        <span class="fw-bold">Деж. кардиолог: </span>
+                        <span>{{orderly.cardiologist_last_name}} {{orderly.cardiologist_first_name}} {{orderly.cardiologist_patronymic}}</span>
+                    </div>
+                    <div>
+                        <span class="fw-bold">Деж. хирург: </span>
+                        <span>{{orderly.surgeon_last_name}} {{orderly.surgeon_first_name}} {{orderly.surgeon_patronymic}}</span>
+                    </div>
+                </div>
+                <div class="align-self-center">
+                    <h5>{{ $dayjs().format('DD.MM.YYYY') }}</h5>
+                </div>
+            </div>
+
+            <!--Badge Statuses-->
+            <div>
+                <h3 v-for="status in statuses" class="d-inline-flex me-1">
+                    <span class="badge" :class="'bg-'+status.color+'-300'" style="color: black">{{status.label}}</span>
+                </h3>
+            </div>
+
+            <!--time columns-->
+            <!--Cards-->
+            <div class="row justify-content-center">
+                <div class="col-sm-6"
+                     v-for="(room, index) in rooms" :key="index">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title fs-4 fw-bold">Операционня {{room.name}}</h5>
+                            <div class="card-text">
+
+                                <div class="row row-cols-3 row-cols-sm-6 p-0 mx-1">
+                                    <div class="col text-center border-white p-0"
+                                         v-for="(val, i) in room.val" :key="i">
+
+                                        <div class="square" @click="bookingRoom(room.name, val, index, i)"
+                                             :class="val.status == 0 ? 'bg-green-300' : val.status == 1 ? 'bg-red-300' : 'bg-yellow-300'">
+<!--                                            data-bs-toggle="modal"-->
+<!--                                            data-bs-target="#statusModal"-->
+                                            <div>
+                                                <div><div class="fw-bold fs-5 text-wrap">{{ $dayjs(val.time).format('HH:mm') }}</div></div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal clocks -->
         <div class="modal fade" id="statusModal"
              data-bs-keyboard="false" tabindex="-1" aria-labelledby="statusModalLabel"
              aria-hidden="true">
@@ -71,13 +102,14 @@
                 <div class="modal-content">
                     <div v-if="modal" class="modal-header">
                         <h5 class="modal-title" id="statusModalLabel">
-                            Операционная {{modal ? modal.room.name : ''}}
+                            Операционная {{modal ? modal.room_name : ''}}
                         </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body" v-if="modal">
                         <h5 class="text-center">
-                            Время: <span class="fw-bold">{{modal.time}}</span> Статус: <span class="fw-bold" :class="'bg-'+status.color+'-300'">{{status.label}}</span>
+                            Время: <span class="fw-bold">{{$dayjs(modal.time).format('HH:mm')}}</span>
+                            Статус: <span class="fw-bold" :class="'bg-'+status.color+'-300'">{{status.label}}</span>
                         </h5>
                         <form  @submit.prevent="" class="row">
                             <div class="form-group row my-1">
@@ -119,17 +151,79 @@
             </div>
         </div>
 
+        <!-- Modal Orderly -->
+        <div class="modal fade" id="modalOrderly"
+             data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalOrderlyLabel"
+             aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalOrderlyLabel">
+                            Добавить дежурных
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form class="row">
+                            <div class="form-group row my-1">
+                                <label class="col-sm-4 col-form-label fw-bold">
+                                    Деж. кардиолог
+                                </label>
+                                <div class="col-sm-8">
+                                    <select class="form-control form-select" v-model="v$.cardiologist_id.$model"
+                                            :class="v$.cardiologist_id.$error ? 'border-danger' : ''">
+                                        <option v-for="cardiologist in cardiologists" :key="cardiologist.id"
+                                                :value="cardiologist.id">
+                                            {{ cardiologist.last_name }} {{cardiologist.first_name}} {{cardiologist.patronymic}}
+                                        </option>
+                                    </select>
+                                    <span v-if="v$.cardiologist_id.$error" class="text-danger">
+                                          Деж. кардиолог обязательное поле для заполнения
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="form-group row my-1">
+                                <label class="col-sm-4 col-form-label fw-bold">
+                                    Деж. хирург
+                                </label>
+                                <div class="col-sm-8">
+                                    <select class="form-control form-select" v-model="v$.surgeon_id.$model"
+                                            :class="v$.surgeon_id.$error ? 'border-danger' : ''">
+                                        <option v-for="surgeon in surgeons" :key="surgeon.id" :value="surgeon.id">
+                                            {{ surgeon.last_name }} {{surgeon.first_name}} {{surgeon.patronymic}}
+                                        </option>
+                                    </select>
+                                    <span v-if="v$.surgeon_id.$error" class="text-danger">
+                                          Деж. хирург обязательное поле для заполнения
+                                    </span>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                        <button type="button" @click.prevent="updateOrderly()" :disabled="processing" class="btn btn-primary btn-block">
+                            {{ processing ? "Please wait" : "Сохранить" }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
     </div>
 </template>
 
 <script>
 import { Modal } from 'bootstrap'
+import useValidate from '@vuelidate/core'
+import {minLength, required} from '@vuelidate/validators'
 export default {
     name: "HospitalBooking",
     data() {return {
-        hospital: null,
-        clocks: [],
+        v$: useValidate(),
+        orderly: null,
         modal: null,
         statuses:[
             {val: 0, label: 'Свободна', color: 'green'},
@@ -139,139 +233,152 @@ export default {
         status: null,
         newStatus: null,
         clock: 2,
-        myModal: null
+        myModal: null,
+        myModalOrderly: null,
+        errors : null,
+        success : null,
+        cardiologists: [],
+        surgeons: [],
+        surgeon_id: null,
+        cardiologist_id: null,
+        processing: false,
+        rooms: [],
     }},
+    validations() {
+        return {
+            surgeon_id: {required},
+            cardiologist_id: {required}
+        }
+    },
     mounted() {
-        this.myModal = new Modal(document.getElementById('statusModal'), {})
         this.getData()
+    },
+    computed: {
+        auth_user() {
+            return localStorage.getItem('auth_user') ? JSON.parse(localStorage.getItem('auth_user')) : null
+        }
     },
     // beforeRouteLeave() {
     //     this.myModal.hide();
     // },
     beforeUnmount() {
-        this.myModal.hide();
+        if (this.myModal) this.myModal.hide();
+        if (this.myModalOrderly) this.myModalOrderly.hide();
     },
     methods: {
         getData() {
-            this.hospital = {
-                id: 1,
-                hospital_name: '21 Больница',
-                surgeon_id: 2, //hirurg
-                surgeon_last_name: '',
-                surgeon_first_name: '',
-                surgeon_patronymic: '',
-                cardiologist_id: 3,
-                cardiologist_last_name: '',
-                cardiologist_first_name: '',
-                cardiologist_patronymic: '',
-                rooms: [
-                    {
-                        name: '101',
-                        val: [
-                            { time: '00:00', status: 1},
-                            { time: '08:00', status: 0},
-                            { time: '15:00', status: 2},
-                        ]
-                    },
-                    {
-                        name: '102',
-                        val: [
-                            { time: '00:00', status: 2},
-                            { time: '07:00', status: 0},
-                            { time: '05:00', status: 1},
-                            { time: '10:00', status: 2},
-                            { time: '12:00', status: 0},
-                            { time: '15:00', status: 2},
-                            { time: '20:00', status: 1},
-                        ]
-                    }
-                ]
-            };
-            let rooms=this.hospital.rooms;
-
-            this.clocks = [
-                {time: '00:00'},
-                {time: '01:00'},
-                {time: '02:00'},
-                {time: '03:00'},
-                {time: '04:00'},
-                {time: '05:00'},
-                {time: '06:00'},
-                {time: '07:00'},
-                {time: '08:00'},
-                {time: '09:00'},
-                {time: '10:00'},
-                {time: '11:00'},
-                {time: '12:00'},
-                {time: '13:00'},
-                {time: '14:00'},
-                {time: '15:00'},
-                {time: '16:00'},
-                {time: '17:00'},
-                {time: '18:00'},
-                {time: '19:00'},
-                {time: '20:00'},
-                {time: '21:00'},
-                {time: '22:00'},
-                {time: '23:00'},
-            ];
-
-            this.clocks.forEach((el, index) => {
-                el['rooms'] = [];
-                rooms.forEach(room => {
-                    let time = room.val.find(element => el.time == element.time)
-                    el.rooms.push({name: room.name, status: time != undefined ? time.status : 0});
-                })
+            axios.get(`/api/todays/`,{
+                headers: {Authorization: localStorage.getItem('access_token')},
+                params: {hospital_id: this.auth_user.hospital_id}
+            }).then(res => {
+                console.log(res);
+                let arr = res.data.data;
+                this.orderly =arr.length > 0 ? arr[arr.length-1] : null;
+                console.log(this.orderly)
+                if (this.orderly && this.orderly.surgeon_id !== '') this.getBooking();
+            }).catch(err => {
+                console.log(err.response);
+                this.errors = err.response.data.message;
             });
-
-            console.log(this.clocks)
-
-
         },
-        gradientColor(statusRoom1, statusRoom2) {
-            return `background: linear-gradient(to right, ${statusRoom1 == 0 ? '#75b798'
-                : statusRoom1 == 1 ? '#ea868f' : '#ffda6a'} 50%,  ${statusRoom2 == 0 ? '#75b798'
-                : statusRoom2 == 1 ? '#ea868f' : '#ffda6a'} 50%)`;
+        getBooking() {
+            axios.get(`/api/bookings`,{
+                headers: {Authorization: localStorage.getItem('access_token')},
+                params: {hospital_id: this.auth_user.hospital_id}
+            }).then(res => {
+                console.log(res);
+                this.rooms = res.data.rooms;
+                console.log(this.rooms);
+            }).catch(err => {
+                console.log(err);
+                console.log(err.response);
+                this.errors = err.response.data.message;
+            });
         },
-        toggleModal() {
-            console.log(555);
-        },
-        booking() {
-            console.log('booking');
-        },
-        bookingRoom(clock, room) {
-            this.modal = {time: clock, room: room};
-            this.newStatus = room.status;
+        bookingRoom(room_name, val, room_index, val_index) {
+            this.myModal = new Modal(document.getElementById('statusModal'), {})
+            this.modal = {
+                room_name: room_name,
+                time: val.time,
+                status: val.status,
+                room_index: room_index,
+                val_index: val_index
+            };
+            this.newStatus = val.status;
             this.clock = 2;
-            this.status = this.statuses.find(el => el.val == this.modal.room.status);
-            console.log('bookingRoom12');
+            this.status = this.statuses.find(el => el.val == this.modal.status);
+            this.myModal.show();
         },
-        // bookingRoom2(clock, room) {
-        //     this.modal = {time: clock, room: room};
-        //     this.status = this.statuses.find(el => el.val == this.modal.room.status);
-        //     console.log('bookingRoom2');
-        // },
         saveStatus() {
             if (this.newStatus == 0 || this.clock == 1) {
-                this.modal.room.status = this.newStatus
+                this.rooms[this.modal.room_index].val[this.modal.val_index].status = this.newStatus
             } else {
-                let roomIndex = 0;
-                let clockIndex = this.clocks.findIndex(el => {
-                    if (el.time == this.modal.time && el.rooms.length > 1) {
-                        roomIndex = el.rooms.findIndex(e => e.name == this.modal.room.name)
-                    }
-                    return el.time == this.modal.time;
-                });
-                for (let i=clockIndex;i<clockIndex+this.clock; i++) {
-                    console.log(this.clocks[i])
-                    if (i >= this.clocks.length) {
-                        this.clocks[i-this.clocks.length].rooms[roomIndex].status = this.newStatus
+                for (let i=this.modal.val_index;i<this.modal.val_index+this.clock; i++) {
+                    console.log(this.rooms[this.modal.room_index].val[i])
+                    if (i >= this.rooms[this.modal.room_index].val.length) {
+                        this.rooms[this.modal.room_index].val[i-this.rooms[this.modal.room_index].val.length].status = this.newStatus
                     } else {
-                        this.clocks[i].rooms[roomIndex].status = this.newStatus
+                        this.rooms[this.modal.room_index].val[i].status = this.newStatus
                     }
                 }
             }
             this.myModal.hide();
+        },
+        modalOrder() {
+            this.myModalOrderly = new Modal(document.getElementById('modalOrderly'), {})
+            axios.get(`/api/todays/edit`,{
+                headers: {Authorization: localStorage.getItem('access_token')},
+                params: {hospital_id: this.auth_user.hospital_id}
+            }).then(res => {
+                console.log(res);
+                this.cardiologists = res.data.cardiologist;
+                this.surgeons = res.data.surgeons;
+            }).catch(err => {
+                console.log(err.response);
+                this.errors = err.response.data.message;
+            }).finally(() => {
+                this.myModalOrderly.show();
+            });
+        },
+        updateOrderly() {
+            this.errors = null
+            this.success = null;
+            this.v$.$validate() // checks all inputs
+            if (!this.v$.$error) {
+                this.processing = true;
+                axios.patch(`/api/todays`,
+                    {
+                        hospital_id: this.auth_user.hospital_id,
+                        cardiologist_id: this.cardiologist_id,
+                        surgeon_id: this.surgeon_id,
+                    },
+                    {
+                    headers: {Authorization: localStorage.getItem('access_token')}
+                }).then(res => {
+                    console.log(res);
+                    this.orderly = res.data.data;
+                    if (this.rooms.length == 0) this.getBooking();
+                }).catch(err => {
+                    console.log(err.response);
+                    if(err.response.status == 422){
+                        this.errors = err.response.data.errors
+                    }
+                    else if (err.response.status == 500) {
+                        //что то придумать с ошикой 404 и 500, записала в тетрадь
+                        this.errors = {}
+                        this.errors = err.response.data.message
+                    }
+                    else{
+                        this.errors = {}
+                        this.errors = err.response.data.errors
+                    }
+                }).finally(() => {
+                    this.processing = false;
+                    this.myModalOrderly.hide();
+                })
+            } else {
+                window.scrollTo(0,0);
+            }
 
         }
     },
@@ -282,7 +389,7 @@ export default {
 </style>
 <style scoped>
 .border-white {
-    border: 3px solid #fff;
+    border: 1px solid #fff;
 }
 .square {
     display: flex;
@@ -318,3 +425,4 @@ export default {
 }
 
 </style>
+

@@ -1,5 +1,6 @@
 <template>
-    <div class="container">
+    <div>
+        <div v-if="$route.name == 'roles'">
         <div class="row" v-if="roles">
             <div class="d-flex my-3">
                 <div class="me-auto ">
@@ -56,6 +57,10 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+    </div>
+        <div>
+            <router-view></router-view>
         </div>
     </div>
 </template>
