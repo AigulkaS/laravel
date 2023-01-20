@@ -1,82 +1,90 @@
 <template>
     <div>
         <div id="today" class="text-center fw-bold">
-            <h3 class="mb-6">Сегодня - 23.12.2022 (ПТ)</h3>
+            <h3 class="mb-6">Сегодня - {{ $dayjs().format('DD.MM.YYYY') }}</h3>
         </div>
 
         <div v-if="success" class="alert alert-success" role="alert">
             {{success}}
         </div>
 
-        <div>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                    data-bs-target="#modalBooking">
-                <font-awesome-icon icon="fa-solid fa-plus" /> Добавить бронь
-            </button>
+        <div v-if="warning" class="alert alert-warning" role="alert">
+            {{warning}}
         </div>
-        <div class="row mt-4">
-            <div class="col-sm-6">
-                <div class="card">
-                    <div class="card-header">
-
-                        <div class="d-flex bd-highlight mb-3">
-                            <div class="me-auto p-1 bd-highlight col-5 fw-bolder">Больница №5 45а45 4а5п4в5 454а5 4в6аа4в65</div>
-                            <!--                        <div class="p-2 bd-highlight align-self-center">Дежурные</div>-->
-                            <div class="p-1 bd-highlight align-self-center">
-                                <table class="table table-sm table-borderless m-0">
-                                    <tbody>
-                                    <tr>
-                                        <th class="py-0">Деж. Хирург</th>
-                                        <td class="py-0">Иваgdfdfнов И.И.</td>
-                                    </tr>
-                                    <tr>
-                                        <th class="py-0">Деж. Кардиолог</th>
-                                        <td class="py-0">Петfdgdfgdров П.П.</td>
-                                    </tr>
-                                    </tbody>
-                                </table>
+        <div v-else-if="bookings.length > 0">
+            <div>
+                <button type="button" class="btn btn-primary" @click.prevent="addBooking()">
+                    <font-awesome-icon icon="fa-solid fa-plus" /> Добавить бронь
+                </button>
+            </div>
+            <div class="row mt-4">
+                <div class="col-sm-6 mb-3" v-for="(booking, index) in bookings" :key="index">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="d-flex bd-highlight mb-3">
+                                <div class="me-auto p-1 bd-highlight col-5 fw-bolder">
+                                    {{booking.hospital_name}}
+                                </div>
+                                <div class="p-1 bd-highlight align-self-center">
+                                    <table class="table table-sm table-borderless m-0">
+                                        <tbody>
+                                        <tr>
+                                            <th class="py-0">Деж. Хирург</th>
+                                            <td class="py-0">
+                                                {{booking.surgeon_last_name}}
+                                                {{booking.surgeon_first_name.charAt(0)}}.
+                                                {{booking.surgeon_patronymic.charAt(0)}}.
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th class="py-0">Деж. Кардиолог</th>
+                                            <td class="py-0">
+                                                {{booking.cardiologist_last_name}}
+                                                {{booking.cardiologist_first_name.charAt(0)}}.
+                                                {{booking.cardiologist_patronymic.charAt(0)}}.
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
 
-
-                    </div>
-                    <div class="card-body">
-
-                        <div class="container">
-
-                            <div class="row bg-gray-300 fw-bolder">Операционная 104</div>
-                            <div class="row mb-3">
-                                <div class="col border bg-red-300 p-3 rounded text-center">
-                                    <div><h4>12:00</h4></div>
-                                    <div class="text-white fw-bolder">Занята</div>
-                                </div>
-                                <div class="col border bg-green-300 p-3 rounded text-center">
-                                    <div><h4>13:00</h4></div>
-                                    <div class="text-white fw-bolder">Свободна</div>
-                                </div>
-                                <div class="col d-none d-sm-block border bg-yellow-300 p-3 rounded text-center">
-                                    <div><h4>14:00</h4></div>
-                                    <div class="text-white fw-bolder">Бронь</div>
+                        <div class="card-body">
+                            <div class="container">
+                                <div v-for="(room, j) in booking.rooms" :key="j">
+                                    <div class="row bg-gray-300 fw-bolder">
+                                        Операционная {{ room.name }}
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col border p-3 rounded text-center"
+                                             v-for="(val, k) in room.val" :key="k"
+                                             :class="'bg-'+statuses[val.status].color+'-300'"
+                                        >
+                                            <div><h4>{{$dayjs(val.time).format('HH:mm')}}</h4></div>
+                                            <div class="text-white fw-bolder">{{statuses[val.status].label}}</div>
+                                        </div>
+<!--                                        <div class="col border bg-green-300 p-3 rounded text-center">-->
+<!--                                            <div><h4>13:00</h4></div>-->
+<!--                                            <div class="text-white fw-bolder">Свободна</div>-->
+<!--                                        </div>-->
+<!--                                        <div class="col d-none d-sm-block border bg-yellow-300 p-3 rounded text-center">-->
+<!--                                            <div><h4>14:00</h4></div>-->
+<!--                                            <div class="text-white fw-bolder">Бронь</div>-->
+<!--                                        </div>-->
+                                    </div>
                                 </div>
                             </div>
-
-
+                            <router-link :to="{name: 'hospital_booking', params: {id: booking.hospital_id}}"
+                                         type="button" class="btn btn-primary">
+                                Посмотреть больше
+                            </router-link>
                         </div>
-
-                        <a href="#" class="btn btn-primary">Read more</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Special title treatment</h5>
-                        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-                        <a href="#" class="btn btn-primary">Go somewhere</a>
                     </div>
                 </div>
             </div>
         </div>
+
 
         <!-- Modal -->
         <div class="modal fade" id="modalBooking" data-bs-backdrop="static"
@@ -215,7 +223,14 @@ export default {
             timeout: null,
             myModal: null,
             success: null,
-            clock: 2
+            clock: 2,
+            warning: null,
+            bookings: [],
+            statuses:[
+                {val: 0, label: 'Свободна', color: 'green'},
+                {val: 1, label: 'Занята', color: 'red'},
+                {val: 2, label: 'Условно занята', color: 'yellow'}
+            ],
         }
     },
     validations() {
@@ -225,9 +240,47 @@ export default {
         }
     },
     mounted() {
-        this.myModal = new Modal(document.getElementById('modalBooking'), {})
+        this.getData();
+    },
+    beforeUnmount() {
+        if (this.myModal) this.myModal.hide();
     },
     methods: {
+        getData() {
+            axios.get(`/api/todays/`,{
+                headers: {Authorization: localStorage.getItem('access_token')}
+            }).then(res => {
+                console.log(res);
+                let element = res.data.data.find(el => el.surgeon_id == '')
+                if (typeof element !== 'undefined')  {
+                    this.warning = `${element.hospital_name} не указала дежурных врачей!
+                    Дождитесь пока укажут дежурных врачей, после чего вы получите возможность увидеть
+                     график свободных операционных.`
+                } else {
+                    this.getBooking()
+                }
+            }).catch(err => {
+                console.log(err.response);
+                this.errors = err.response.data.message;
+            });
+        },
+        getBooking() {
+            axios.get(`/api/bookings`,{
+                headers: {Authorization: localStorage.getItem('access_token')},
+            }).then(res => {
+                console.log(res);
+                this.bookings = res.data;
+                console.log(this.rooms);
+            }).catch(err => {
+                console.log(err);
+                console.log(err.response);
+                this.errors = err.response.data.message;
+            });
+        },
+        addBooking() {
+            this.myModal = new Modal(document.getElementById('modalBooking'), {});
+            this.myModal.show();
+        },
         hospitalSearch() {
             console.log(1111);
             this.v$.$validate();
@@ -274,9 +327,7 @@ export default {
         }
 
     },
-    beforeUnmount() {
-        this.myModal.hide();
-    },
+
 
 
 }

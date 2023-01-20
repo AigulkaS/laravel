@@ -47,6 +47,9 @@ import Multiselect from '@vueform/multiselect'
 import { ref, computed } from 'vue';
 import Paginate from "./components/Paginate.vue";
 
+import dayjs from 'dayjs'
+app.config.globalProperties.$dayjs = dayjs
+
 
 app.use(Router);
 app.component('font-awesome-icon', FontAwesomeIcon);

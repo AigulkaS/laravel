@@ -65,13 +65,17 @@
                 </div>
             </div>
         </nav>
-<!--        <div class="container my-3">-->
-<!--            <nav aria-label="breadcrumb">-->
-<!--                <ol class="breadcrumb">-->
-<!--                    <li class="breadcrumb-item active" aria-current="page">Home</li>-->
-<!--                </ol>-->
-<!--            </nav>-->
-<!--        </div>-->
+
+        <div class="container my-3">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item"><a href="#">Library</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Data</li>
+                </ol>
+            </nav>
+        </div>
+
         <main class="mt-3">
             <router-view></router-view>
         </main>
@@ -87,11 +91,12 @@ export default {
         }
     },
     mounted() {
+        console.log(this.$route)
         this.auth_user = localStorage.getItem('auth_user') ? true : false;
     },
     watch: {
         $route (to, from) {
-            // console.log(this.$route)
+            console.log(this.$route)
             this.auth_user = localStorage.getItem('auth_user') ? true : false
         }
     },
