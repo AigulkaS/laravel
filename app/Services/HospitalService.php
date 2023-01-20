@@ -60,6 +60,7 @@ class HospitalService {
             DB::beginTransaction();
 
             $hospital->rooms()->delete();
+            $hospital->today()->delete();
             $hospital->delete();
 
             DB::commit();

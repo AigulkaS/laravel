@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Hospital;
+namespace App\Http\Requests\Booking;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreRequest extends FormRequest
+class UpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,10 +24,11 @@ class StoreRequest extends FormRequest
     public function rules()
     {
         return [
-            'full_name' => 'required|string',
-            'short_name' => 'required|string',
-            'address' => 'required|string',
-            'hospital_rooms' => 'required', 
+            'hospital_id' => 'required|integer',
+            'room_id' => 'required|integer',
+            'status' => 'required|integer',
+            'date_time' => 'required|string',
+            'booking_hours' => 'required|integer',
         ];
 
     }

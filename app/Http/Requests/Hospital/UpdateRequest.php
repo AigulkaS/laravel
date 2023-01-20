@@ -27,7 +27,7 @@ class UpdateRequest extends FormRequest
             'full_name' => 'required|string',
             'short_name' => 'required|string',
             'address' => 'required|string',
-            'hospital_rooms' => ''
+            'hospital_rooms' => 'required'
         ];
     }
 }
