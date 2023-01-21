@@ -59,7 +59,7 @@
 <!--                                <button v-else type="submit"-->
                                 <button type="submit"
                                         :disabled="processing" class="btn btn-primary btn-block">
-                                    {{ processing ? "Пожалуйста подождите" : "отправить ссылку для сброса пароля" }}
+                                    {{ processing ? wait : "отправить ссылку для сброса пароля" }}
                                 </button>
                             </div>
                         </form>
@@ -74,6 +74,7 @@
 <script>
 import useValidate from '@vuelidate/core'
 import {minLength, required, sameAs} from "@vuelidate/validators";
+import {wait} from "../../consts";
 
 export default {
     name: "ResetPassword",
@@ -86,7 +87,8 @@ export default {
             errors: null,
             success : null,
             busy : false,
-            processing:false
+            processing:false,
+            wait,
         }
     },
     validations() {

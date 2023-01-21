@@ -10,7 +10,7 @@
 
                 <div class="d-flex my-3">
                     <div class="me-auto ">
-                        <h4 class="my-3">Пользователь {{user.first_name}} {{user.last_name}} {{user.patronymic}}}</h4>
+                        <h4 class="my-3">Пользователь {{user.last_name}} {{user.first_name}} {{user.patronymic}}}</h4>
                     </div>
                     <div class="align-self-center">
                         <router-link :to="{name: 'user_edit'}" type="button" class="btn btn-warning">

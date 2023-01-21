@@ -173,7 +173,7 @@
 
                             <div class="col-12 my-3 text-center">
                                 <button type="submit" :disabled="processing" class="btn btn-primary btn-block">
-                                    {{ processing ? "Please wait" : "Зарегистрироваться" }}
+                                    {{ processing ? wait : "Зарегистрироваться" }}
                                 </button>
                             </div>
                             <div class="col-12 text-center">
@@ -191,6 +191,8 @@
 <script>
 import useValidate from '@vuelidate/core'
 import { required, email, minLength, sameAs } from '@vuelidate/validators'
+import {wait} from "../../consts";
+
 export default {
 
     name: "Register",
@@ -211,7 +213,8 @@ export default {
             roles: null,
             value: null,
             validationErrors:{},
-            processing:false
+            processing:false,
+            wait,
         }
     },
     validations() {
@@ -242,17 +245,6 @@ export default {
             })
         },
         register(){
-            // {
-            //     role_id: 1,
-            //         hospital_id: 1,
-            //     last_name: this.user.last_name,
-            //     first_name: this.user.first_name,
-            //     patronymic: this.user.patronymic,
-            //     phone: this.user.phone,
-            //     email: this.user.email,
-            //     password: this.user.password,
-            //     password_confirmation: this.user.password_confirmation
-            // }
             this.v$.$validate() // checks all inputs
             if (!this.v$.$error) {
                 this.processing = true

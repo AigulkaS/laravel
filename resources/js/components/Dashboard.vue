@@ -15,16 +15,21 @@
                                 Главная
                             </router-link>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item" v-if="auth_user.role_name == roles.admin">
                             <router-link :to="{name:'users'}" class="nav-link">
-                                Админка
+                                Админка {{}}
                             </router-link>
                         </li>
-                        <li class="nav-item">
-                            <router-link :to="{name:'hospital_booking', params: {id: 1}}" class="nav-link">
-                                Бронирование
+                        <li class="nav-item" v-if="[roles.admin, roles.surgeon, roles.cardiologist].includes(auth_user.role_name)">
+                            <router-link :to="{name:'hospitals_booking'}" class="nav-link">
+                                Больницы
                             </router-link>
                         </li>
+<!--                        <li class="nav-item">-->
+<!--                            <router-link :to="{name:'hospital_booking', params: {id: 1}}" class="nav-link">-->
+<!--                                Бронирование-->
+<!--                            </router-link>-->
+<!--                        </li>-->
                     </ul>
                     <div class="d-flex">
                         <ul class="navbar-nav">
@@ -42,8 +47,8 @@
                             </template>
                             <template v-else>
                                 <li class="nav-item">
-                                    <router-link :to="{name:'register'}" class="nav-link" aria-haspopup="true" aria-expanded="false">
-                                        user.name
+                                    <router-link :to="{name:'profile'}" class="nav-link" aria-haspopup="true" aria-expanded="false">
+                                        Профиль
                                     </router-link>
                                 </li>
                                 <li class="nav-item">
@@ -69,35 +74,73 @@
         <div class="container my-3">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="#">Home</a></li>
-                    <li class="breadcrumb-item"><a href="#">Library</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Data</li>
+                    <li class="breadcrumb-item" v-for="(breadcrumb, i) in breadcrumbs" :key="i"
+                     :class="breadcrumb.active || $route.name == 'home' ? 'active' : ''"
+                    >
+                        <template v-if="breadcrumb.active || $route.name == 'home'">
+                            {{breadcrumb.label}}
+                        </template>
+                        <template v-else>
+                            <router-link :to="{name: breadcrumb.name, params: breadcrumb.params}">
+                                {{breadcrumb.label}}
+                            </router-link>
+                        </template>
+
+                    </li>
+<!--                    <li class="breadcrumb-item"><a href="#">Library</a></li>-->
+<!--                    <li class="breadcrumb-item active" aria-current="page">Data</li>-->
                 </ol>
             </nav>
         </div>
 
         <main class="mt-3">
             <router-view></router-view>
+<!--            <router-view v-slot="{ Component }">-->
+<!--                <component ref="qwe" :is="Component" />-->
+<!--            </router-view>-->
         </main>
     </div>
 </template>
 
 <script>
+import {roles} from "../consts";
+
 export default {
     name: "Dashboard",
     data() {
         return {
-            auth_user: false,
+            // auth_user: false,
+            roles: roles,
         }
     },
     mounted() {
         console.log(this.$route)
-        this.auth_user = localStorage.getItem('auth_user') ? true : false;
+        // console.log(this.$refs.qwe.test())
+        // this.auth_user = localStorage.getItem('auth_user') ? true : false;
+    },
+    computed:{
+        auth_user() {
+            return localStorage.getItem('auth_user') ? JSON.parse(localStorage.getItem('auth_user')) : null
+        },
+      breadcrumbs() {
+          let arr = [];
+          this.$route.matched.forEach((el, index) => {
+              if (el.meta.breadcrumb) {
+                  arr.push({
+                      label: el.meta.breadcrumb,
+                      active: el.name == this.$route.name ? true : false,
+                      name: el.name,
+                      params: el.params
+                  })
+              }
+          });
+          return arr
+      }
     },
     watch: {
         $route (to, from) {
             console.log(this.$route)
-            this.auth_user = localStorage.getItem('auth_user') ? true : false
+            // this.auth_user = localStorage.getItem('auth_user') ? true : false
         }
     },
     methods: {

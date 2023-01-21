@@ -7,9 +7,6 @@
 
                     <div class="p-4 bg-white">
 
-<!--                        <success  v-if="success" :content="success" @close="success=null" />-->
-<!--                        <errors v-if="errors" :content="errors" @close="errors=null" />-->
-
                         <div v-if="success" class="alert alert-success" role="alert">
                             {{success}}
                         </div>
@@ -83,13 +80,10 @@ export default {
 
         },
         resend(){
-            console.log(2222)
-            console.log(this.$route.params.id)
             this.errors = null;
             this.success = null;
             axios.post('/api/verify-resend', {id: this.$route.params.id})
                 .then((res) =>{
-                    // this.success = res.data.message ?  res.data.message  +  ' Redirecting ...' : ' Redirecting ...'
                     console.log(res)
                     this.success = res.data.message;
                     setTimeout(()=>{
@@ -102,18 +96,7 @@ export default {
                 })
                 .finally(() => {
                     this.busy = false ;
-                })            // this.$store.dispatch('verifyResend' , {'id' : this.id}).then((res)=> {
-            //
-            //     this.success = res.data.message + ' Redirecting ...'
-            //     setTimeout(()=>{
-            //         this.$router.push({name:'home'})
-            //     },1000)
-            // }).catch((err) => {
-            //     this.errors = 'internal error ! plzase try again later .';
-            //     setTimeout(()=>{
-            //         this.$router.push({name:'home'})
-            //     },1000)
-            // })
+                })
         }
     },
 }
