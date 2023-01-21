@@ -1,8 +1,23 @@
 <template>
     <div class="container">
         <div class="row justify-content-center">
+
+            <div v-if="errors" class="alert alert-danger" role="alert">
+                {{errors}}
+            </div>
+
             <div class="col-12" v-if="user">
-                <h5>Пользователь {{user.last_name}} {{user.first_name}} {{user.patronymic}}</h5>
+
+                <div class="d-flex my-3">
+                    <div class="me-auto ">
+                        <h4 class="my-3">Пользователь {{user.last_name}} {{user.first_name}} {{user.patronymic}}}</h4>
+                    </div>
+                    <div class="align-self-center">
+                        <button @click.prevent="editUser()" type="button" class="btn btn-warning">
+                            <font-awesome-icon icon="fa-solid fa-pencil" /> Редактировать
+                        </button>
+                    </div>
+                </div>
 
                 <div v-if="success" class="alert alert-success" role="alert">
                     {{success}}
@@ -34,8 +49,9 @@
                         <div class="col-sm-10">
                             <input type="text" name="last_name" v-model.lazy="v$.user.last_name.$model"
                                    id="last_name" placeholder="Фамилия" class="form-control"
-                                   :class="v$.user.last_name.$error ? 'border-danger' : ''">
-                            <span v-if="v$.user.last_name.$error" :class="v$.user.last_name.$error ? 'text-danger' : ''">
+                                   :class="v$.user.last_name.$error ? 'border-danger' : '',
+                                   edit ? '' : 'form-control-plaintext'">
+                            <span v-if="v$.user.last_name.$error && edit" :class="v$.user.last_name.$error ? 'text-danger' : ''">
                                 <template v-if="!v$.user.last_name.minLength.$response">
                                   Поле фамилия должно содержать не менее 5 символов.
                                 </template>
@@ -50,10 +66,11 @@
                             Имя<span class="text-danger">*</span>
                         </label>
                         <div class="col-sm-10">
-                            <input type="text" name="first_name" id="first_name" v-model="v$.user.first_name.$model"
-                                   placeholder="Имя" class="form-control"
-                                   :class="v$.user.first_name.$error ? 'border-danger' : ''">
-                            <span v-if="v$.user.first_name.$error" :class="v$.user.first_name.$error ? 'text-danger' : ''">
+                            <input type="text" name="first_name" id="first_name"
+                                   v-model="v$.user.first_name.$model" class="form-control"
+                                   placeholder="Имя" :class="v$.user.first_name.$error ? 'border-danger' : '',
+                                   edit ? '' : 'form-control-plaintext'">
+                            <span v-if="v$.user.first_name.$error && edit" :class="v$.user.first_name.$error ? 'text-danger' : ''">
                             <template v-if="!v$.user.first_name.minLength.$response">
                               Поле имя должен содержать не менее 3 символов.
                             </template>
@@ -70,8 +87,9 @@
                         <div class="col-sm-10">
                             <input type="text" name="patronymic" v-model="v$.user.patronymic.$model" id="patronymic"
                                    placeholder="Отчество" class="form-control"
-                                   :class="v$.user.patronymic.$error ? 'border-danger' : ''">
-                            <span v-if="v$.user.patronymic.$error" :class="v$.user.patronymic.$error ? 'text-danger' : ''">
+                                   :class="v$.user.patronymic.$error ? 'border-danger' : '',
+                                    edit ? '' : 'form-control-plaintext'">
+                            <span v-if="v$.user.patronymic.$error && edit" :class="v$.user.patronymic.$error ? 'text-danger' : ''">
                             <template v-if="!v$.user.patronymic.minLength.$response">
                               Поле отчество должен содержать не менее 5 символов.
                             </template>
@@ -85,7 +103,7 @@
                         <label for="verify_email" class="col-sm-2 col-form-label fw-bold">Потверждение почты</label>
                         <div class="col-sm-10 form-check form-switch">
                             <div class='form-check form-switch mt-3'>
-                                <input type="checkbox" v-model="verify_email" class="form-check-input" id="verify_email">
+                                <input type="checkbox" v-model="verify_email" disabled  class="form-check-input" id="verify_email">
                                 <label class="form-check-label" for="verify_email">
                                     {{ verify_email ? 'Email подтвержден' : 'Email НЕ подтвержден'}}
                                 </label>
@@ -96,7 +114,7 @@
                         <label for="push" class="col-sm-2 col-form-label fw-bold">PUSH уведомления</label>
                         <div class="col-sm-10 form-check form-switch">
                             <div class='form-check form-switch mt-3'>
-                                <input type="checkbox" v-model="user.push" class="form-check-input" id="push">
+                                <input type="checkbox" :disabled="edit ? false : true"  v-model="user.push" class="form-check-input" id="push">
                             </div>
                         </div>
                     </div>
@@ -104,7 +122,7 @@
                         <label for="sms" class="col-sm-2 col-form-label fw-bold">SMS уведомления</label>
                         <div class="col-sm-10 form-check form-switch">
                             <div class='form-check form-switch mt-3'>
-                                <input type="checkbox" v-model="user.sms" class="form-check-input" id="sms">
+                                <input type="checkbox" :disabled="edit ? false : true" v-model="user.sms" class="form-check-input" id="sms">
                             </div>
                         </div>
                     </div>
@@ -114,8 +132,8 @@
                             Роль
                         </label>
                         <div class="col-sm-10">
-                            <select class="form-control form-select" v-model="user.role_id">
-<!--                                <option value selected>122</option>-->
+                            <div v-if="!edit" class="form-control-plaintext">{{user.role_name}}</div>
+                            <select v-else class="form-control form-select" v-model="user.role_id">
                                 <option v-for="role in roles" :key="role.id" :value="role.id">
                                     {{ role.name }}
                                 </option>
@@ -128,7 +146,8 @@
                             Больница
                         </label>
                         <div class="col-sm-10">
-                            <select class="form-control form-select" v-model="user.hospital_id">
+                            <div v-if="!edit" class="form-control-plaintext">{{user.hospital_name}}</div>
+                            <select v-else class="form-control form-select" v-model="user.hospital_id">
                                 <option v-for="hospital in hospitals" :key="hospital.id" :value="hospital.id">
                                     {{ hospital.short_name }}
                                 </option>
@@ -140,12 +159,13 @@
                         <label for="phone" class="col-sm-2 col-form-label fw-bold">Телефон</label>
                         <div class="col-sm-10">
                             <input type="text" name="phone" v-model="user.phone" id="phone"
-                                   placeholder="Телефон" class="form-control">
+                                   placeholder="Телефон"
+                                   :class="edit ? 'form-control' : 'form-control-plaintext'">
                         </div>
                     </div>
 
 
-                    <div class="col-12 my-3 text-center">
+                    <div v-if="edit" class="col-12 my-3 text-center">
                         <button type="submit" :disabled="processing" class="btn btn-primary btn-block">
                             {{ processing ? wait : "Сохранить" }}
                         </button>
@@ -159,22 +179,22 @@
 <script>
 import useValidate from '@vuelidate/core'
 import { required, minLength } from '@vuelidate/validators'
-import {wait} from "../../../consts";
+import {wait} from "../consts";
 
 export default {
-    name: "Edit",
-    props: ['id'],
+    name: "Profile",
     data() {
         return {
             v$: useValidate(),
             user: null,
-            roles: null,
-            hospitals: null,
-            processing: false,
             verify_email: 1,
-            errors : {},
+            errors : null,
             success : null,
-            wait
+            processing: false,
+            edit: false,
+            roles: [],
+            hospitals: [],
+            wait,
         }
     },
     mounted() {
@@ -189,21 +209,38 @@ export default {
             }
         }
     },
+    computed: {
+        auth_user() {
+            return localStorage.getItem('auth_user') ? JSON.parse(localStorage.getItem('auth_user')) : null
+        }
+    },
     methods: {
         getData() {
-            axios.get(`/api/users/${this.id}/edit`, {
+            console.log(this.auth_user)
+            axios.get(`/api/users/${this.auth_user.id}`, {
                 headers: {Authorization: localStorage.getItem('access_token')}
             }).then(res => {
                 console.log(res);
-                this.user = res.data.user;
-                this.verify_email = this.verify_email == 1 ? true : false;
-                this.user.push = this.user.push == 1 ? true : false;
-                this.user.sms = this.user.sms == 1 ? true : false;
+                this.user = res.data.data;
+                this.user.push = this.user.push ? true : false;
+                this.user.sms = this.user.sms ? true : false;
+                this.verify_email = this.verify_email ? true : false;
+            }).catch(err => {
+                console.log(err.response);
+                this.errors = err.response.data.message
+            });
+        },
+        editUser() {
+            axios.get(`/api/users/${this.auth_user.id}/edit`, {
+                headers: {Authorization: localStorage.getItem('access_token')}
+            }).then(res => {
+                console.log(res);
                 this.roles = res.data.roles;
                 this.hospitals = res.data.hospitals;
             }).catch(err => {
                 console.log(err.response);
             });
+            this.edit=!this.edit
         },
         update() {
             this.errors = null
@@ -213,16 +250,16 @@ export default {
                 this.processing = true;
                 this.user.push = this.user.push ? 1 : 0;
                 this.user.sms = this.user.sms ? 1 : 0;
-                axios.patch(`/api/users/${this.id}`, this.user, {
+                axios.patch(`/api/users/${this.auth_user.id}`, this.user, {
                     headers: {Authorization: localStorage.getItem('access_token')}
                 }).then(res => {
                     console.log(res);
                     this.user = res.data.data;
                     this.user.push = this.user.push == 1 ? true : false;
                     this.user.sms = this.user.sms == 1 ? true : false;
-                    this.success = 'Данные успешно изменены. Перенаправление...';
+                    this.success = 'Данные успешно изменены.';
                     setTimeout(()=>{
-                        this.$router.push({name:'users'})
+                        this.success =null;
                     },3000)
                 }).catch(err => {
                     console.log(err.response);
@@ -238,9 +275,9 @@ export default {
                         this.errors = {}
                         this.errors = err.response.data.errors
                     }
-
                 }).finally(() => {
                     this.processing = false;
+                    this.edit = !this.edit;
                 })
             } else {
                 window.scrollTo(0,0);

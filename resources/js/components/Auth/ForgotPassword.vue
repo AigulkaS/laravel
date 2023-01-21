@@ -36,7 +36,7 @@
 <!--                            <button v-else type="submit"-->
                             <button type="submit"
                                     :disabled="processing" class="btn btn-primary btn-block">
-                                {{ processing ? "Пожалуйста подождите" : "отправить ссылку для сброса пароля" }}
+                                {{ processing ? wait : "отправить ссылку для сброса пароля" }}
                             </button>
 <!--                            <router-link :to="{name : 'login'}" class="text-sm text-blue-500 hover:underline"> go back ? </router-link>-->
 <!--                            <button type="submit" :disabled="processing" class="btn btn-primary btn-block">-->
@@ -56,7 +56,8 @@
 <script>
 import useValidate from '@vuelidate/core'
 import { required, email } from '@vuelidate/validators'
-// import CircleSvg from '../CircleSvg.vue';
+import {wait} from "../../consts";
+
 export default {
     name: "ForgotPassword",
     // components: {CircleSvg},
@@ -68,6 +69,7 @@ export default {
             errors : null,
             success : null,
             busy : false,
+            wait
         }
     },
     validations() {

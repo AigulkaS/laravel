@@ -21,7 +21,10 @@
                     </ul>
                 </div>
                 <div class="col-sm-12" :class="getNameLink() > -1 ? 'col-lg-9' : ''">
-                    <router-view></router-view>
+                    <router-view ref="zxc"></router-view>
+<!--                    <router-view v-slot="{ Component }">-->
+<!--                        <component ref="zxc" :is="Component" />-->
+<!--                    </router-view>-->
                 </div>
             </div>
         </div>
@@ -42,7 +45,11 @@ export default {
     methods: {
         getNameLink() {
             return this.links.findIndex(el => el == this.$route.name)
-        }
+        },
+        // test() {
+        //     console.log('test444')
+        //     this.$refs.zxc.test2();
+        // }
     }
 }
 </script>

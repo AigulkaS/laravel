@@ -90,7 +90,7 @@
 
                     <div class="col-12 my-3 text-center">
                         <button type="submit" :disabled="processing" class="btn btn-primary btn-block">
-                            {{ processing ? "Please wait" : "Сохранить" }}
+                            {{ processing ? wait : "Сохранить" }}
                         </button>
                     </div>
                 </form>
@@ -105,6 +105,8 @@ import { required } from '@vuelidate/validators';
 import { defineComponent, ref } from 'vue';
 import { VueDadata } from 'vue-dadata';
 import 'vue-dadata/dist/style.css';
+import {wait} from "../../../consts";
+
 export default defineComponent ({
     name: "Create",
     components: {
@@ -143,6 +145,7 @@ export default defineComponent ({
             success : null,
             rooms: [],
             rooms_show: false,
+            wait,
         }
     },
     mounted() {
