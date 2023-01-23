@@ -49,7 +49,7 @@
 
                     <div class="col-12 my-3 text-center">
                         <button type="submit" :disabled="processing" class="btn btn-primary btn-block">
-                            {{ processing ? "Please wait" : "Сохранить" }}
+                            {{ processing ? wait : "Сохранить" }}
                         </button>
                     </div>
                 </form>
@@ -61,6 +61,8 @@
 <script>
 import useValidate from '@vuelidate/core';
 import { required } from '@vuelidate/validators';
+import {wait} from "../../../consts";
+
 export default {
     name: "Edit",
     props: ['id'],
@@ -71,6 +73,7 @@ export default {
             processing: false,
             errors : {},
             success : null,
+            wait,
         }
     },
     mounted() {

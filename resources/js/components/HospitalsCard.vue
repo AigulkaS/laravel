@@ -12,7 +12,7 @@
             {{warning}}
         </div>
         <div v-else-if="bookings.length > 0">
-            <div>
+            <div v-if="auth_user && auth_user.email_verified_at && [roles.admin, roles.dispatcher].includes(auth_user.role_name)">
                 <button type="button" class="btn btn-primary" @click.prevent="addBooking()">
                     <font-awesome-icon icon="fa-solid fa-plus" /> Добавить бронь
                 </button>
@@ -25,7 +25,7 @@
                                 <div class="me-auto p-1 bd-highlight col-5 fw-bolder">
                                     {{booking.hospital_name}}
                                 </div>
-                                <div class="p-1 bd-highlight align-self-center">
+                                <div v-if="auth_user" class="p-1 bd-highlight align-self-center">
                                     <table class="table table-sm table-borderless m-0">
                                         <tbody>
                                         <tr>
@@ -64,10 +64,6 @@
                                             <div><h4>{{$dayjs(val.time).format('HH:mm')}}</h4></div>
                                             <div class="text-white fw-bolder">{{statuses[val.status].label}}</div>
                                         </div>
-<!--                                        <div class="col border bg-green-300 p-3 rounded text-center">-->
-<!--                                            <div><h4>13:00</h4></div>-->
-<!--                                            <div class="text-white fw-bolder">Свободна</div>-->
-<!--                                        </div>-->
 <!--                                        <div class="col d-none d-sm-block border bg-yellow-300 p-3 rounded text-center">-->
 <!--                                            <div><h4>14:00</h4></div>-->
 <!--                                            <div class="text-white fw-bolder">Бронь</div>-->
@@ -75,7 +71,8 @@
                                     </div>
                                 </div>
                             </div>
-                            <router-link :to="{name: 'hospital_booking', params: {id: booking.hospital_id}}"
+                            <router-link v-if="auth_user && auth_user.email_verified_at"
+                                         :to="{name: 'hospital_booking', params: {id: booking.hospital_id}}"
                                          type="button" class="btn btn-primary">
                                 Посмотреть больше
                             </router-link>
@@ -154,7 +151,7 @@
                             </div>
                             <div class="mb-3">
                                 <button type="submit" :disabled="processing" @click.prevent="hospitalSearch()" class="btn btn-primary btn-block">
-                                    {{ processing ? "Please wait" : "Поиск ближайшей больницы" }}
+                                    {{ processing ? wait : "Поиск ближайшей больницы" }}
                                 </button>
                             </div>
                         </form>
@@ -190,6 +187,7 @@ import {ref, computed} from 'vue';
 import useValidate from '@vuelidate/core'
 import { required} from '@vuelidate/validators'
 import { Modal } from 'bootstrap'
+import {roles, wait} from "../consts";
 
 export default {
     name: "HospitalsCard",
@@ -231,6 +229,8 @@ export default {
                 {val: 1, label: 'Занята', color: 'red'},
                 {val: 2, label: 'Условно занята', color: 'yellow'}
             ],
+            roles,
+            wait,
         }
     },
     validations() {
@@ -239,8 +239,15 @@ export default {
             disease: { required },
         }
     },
+    computed: {
+        auth_user() {
+            // console.log(this.ff)
+            return this.$parent.auth_user;
+        }
+    },
     mounted() {
         this.getData();
+        console.log(this.$parent)
     },
     beforeUnmount() {
         if (this.myModal) this.myModal.hide();

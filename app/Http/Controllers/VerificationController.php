@@ -44,10 +44,10 @@ class VerificationController extends Controller
 
 
         if ($user->hasVerifiedEmail()) {
-            return response()->json(['message' => 'already verified !'], 200);
+            return response()->json(['message' => 'Email уже подтвержден !'], 200);
         }
 
         $user->sendEmailVerificationNotification();
-        return response()->json(['message' => 'verification email has been resent !', 200]);
+        return response()->json(['message' => 'Письмо для подтверждения email было повторно отправлено !', 200]);
     }
 }

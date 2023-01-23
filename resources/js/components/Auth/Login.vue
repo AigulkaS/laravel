@@ -48,7 +48,7 @@
                             </div>
                             <div class="col-12 mb-2">
                                 <button type="submit" :disabled="processing" @click="login" class="btn btn-primary btn-block">
-                                    {{ processing ? "Please wait" : "Авторизация" }}
+                                    {{ processing ? wait : "Авторизация" }}
                                 </button>
                             </div>
                             <div class="col-12 mb-2 text-center">
@@ -68,6 +68,8 @@
 <script>
 import useValidate from '@vuelidate/core'
 import { required, email } from '@vuelidate/validators'
+import {wait} from "../../consts";
+
 export default {
     name: "Login",
     data(){
@@ -78,7 +80,8 @@ export default {
                 password:""
             },
             validationErrors:{},
-            processing:false
+            processing:false,
+            wait,
         }
     },
     computed: {
