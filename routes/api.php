@@ -65,7 +65,7 @@ Route::delete('/permissions/{permission}', App\Http\Controllers\Permission\Destr
 // 
 
 // for hospitals
-Route::get('/hospitals', App\Http\Controllers\Hospital\IndexController::class)->name('hospital.index');
+Route::get('/hospitals', App\Http\Controllers\Hospital\IndexController::class)->name('hospital.index'); //->middleware('role:admin')
 Route::get('/hospitals/create', App\Http\Controllers\Hospital\CreateController::class)->name('hospital.create');
 Route::post('/hospitals', App\Http\Controllers\Hospital\StoreController::class)->name('hospital.store');
 Route::get('/hospitals/{hospital}', App\Http\Controllers\Hospital\ShowController::class,)->name('hospital.show');
@@ -100,3 +100,6 @@ Route::post('/bookings', App\Http\Controllers\Booking\StoreController::class)->n
 Route::patch('/bookings', App\Http\Controllers\Booking\UpdateController::class,)->name('booking.update');
 // Route::delete('/bookings/{booking}', App\Http\Controllers\Booking\DestroyController::class,)->name('booking.delete');
 // 
+
+// "geo_lat": "54.764049",
+    // "geo_lon": "56.05606"

@@ -11,7 +11,7 @@ class StoreController extends BaseController
     public function __invoke(StoreRequest $request)
     {
         $data = $request->validated();
-
+        
         $hospital = $this->service->store($data);
 
         return new HospitalResource($hospital);

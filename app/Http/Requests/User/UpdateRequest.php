@@ -29,7 +29,7 @@ class UpdateRequest extends FormRequest
             'last_name' => 'required|string|max:255',
             'first_name' => 'required|string|max:255',
             'patronymic' => 'required|string|max:255',
-            'phone' => 'required|string|max:255',
+            'phone' => 'string|max:255',
             'email' => 'required|string|email|max:255',
             'password' => 'required|string',
         ];
