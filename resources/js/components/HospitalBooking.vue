@@ -272,7 +272,7 @@ export default {
         getData() {
             axios.get(`/api/todays/`,{
                 headers: {Authorization: localStorage.getItem('access_token')},
-                params: {hospital_id: this.auth_user.hospital_id}
+                params: {hospital_id: this.$route.params.id ? this.$route.params.id : this.auth_user.hospital_id}
             }).then(res => {
                 console.log(res);
                 let arr = res.data.data;
@@ -287,7 +287,7 @@ export default {
         getBooking() {
             axios.get(`/api/bookings`,{
                 headers: {Authorization: localStorage.getItem('access_token')},
-                params: {hospital_id: this.auth_user.hospital_id}
+                params: {hospital_id: this.$route.params.id ? this.$route.params.id : this.auth_user.hospital_id}
             }).then(res => {
                 console.log(res);
                 this.rooms = res.data.rooms;
@@ -299,20 +299,40 @@ export default {
             });
         },
         bookingRoom(room_name, val, room_index, val_index) {
-            this.myModal = new Modal(document.getElementById('statusModal'), {})
-            this.modal = {
-                room_name: room_name,
-                time: val.time,
-                status: val.status,
-                room_index: room_index,
-                val_index: val_index
-            };
-            this.newStatus = val.status;
-            this.clock = 2;
-            this.status = this.statuses.find(el => el.val == this.modal.status);
-            this.myModal.show();
+            if ([this.roles.cardiologist, this.roles.surgeon, this.roles.admin].includes(this.auth_user.role_name)) {
+                this.myModal = new Modal(document.getElementById('statusModal'), {})
+                this.modal = {
+                    room_name: room_name,
+                    time: val.time,
+                    status: val.status,
+                    room_index: room_index,
+                    val_index: val_index
+                };
+                this.newStatus = val.status;
+                this.clock = 2;
+                this.status = this.statuses.find(el => el.val == this.modal.status);
+                this.myModal.show();
+            }
         },
         saveStatus() {
+            // axios.patch(`/api/bookings`,
+            //     {
+            //         hospital_id: this.$route.params.id ? this.$route.params.id : this.auth_user.hospital_id,
+            //         room_id:
+            //     },
+            //     {headers: {Authorization: localStorage.getItem('access_token')},
+            //     params: {hospital_id: this.$route.params.id ? this.$route.params.id : this.auth_user.hospital_id}
+            // }).then(res => {
+            //     console.log(res);
+            //     this.rooms = res.data.rooms;
+            //     console.log(this.rooms);
+            // }).catch(err => {
+            //     console.log(err);
+            //     console.log(err.response);
+            //     this.errors = err.response.data.message;
+            // });
+
+
             if (this.newStatus == 0 || this.clock == 1) {
                 this.rooms[this.modal.room_index].val[this.modal.val_index].status = this.newStatus
             } else {
@@ -331,7 +351,7 @@ export default {
             this.myModalOrderly = new Modal(document.getElementById('modalOrderly'), {})
             axios.get(`/api/todays/edit`,{
                 headers: {Authorization: localStorage.getItem('access_token')},
-                params: {hospital_id: this.auth_user.hospital_id}
+                params: {hospital_id: this.$route.params.id ? this.$route.params.id : this.auth_user.hospital_id}
             }).then(res => {
                 console.log(res);
                 this.cardiologists = res.data.cardiologist;
@@ -351,7 +371,7 @@ export default {
                 this.processing = true;
                 axios.patch(`/api/todays`,
                     {
-                        hospital_id: this.auth_user.hospital_id,
+                        hospital_id: this.$route.params.id ? this.$route.params.id : this.auth_user.hospital_id,
                         cardiologist_id: this.cardiologist_id,
                         surgeon_id: this.surgeon_id,
                     },

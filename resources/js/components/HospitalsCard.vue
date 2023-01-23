@@ -7,6 +7,18 @@
         <div v-if="success" class="alert alert-success" role="alert">
             {{success}}
         </div>
+        <div class="col-12" v-if="errors && Object.keys(errors).length > 0">
+            <div class="alert alert-danger">
+                <template v-if="typeof errors == 'object'">
+                    <ul class="mb-0">
+                        <li v-for="(value, key) in errors" :key="key">{{ value[0] }}</li>
+                    </ul>
+                </template>
+                <template v-else>
+                    <div>{{errors}}</div>
+                </template>
+            </div>
+        </div>
 
         <div v-if="warning" class="alert alert-warning" role="alert">
             {{warning}}
@@ -82,7 +94,6 @@
             </div>
         </div>
 
-
         <!-- Modal -->
         <div class="modal fade" id="modalBooking" data-bs-backdrop="static"
              data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalBookingLabel"
@@ -91,17 +102,29 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="modalBookingLabel">Добавить бронь</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close" @click.prevent="closeModal()"/>
                     </div>
                     <div class="modal-body">
+                        <div class="col-12" v-if="errors && Object.keys(errors).length > 0">
+                            <div class="alert alert-danger">
+                                <template v-if="typeof errors == 'object'">
+                                    <ul class="mb-0">
+                                        <li v-for="(value, key) in errors" :key="key">{{ value[0] }}</li>
+                                    </ul>
+                                </template>
+                                <template v-else>
+                                    <div>{{errors}}</div>
+                                </template>
+                            </div>
+                        </div>
                         <form>
                             <div class="mb-3">
                                 <label for="address_sick" class="col-form-label">Введите адрес пациента</label>
                                 <div class="autocomplete">
-                                    <input type="text" :value="query"
+                                    <input type="text" :value="v$.query.$model"
                                        @input="lazyCaller($event.target.value)"
                                        class="form-control" id="address_sick"
-                                       :class="v$.suggestion.$error ? 'border-danger' : ''"
+                                       :class="v$.suggestion.$error || v$.query.$error? 'border-danger' : ''"
                                     >
                                     <div v-if="addresses.length" class="autocomplete-items">
                                         <div
@@ -119,7 +142,8 @@
                                             {{suggestion = ''}}
                                         </div>
                                     </div>
-                                    <span v-if="v$.suggestion.$error" :class="v$.suggestion.$error ? 'text-danger' : ''">
+                                    <span v-if="v$.suggestion.$error || v$.query.$error"
+                                          :class="v$.suggestion.$error || v$.query.$error ? 'text-danger' : ''">
                                       Поле адрес пациента обязательное поле для заполнения
                                     </span>
                                 </div>
@@ -128,52 +152,51 @@
                             <div class="mb-3">
                                 <label class="col-form-label">Укажите диагноз</label>
                                 <Multiselect
-                                    v-model="v$.disease.$model"
-                                    :class="v$.disease.$error ? 'border-danger' : ''"
+                                    v-model="v$.disease_id.$model"
+                                    :class="v$.disease_id.$error ? 'border-danger' : ''"
                                     :close-on-select="true"
                                     :hide-selected="false"
                                     label="name"
                                     valueProp="id"
-                                    :options="[
-                                        {
-                                            id: 1,
-                                            name: 'Инсульт1'
-                                        },
-                                        {
-                                            id: 2,
-                                            name: 'Инсульт2'
-                                        }
-                                    ]"
+                                    :options="diseases"
                                 />
-                                <span v-if="v$.disease.$error" :class="v$.disease.$error ? 'text-danger' : ''">
+                                <span v-if="v$.disease_id.$error" :class="v$.disease_id.$error ? 'text-danger' : ''">
                                       Поле диагноз обязательное поле для заполнения
                                 </span>
                             </div>
                             <div class="mb-3">
-                                <button type="submit" :disabled="processing" @click.prevent="hospitalSearch()" class="btn btn-primary btn-block">
+                                <button type="submit" :disabled="processing" @click.prevent="hospitalSearch()"
+                                        class="btn btn-primary btn-block">
                                     {{ processing ? wait : "Поиск ближайшей больницы" }}
                                 </button>
                             </div>
                         </form>
 
-
 <!--                        После того как нашли ближайщую свободную больницу-->
-                        <h4>Ближайщая свободная больница</h4>
-                        <div class="fs-4 fw-bolder">Больница № 5 операционня 504<br></div>
-                        <div class="fs-4">
-                            Забронировать на
-                            <div class="form-check form-check-inline" v-for="el in 3">
-                                <input class="form-check-input" type="radio"
-                                       name="inlineRadioOptions" :id="'inlineRadio4'+el"
-                                       :value="el" v-model="clock">
-                                <label class="form-check-label" :for="'inlineRadio4'+el">{{el}}</label>
+                        <div v-if="free_hospital">
+                            <h4>Ближайщая свободная больница</h4>
+                            <div class="fs-4 fw-bolder">{{free_hospital.full_name}}<br></div>
+                            <div class="fs-5 fw-bolder">{{free_hospital.address}}<br></div>
+                            <div class="fs-4">
+                                Забронировать на
+                                <div class="form-check form-check-inline" v-for="el in 3">
+                                    <input class="form-check-input" type="radio"
+                                           name="inlineRadioOptions" :id="'inlineRadio4'+el"
+                                           :value="el" v-model="clock">
+                                    <label class="form-check-label" :for="'inlineRadio4'+el">{{el}}</label>
+                                </div>
+                                часа
                             </div>
-                            часа
                         </div>
+
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                        <button type="button" class="btn btn-primary" @click.prevent="saveBook()">Забронировать</button>
+                        <button type="button" class="btn btn-secondary" @click.prevent="closeModal()">Отмена</button>
+                        <button v-if="free_hospital" type="button" :disabled="processing"
+                                @click.prevent="saveBooking()" class="btn btn-primary">
+                            {{ processing ? wait : "Забронировать" }}
+                        </button>
+<!--                        <button v-if="free_hospital" type="button" class="btn btn-primary" @click.prevent="saveBooking()">Забронировать</button>-->
                     </div>
                 </div>
             </div>
@@ -213,14 +236,13 @@ export default {
             v$: useValidate(),
             url: 'https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address',
             token: import.meta.env.VITE_APP_DADATA_API_KEY,
-            // query: null,
             suggestions: true,
-            // addresses: [],
-            disease: null,
+            disease_id: null,
             processing: false,
             timeout: null,
             myModal: null,
             success: null,
+            errors: null,
             clock: 2,
             warning: null,
             bookings: [],
@@ -229,6 +251,8 @@ export default {
                 {val: 1, label: 'Занята', color: 'red'},
                 {val: 2, label: 'Условно занята', color: 'yellow'}
             ],
+            diseases: [],
+            free_hospital: null,
             roles,
             wait,
         }
@@ -236,13 +260,13 @@ export default {
     validations() {
         return {
             suggestion: { required },
-            disease: { required },
+            query: { required },
+            disease_id: { required },
         }
     },
     computed: {
         auth_user() {
-            // console.log(this.ff)
-            return this.$parent.auth_user;
+            return localStorage.getItem('auth_user') ? JSON.parse(localStorage.getItem('auth_user')) : null
         }
     },
     mounted() {
@@ -286,18 +310,105 @@ export default {
         },
         addBooking() {
             this.myModal = new Modal(document.getElementById('modalBooking'), {});
+            axios.get(`/api/bookings/create/disease`,{
+                headers: {Authorization: localStorage.getItem('access_token')},
+            }).then(res => {
+                console.log(res);
+                this.diseases = res.data.disease;
+                // this.myModal.show();
+            }).catch(err => {
+                console.log(err);
+                console.log(err.response);
+                this.errors = err.response.data.message;
+            });
+            this.free_hospital = null
+            this.errors = null;
             this.myModal.show();
         },
         hospitalSearch() {
-            console.log(1111);
             this.v$.$validate();
+            if (!this.v$.$error) {
+                this.processing = true;
+                axios.get(`/api/bookings/create/hospital`, {
+                    headers: {Authorization: localStorage.getItem('access_token')},
+                    params: {
+                            geo_lat: this.suggestion.data.geo_lat,
+                            geo_lon: this.suggestion.data.geo_lon
+                    }
+                    }).then(res => {
+                    console.log(res);
+                    this.free_hospital = res.data.data;
+                }).catch(err => {
+                    console.log(err.response);
+                    if(err.response.status == 422){
+                        this.errors = err.response.data.errors
+                    }
+                    else if (err.response.status == 500) {
+                        //что то придумать с ошикой 404 и 500, записала в тетрадь
+                        this.errors = {}
+                        this.errors = err.response.data.message
+                    }
+                    else{
+                        this.errors = {}
+                        this.errors = err.response.data.errors
+                    }
+
+                }).finally(() => {
+                    this.processing = false;
+                })
+            }
         },
-        saveBook() {
-            this.success = 'Бронь успешно дабавлена.';
-            setTimeout(()=>{
-                this.success = null;
-            },1500)
-            this.myModal.hide();
+        saveBooking() {
+            this.processing = true;
+            axios.post(`/api/bookings`,
+                {
+                    disease_id: this.disease_id,
+                    dispatcher_id: this.auth_user.id,
+                    hospital_id: this.free_hospital.id,
+                    booking_hours: this.clock
+                },
+                {headers: {Authorization: localStorage.getItem('access_token')}
+            }).then(res => {
+                console.log(res);
+                let data = res.data.data;
+                let hospital_index = this.bookings.findIndex(el => el.hospital_id == data[0].hospital_id);
+                let room_index = this.bookings[hospital_index].rooms.findIndex(el => el.name == data[0].room_name)
+                let time_index = this.bookings[hospital_index].rooms[room_index].val.findIndex(el => el.time == data[0].date_time)
+                for (let i = time_index; i < time_index+data.length; i++) {
+                    if (i >= this.bookings[hospital_index].rooms[room_index].val.length) {
+                        this.bookings[hospital_index].rooms[room_index].val[i-this.bookings[hospital_index].rooms[room_index].val.length].status = data[0].status;
+                    } else {
+                        this.bookings[hospital_index].rooms[room_index].val[i].status = data[0].status;
+                    }
+                }
+                this.success = 'Бронь успешно дабавлена.';
+                setTimeout(()=>{
+                    this.success = null;
+                },4000)
+                this.myModal.hide();
+            }).catch(err => {
+                console.log(err.response);
+                if(err.response.status == 422){
+                    this.errors = err.response.data.errors
+                }
+                else if (err.response.status == 500) {
+                    //что то придумать с ошикой 404 и 500, записала в тетрадь
+                    this.errors = {}
+                    this.errors = err.response.data.message
+                }
+                else{
+                    this.errors = {}
+                    this.errors = err.response.data.errors
+                }
+            }).finally(() => {
+                this.processing = false;
+            })
+
+        },
+        closeModal() {
+            this.free_hospital = null;
+            this.errors = null;
+            this.myModal.hide()
         },
         lazyCaller(value, time = 1000) {
             clearTimeout(this.timeout);
