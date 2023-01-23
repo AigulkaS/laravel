@@ -105,6 +105,7 @@ class BookingService {
             } while($i <24);
 
             $arrRoom[] = [
+                'id' => $room->id,
                 'name' => $room->name,
                 'val' => $val,
             ];
@@ -144,14 +145,17 @@ class BookingService {
                               ->orWhere('status', 2);
                     })
                     ->get();
-                    
+        // dump( $dateTime);     
+        // dump('booked');     
+        // dump( $bookings) ;     
         foreach($bookings as $booking) {
             
             $hospital = $booking->hospital;
             
             
             $otherRoom = false;
-            
+            // dump('count($hospital->rooms');
+            // dump(count($hospital->rooms));
             if (count($hospital->rooms)>1) {
                 foreach($hospital->rooms as $room) {
                     $roomBooking = Booking::where('date_time', $dateTime)
@@ -183,11 +187,14 @@ class BookingService {
             unset($bookedHospital['rooms']);
             $arrBookedHospitals[]= $bookedHospital;
         }
+        // dump('arrBookedHospitals');
+        // dump($arrBookedHospitals);
         
         foreach($arrBookedHospitals as $bookedHospital) {
             $key = array_search($bookedHospital, $hospitals);
             unset($hospitals[$key]);
         }
+        // dump('hospitals');
         // dd($hospitals);
 
         if(count($hospitals) == 0) {
@@ -259,7 +266,6 @@ class BookingService {
         ];
         $hospital = Hospital::find($data['hospital_id']);
         $rooms = $hospital->rooms;
-        
         if (count($rooms)>1) {
             $dateTime = new DateTime();
             $time = $dateTime->format('Y-m-d H:00:00');
@@ -288,19 +294,20 @@ class BookingService {
                 }
             }
             $storeData['room_id'] = $room_id;
+        } 
+        else {
+            $storeData['room_id'] = $rooms[0]->id;
         }
-        $storeData['room_id'] = $rooms[0]->id;
         
         $today = Today::where('hospital_id', $hospital->id)->first();
 
         $storeData['surgeon_id'] = $today->surgeon_id;
         $storeData['cardiologist_id'] = $today->cardiologist_id;
-        if($data['disease_id'] = 1) {
+        if($data['disease_id'] == 1) {
             $storeData['status'] = 1;
         } else {
             $storeData['status'] = 2;
         }
-
         $bookings = [];
 
         try {
