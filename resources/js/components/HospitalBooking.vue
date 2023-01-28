@@ -17,15 +17,11 @@
         </div>
 
         <!--Add Orderlies-->
-        <div v-if="!orderly || orderly.surgeon_id == ''" class="alert alert-warning fw-bolder" role="alert">
+        <div v-if="canAddOrderly()" class="alert alert-warning fw-bolder" role="alert">
             Для просмотра и редактирования графика занятости операционных укажите
             дежурного хирирга и кардиолога на {{ $dayjs().format('DD.MM.YYYY') }}.
             <div class="mt-3">
-                <button type="button" @click="modalOrder()" class="btn btn-primary"
-
-                        >
-<!--                    data-bs-target="#modalOrderly"-->
-<!--                    data-bs-toggle="modal"-->
+                <button type="button" @click="modalOrder()" class="btn btn-primary">
                     <font-awesome-icon icon="fa-solid fa-pencil" /> Добавить дежурных
                 </button>
             </div>
@@ -33,7 +29,7 @@
 
         <!--Orderly FIO-->
         <div v-else>
-            <div class="mt-3">
+            <div class="mt-3" v-if="canUpdate()">
                 <button type="button" @click="modalOrder()" class="btn btn-primary">
                     <font-awesome-icon icon="fa-solid fa-pencil" /> Сменить дежурных
                 </button>
@@ -76,9 +72,10 @@
                                          v-for="(val, i) in room.val" :key="i">
 
                                         <div class="square" @click="bookingRoom(room.name, val, index, i)"
-                                             :class="val.status == 0 ? 'bg-green-300' : val.status == 1 ? 'bg-red-300' : 'bg-yellow-300'">
-<!--                                            data-bs-toggle="modal"-->
-<!--                                            data-bs-target="#statusModal"-->
+                                             :class="val.status == 0
+                                             ? 'bg-green-300'
+                                             : val.status == 1 ? 'bg-red-300' : 'bg-yellow-300',
+                                              canUpdate() ? 'cursor' : ''">
                                             <div>
                                                 <div><div class="fw-bold fs-5 text-wrap">{{ $dayjs(val.time).format('HH:mm') }}</div></div>
                                             </div>
@@ -204,7 +201,7 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
                         <button type="button" @click.prevent="updateOrderly()" :disabled="processing" class="btn btn-primary btn-block">
-                            {{ processing ? "Please wait" : "Сохранить" }}
+                            {{ processing ? wait : "Сохранить" }}
                         </button>
                     </div>
                 </div>
@@ -218,7 +215,9 @@
 <script>
 import { Modal } from 'bootstrap'
 import useValidate from '@vuelidate/core'
-import {minLength, required} from '@vuelidate/validators'
+import { required} from '@vuelidate/validators';
+import {roles, wait} from "../consts";
+
 export default {
     name: "HospitalBooking",
     data() {return {
@@ -243,6 +242,8 @@ export default {
         cardiologist_id: null,
         processing: false,
         rooms: [],
+        roles,
+        wait,
     }},
     validations() {
         return {
@@ -255,6 +256,8 @@ export default {
     },
     computed: {
         auth_user() {
+            // console.log(this.$parent.auth_user)
+            // return this.$parent.auth_user;
             return localStorage.getItem('auth_user') ? JSON.parse(localStorage.getItem('auth_user')) : null
         }
     },
@@ -380,6 +383,14 @@ export default {
                 window.scrollTo(0,0);
             }
 
+        },
+        canAddOrderly() {
+            return
+            [this.roles.surgeon, this.roles.cardiologist, this.roles.admin].includes(this.auth_user.role_name)
+            && (!this.orderly || this.orderly.surgeon_id == '');
+        },
+        canUpdate() {
+            return [this.roles.surgeon, this.roles.cardiologist, this.roles.admin].includes(this.auth_user.role_name);
         }
     },
 }
@@ -395,10 +406,13 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
-    cursor: pointer;
+    /*cursor: pointer;*/
     aspect-ratio: 1;
     width: 100%;
     position: relative;
+}
+.cursor {
+    cursor: pointer !important;
 }
 .striped {
     background: linear-gradient(to right, cyan 50%, palegoldenrod 50%);

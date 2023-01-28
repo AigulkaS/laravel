@@ -74,7 +74,7 @@
 
                     <div class="col-12 my-3 text-center">
                         <button type="submit" :disabled="processing" class="btn btn-primary btn-block">
-                            {{ processing ? "Please wait" : "Сохранить" }}
+                            {{ processing ? wait : "Сохранить" }}
                         </button>
                     </div>
                 </form>
@@ -86,12 +86,10 @@
 <script>
 import useValidate from '@vuelidate/core';
 import { required } from '@vuelidate/validators';
-// import Multiselect from '@vueform/multiselect'
+import {wait} from "../../../consts";
+
 export default {
     name: "Create",
-    // components: {
-    //     Multiselect,
-    // },
     data() {
         return {
             v$: useValidate(),
@@ -101,6 +99,7 @@ export default {
             errors : {},
             success : null,
             value: [],
+            wait
         }
     },
     mounted() {

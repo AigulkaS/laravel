@@ -11,11 +11,25 @@ const routes = [
         name: 'dashboard',
         path: "/",
         component: () => import('../components/Dashboard.vue'),
+        redirect: { name: 'home' },
+        meta: {
+            breadcrumb: 'Главная'
+        },
         children: [
             {
                 name: 'home',
                 path: '',
                 component: () => import('../components/Home.vue'),
+
+            },
+            {
+                name: "profile",
+                path: "profile",
+                component: () => import('../components/Profile.vue'),
+                meta: {
+                    requiresAuth: true,
+                    breadcrumb: 'Профиль',
+                }
             },
             {
                 name: "login",
@@ -23,6 +37,7 @@ const routes = [
                 component: () => import('../components/Auth/Login.vue'),
                 meta: {
                     guest: true,
+                    breadcrumb: 'Авторизация',
                     // middleware: "guest",
                     // title: `Login`
                 }
@@ -33,6 +48,7 @@ const routes = [
                 component: () => import('../components/Auth/Register.vue'),
                 meta: {
                     guest: true,
+                    breadcrumb: 'Регистрация',
                     // middleware: "guest",
                     // title: `Register`
                 }
@@ -43,6 +59,7 @@ const routes = [
                 component: () => import('../components/Auth/ForgotPassword.vue'),
                 meta: {
                     guest: true,
+                    breadcrumb: 'Сброс пароля',
                     // middleware: "guest",
                     // title: `PasswordReset`
                 }
@@ -55,6 +72,12 @@ const routes = [
                 }),
                 component: () => import('../components/Auth/VerifyEmail.vue'),
                 name: 'verify-email',
+                meta: {
+                    // guest: true,
+                    breadcrumb: 'Подтвеждение Email',
+                    // middleware: "guest",
+                    // title: `PasswordReset`
+                }
 
             },
             {
@@ -66,23 +89,30 @@ const routes = [
                 component: () => import('../components/Auth/ResetPassword.vue'),
                 name: 'reset-password',
                 meta : {
-                    guest : true
+                    guest : true,
+                    breadcrumb: 'Сбросить пароль',
+
                 }
             },
             {
                 path: 'admin',
                 component: () => import('../components/Admin/Admin.vue'),
                 name: 'admin_page',
+                redirect: { name: 'users' },
                 meta : {
                     // guest : true
                     email_verified: true,
                     requiresAuth: true,
+                    breadcrumb: 'Админка',
                 },
                 children: [
                     {
                         path: 'users',
                         component:() => import('../components/Admin/Users/Users.vue'),
                         name: 'users',
+                        meta : {
+                            breadcrumb: 'Пользователи',
+                        },
                         children: [
                             {
                                 path: ':id/edit',
@@ -94,6 +124,7 @@ const routes = [
                                 meta : {
                                     email_verified: true,
                                     requiresAuth: true,
+                                    breadcrumb: 'Редактировать',
                                 },
                             },
                             {
@@ -106,6 +137,7 @@ const routes = [
                                 meta : {
                                     email_verified: true,
                                     requiresAuth: true,
+                                    breadcrumb: 'Просмотр',
                                 },
                             },
                         ]
@@ -114,6 +146,9 @@ const routes = [
                         path: 'roles',
                         component: () => import('../components/Admin/Roles/Roles.vue'),
                         name: 'roles',
+                        meta : {
+                            breadcrumb: 'Роли',
+                        },
                         children: [
                             {
                                 path: '/admin/roles/create',
@@ -122,6 +157,7 @@ const routes = [
                                 meta : {
                                     email_verified: true,
                                     requiresAuth: true,
+                                    breadcrumb: 'Добавить роль',
                                 },
                             },
                             {
@@ -134,6 +170,8 @@ const routes = [
                                 meta : {
                                     email_verified: true,
                                     requiresAuth: true,
+                                    breadcrumb: 'Редактирование',
+
                                 },
                             },
                             {
@@ -146,6 +184,7 @@ const routes = [
                                 meta : {
                                     email_verified: true,
                                     requiresAuth: true,
+                                    breadcrumb: 'Просмотр',
                                 },
                             },
                         ]
@@ -153,6 +192,9 @@ const routes = [
                         path: 'permissions',
                         component: () => import('../components/Admin/Permissions/Permissions.vue'),
                         name: 'permissions',
+                        meta : {
+                            breadcrumb: 'Разрешения',
+                        },
                         children: [
                             {
                                 path: '/admin/permissions/create',
@@ -161,6 +203,8 @@ const routes = [
                                 meta : {
                                     email_verified: true,
                                     requiresAuth: true,
+                                    breadcrumb: 'Добавить разрешение',
+
                                 },
                             },
                             {
@@ -173,6 +217,7 @@ const routes = [
                                 meta : {
                                     email_verified: true,
                                     requiresAuth: true,
+                                    breadcrumb: 'Редактирование',
                                 },
                             },
                             {
@@ -185,6 +230,7 @@ const routes = [
                                 meta : {
                                     email_verified: true,
                                     requiresAuth: true,
+                                    breadcrumb: 'Просмотр',
                                 },
                             },
                         ]
@@ -193,6 +239,9 @@ const routes = [
                         path: 'hospitals',
                         component: () => import('../components/Admin/Hospitals/Hospitals.vue'),
                         name: 'hospitals',
+                        meta : {
+                            breadcrumb: 'Больницы',
+                        },
                         children: [
                             {
                                 path: '/admin/hospitals/create',
@@ -201,6 +250,7 @@ const routes = [
                                 meta : {
                                     email_verified: true,
                                     requiresAuth: true,
+                                    breadcrumb: 'Добавить больницу',
                                 },
                             },
                             {
@@ -213,6 +263,7 @@ const routes = [
                                 meta : {
                                     email_verified: true,
                                     requiresAuth: true,
+                                    breadcrumb: 'Редактирование',
                                 },
                             },
                             {
@@ -225,6 +276,7 @@ const routes = [
                                 meta : {
                                     email_verified: true,
                                     requiresAuth: true,
+                                    breadcrumb: 'Просмотр',
                                 },
                             },
                         ]
@@ -233,6 +285,9 @@ const routes = [
                         path: 'diseases',
                         component: () => import('../components/Admin/Diseases/Diseases.vue'),
                         name: 'diseases',
+                        meta : {
+                            breadcrumb: 'Диагнозы',
+                        },
                         children: [
                             {
                                 path: '/admin/diseases/create',
@@ -241,6 +296,8 @@ const routes = [
                                 meta : {
                                     email_verified: true,
                                     requiresAuth: true,
+                                    breadcrumb: 'Добавить новый диагноз',
+
                                 },
                             },
                             {
@@ -253,6 +310,7 @@ const routes = [
                                 meta : {
                                     email_verified: true,
                                     requiresAuth: true,
+                                    breadcrumb: 'Редактирование',
                                 },
                             },
                             {
@@ -265,6 +323,7 @@ const routes = [
                                 meta : {
                                     email_verified: true,
                                     requiresAuth: true,
+                                    breadcrumb: 'Просмотр',
                                 },
                             },
                         ]
@@ -272,16 +331,16 @@ const routes = [
                 ]
             },
 
-
-
-
-
-
-
-
-
-
-
+            {
+                path: '/hospitals',
+                component: () => import('../components/HospitalsCard.vue'),
+                name: 'hospitals_booking',
+                meta : {
+                    breadcrumb: 'Больницы',
+                    // email_verified: true,
+                    // requiresAuth: true,
+                },
+            },
             {
                 path: '/hospitals/:id/booking',
                 props: route => ({
@@ -290,6 +349,7 @@ const routes = [
                 component: () => import('../components/HospitalBooking.vue'),
                 name: 'hospital_booking',
                 meta : {
+                    breadcrumb: 'График',
                     // email_verified: true,
                     // requiresAuth: true,
                 },
@@ -297,61 +357,11 @@ const routes = [
 
         ]
     }
-    // {
-    //     name: "login",
-    //     path: "/login",
-    //     component: Login,
-    //     meta: {
-    //         middleware: "guest",
-    //         title: `Login`
-    //     }
-    // },
-    // {
-    //     name: "register",
-    //     path: "/register",
-    //     component: Register,
-    //     meta: {
-    //         middleware: "guest",
-    //         title: `Register`
-    //     }
-    // },
-    // {
-    //     path: "/",
-    //     component: DahboardLayout,
-    //     meta: {
-    //         middleware: "auth"
-        // },
-        // children: [
-            // {
-            //     name: "dashboard",
-            //     path: '/',
-            //     component: Dashboard,
-            //     meta: {
-            //         title: `Dashboard`
-            //     }
-            // }
-        // ]
-    // }
 ]
 const router = createRouter({
     history: createWebHistory(),
     routes, // short for `routes: routes`
 })
-// router.beforeEach((to, from, next) => {
-//     document.title = to.meta.title
-//     if (to.meta.middleware == "guest") {
-//         if (store.state.auth.authenticated) {
-//             next({ name: "dashboard" })
-//         }
-//         next()
-//     } else {
-//         if (store.state.auth.authenticated) {
-//             next()
-//         } else {
-//             next({ name: "login" })
-//         }
-//     }
-// })
 
 
 

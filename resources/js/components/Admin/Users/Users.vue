@@ -53,7 +53,10 @@
             </div>
         </div>
         <div>
-            <router-view></router-view>
+            <router-view ref="asd"></router-view>
+<!--            <router-view v-slot="{ Component }">-->
+<!--                <component ref="asd" :is="Component" />-->
+<!--            </router-view>-->
         </div>
     </div>
 
@@ -76,6 +79,10 @@ export default {
         this.getData(this.current_page);
     },
     methods: {
+        // test2() {
+        //     console.log('test2')
+        //     this.$refs.asd.viewUser();
+        // },
         getData(page) {
             axios.get(`/api/users?page=${page}`, {
                 headers: {Authorization: localStorage.getItem('access_token')}
