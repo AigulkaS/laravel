@@ -27,7 +27,6 @@ class BookingService {
                 $i = 0;
                 do {
                     $time = $start->format('Y-m-d H:00:00');
-                    
 
                     $bookings = Booking::where('hospital_id', $hospital->id)
                         ->where('room_id', $room->id)
@@ -48,6 +47,7 @@ class BookingService {
                 } while($i <3);
 
                 $arrRoom[] = [
+                    'id' => $room->id,
                     'name' => $room->name,
                     'val' => $val,
                 ];
@@ -266,12 +266,11 @@ class BookingService {
         ];
         $hospital = Hospital::find($data['hospital_id']);
         $rooms = $hospital->rooms;
+        $dateTime = new DateTime();
         if (count($rooms)>1) {
-            $dateTime = new DateTime();
-            $time = $dateTime->format('Y-m-d H:00:00');
             $room_id = null;
             foreach($rooms as $room) {
-                $booking = Booking::where('date_time', $time)
+                $booking = Booking::where('date_time', $dateTime->format('Y-m-d H:00:00'))
                     ->where('hospital_id', $hospital->id)
                     ->where('room_id', $room->id)
                     ->first();
@@ -314,19 +313,16 @@ class BookingService {
             DB::beginTransaction();
             for ($i = 0; $i < $data['booking_hours']; $i++) {
                 $storeData['date_time'] = $dateTime->format('Y-m-d H:00:00');
-
                 $booking = Booking::where('date_time', $storeData['date_time'])
                     ->where('hospital_id', $hospital->id)
-                    ->where('room_id', $room->id)
+                    ->where('room_id', $storeData['room_id'])
                     ->first();
-
                 if ($booking == null) {
                     $booking = Booking::create($storeData);
                 } else {
                     $booking->update($storeData);
                     $booking->fresh();
                 }
-                
                 $bookings[]=$booking;
                 $dateTime->add(new DateInterval('PT1H'));
             }
@@ -341,7 +337,7 @@ class BookingService {
     public function update($data) {
         $storeData = [
             'hospital_id' => $data['hospital_id'],
-            'disease_id' => $data['status'],
+            'disease_id' => $data['status'] == 0 ? 2 : $data['status'],
             'status' => $data['status'],
             'room_id' => $data['room_id'],
         ];
@@ -349,6 +345,7 @@ class BookingService {
 
         $storeData['surgeon_id'] = $today->surgeon_id;
         $storeData['cardiologist_id'] = $today->cardiologist_id;
+        $storeData['dispatcher_id'] = $storeData['surgeon_id'];
 
         $dateTime = new DateTime($data['date_time']);
         $bookings = [];
@@ -357,23 +354,30 @@ class BookingService {
             DB::beginTransaction();
             for ($i = 0; $i < $data['booking_hours']; $i++) {
                 $storeData['date_time'] = $dateTime->format('Y-m-d H:00:00');
+                dump(' $storeData[date_time]');
+                dump( $storeData['date_time']);
 
                 $booking = Booking::where('date_time', $storeData['date_time'])
                     ->where('hospital_id',$storeData['hospital_id'])
                     ->where('room_id', $storeData['room_id'])
                     ->first();
-                    
+                dump(' $booking');
+                dump( $booking);
                 if ($booking == null) {
                     $booking = Booking::create($storeData);
                 } else {
-                    $storeData['dispatcher_id'] = $storeData['surgeon_id'];
+                    dump(' $storeData');
+                    dump( $storeData);
                     $booking->update($storeData);
+                    dump( 'updated');
                     $booking->fresh();
                 }
             
                 $bookings[]=$booking;
                 $dateTime->add(new DateInterval('PT1H'));
             }
+            dump('$bookings');
+            dd($bookings);
             DB::commit();
         } catch(\Exception $e) {
             DB::rollBack();

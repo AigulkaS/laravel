@@ -363,6 +363,12 @@ const router = createRouter({
     routes, // short for `routes: routes`
 })
 
+
+
+
+
+
+
 router.beforeEach((to, from, next) => {
     if(to.matched.some(record => record.meta.requiresAuth)) {
         if (localStorage.getItem('access_token') == null) {
@@ -380,11 +386,10 @@ router.beforeEach((to, from, next) => {
                 else{
                     next({ name: 'userboard'})
                 }
-            } else if (to.matched.some(record => record.meta.email_verified)) {
+            }else if (to.matched.some(record => record.meta.email_verified)) {
                 if (isNull(user.email_verified_at)) {
                     next({ name: 'home'})
-                }
-                else next();
+                } else next();
             } else {
                 next()
             }
@@ -400,5 +405,9 @@ router.beforeEach((to, from, next) => {
         next()
     }
 })
+
+
+
+
 
 export default router
