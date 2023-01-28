@@ -65,6 +65,14 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->belongsTo(Role::class);
     }
 
+    public function hasRole($roleName) {
+        $role = $this->role()->get();
+        if ($role->name == $roleName) {
+            return true;
+        }
+        return false;
+    }
+
     public function hospital() {
         return $this->belongsTo(Hospital::class);
     }

@@ -359,42 +359,42 @@ const router = createRouter({
 
 
 
-// router.beforeEach((to, from, next) => {
-//     if(to.matched.some(record => record.meta.requiresAuth)) {
-//         if (localStorage.getItem('access_token') == null) {
-//             next({
-//                 // path: '/login',
-//                 name: 'login',
-//                 params: { nextUrl: to.fullPath }
-//             })
-//         } else {
-//             let user = JSON.parse(localStorage.getItem('auth_user'))
-//             if(to.matched.some(record => record.meta.is_admin)) {
-//                 if(user.is_admin == 1){
-//                     next()
-//                 }
-//                 else{
-//                     next({ name: 'userboard'})
-//                 }
-//             }else if (to.matched.some(record => record.meta.email_verified)) {
-//                 if (isNull(user.email_verified_at)) {
-//                     next({ name: 'home'})
-//                 } else next();
-//             } else {
-//                 next()
-//             }
-//         }
-//     } else if(to.matched.some(record => record.meta.guest)) {
-//         if(localStorage.getItem('access_token') == null){
-//             next()
-//         }
-//         else{
-//             next({ name: 'home'})
-//         }
-//     }else {
-//         next()
-//     }
-// })
+router.beforeEach((to, from, next) => {
+    if(to.matched.some(record => record.meta.requiresAuth)) {
+        if (localStorage.getItem('access_token') == null) {
+            next({
+                // path: '/login',
+                name: 'login',
+                params: { nextUrl: to.fullPath }
+            })
+        } else {
+            let user = JSON.parse(localStorage.getItem('auth_user'))
+            if(to.matched.some(record => record.meta.is_admin)) {
+                if(user.is_admin == 1){
+                    next()
+                }
+                else{
+                    next({ name: 'userboard'})
+                }
+            }else if (to.matched.some(record => record.meta.email_verified)) {
+                if (isNull(user.email_verified_at)) {
+                    next({ name: 'home'})
+                } else next();
+            } else {
+                next()
+            }
+        }
+    } else if(to.matched.some(record => record.meta.guest)) {
+        if(localStorage.getItem('access_token') == null){
+            next()
+        }
+        else{
+            next({ name: 'home'})
+        }
+    }else {
+        next()
+    }
+})
 
 
 
