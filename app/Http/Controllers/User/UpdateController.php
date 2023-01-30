@@ -14,10 +14,10 @@ class UpdateController extends BaseController
         $data = $request->validated();
 
         $user = $this->service->update($user, $data);
-            
+
         return new UserResource($user);
-        // return redirect()->route('user.show', $user->id);
+//         return redirect()->route('user.show', $user->id);
     }
 
-        
+
 }

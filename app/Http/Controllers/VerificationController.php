@@ -18,16 +18,16 @@ class VerificationController extends Controller
             || !hash_equals((string) $request->route('hash'), sha1($user->getEmailForVerification()))
         ) {
 
-            return response()->json(['message' => 'Verification error ! Try again'], 500);
+            return response()->json(['message' => 'Ошибка, неверная ссылка!'], 500);
         }
 
 
         if ($user->hasVerifiedEmail()) {
-            return response()->json(['message' => 'already verified !'], 200);
+            return response()->json(['message' => 'Email уже подтвержден!'], 200);
         }
 
         if ($user->markEmailAsVerified()) {
-            return response()->json(['message' => 'email verified successfully !'], 200);
+            return response()->json(['message' => 'Email успешно подтвержден!'], 200);
         }
 
         return response()->json(['verified' => true]);
@@ -40,7 +40,7 @@ class VerificationController extends Controller
 
         $user = User::find($request->id);
 
-        if (!$user)  return response()->json(['message' => 'Verification error '], 500);
+        if (!$user)  return response()->json(['message' => 'Ошибка, неверная ссылка!'], 500);
 
 
         if ($user->hasVerifiedEmail()) {

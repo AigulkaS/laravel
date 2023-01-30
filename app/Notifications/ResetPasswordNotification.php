@@ -55,7 +55,7 @@ class ResetPasswordNotification extends ResetPassword
         ];
         return (new MailMessage)
             ->subject(Lang::get('Сброс пароля'))
-            ->markdown('emails.verify', $vars); // Шаблон письма
+            ->markdown('emails.password_reset', $vars); // Шаблон письма
 //            ->line(Lang::get('You are receiving this email because we received a password reset request for your account.'))
 //            ->action(Lang::get('Reset Password'), url(config('app.url') . '/reset-password/' . $this->token) . '?email=' . urlencode($notifiable->email))
 //            ->line(Lang::get('This password reset link will expire in :count minutes.', ['count' => config('auth.passwords.' . config('auth.defaults.passwords') . '.expire')]))

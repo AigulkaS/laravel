@@ -39,9 +39,6 @@ export default {
             links: ['users', 'roles', 'permissions', 'hospitals', 'diseases']
         }
     },
-    mounted() {
-        console.log(this.$route);
-    },
     methods: {
         getNameLink() {
             return this.links.findIndex(el => el == this.$route.name)
@@ -49,11 +46,9 @@ export default {
         // test() {
         //     console.log('test444')
         //     this.$refs.zxc.test2();
+        //     console.log(this.$refs.zxc)
+        //     // console.log(this.$refs.zxc.testDisease())
         // }
     }
 }
 </script>
-
-<style scoped>
-
-</style>

@@ -34,3 +34,8 @@ axios.defaults.withCredentials = true;
 //     forceTLS: (import.meta.env.VITE_PUSHER_SCHEME ?? 'https') === 'https',
 //     enabledTransports: ['ws', 'wss'],
 // });
+
+
+import SocketClient from 'socket.io-client';
+window.io = SocketClient;
+

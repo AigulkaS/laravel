@@ -16,5 +16,5 @@ class IndexController extends BaseController
             return $this->service->getHospitalInfoById($data['hospital_id']);
         }
     }
-  
+
 }

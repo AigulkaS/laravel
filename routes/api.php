@@ -34,9 +34,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 });
 
 
-
-
-Route::group(['middleware' => 'role:admin'], function () {     
+Route::group(['middleware' => 'role:admin'], function () {
     // for users
     Route::get('/users', App\Http\Controllers\User\IndexController::class)->name('user.index');
     Route::get('/users/create', App\Http\Controllers\User\CreateController::class)->name('user.create');
@@ -45,7 +43,7 @@ Route::group(['middleware' => 'role:admin'], function () {
     Route::get('/users/{user}/edit', App\Http\Controllers\User\EditController::class,)->name('user.edit');
     Route::patch('/users/{user}', App\Http\Controllers\User\UpdateController::class,)->name('user.update');
     Route::delete('/users/{user}', App\Http\Controllers\User\DestroyController::class,)->name('user.delete');
-    // 
+    //
 // ->middleware('permissions:edit booking,edit today')
 
     // for roles
@@ -56,7 +54,7 @@ Route::group(['middleware' => 'role:admin'], function () {
     Route::get('/roles/{role}/edit', App\Http\Controllers\Role\EditController::class,)->name('role.edit');
     Route::patch('/roles/{role}', App\Http\Controllers\Role\UpdateController::class,)->name('role.update');
     Route::delete('/roles/{role}', App\Http\Controllers\Role\DestroyController::class,)->name('role.delete');
-    // 
+    //
 
     // for permissions
     Route::get('/permissions', App\Http\Controllers\Permission\IndexController::class)->name('permission.index');
@@ -66,7 +64,7 @@ Route::group(['middleware' => 'role:admin'], function () {
     Route::get('/permissions/{permission}/edit', App\Http\Controllers\Permission\EditController::class,)->name('permission.edit');
     Route::patch('/permissions/{permission}', App\Http\Controllers\Permission\UpdateController::class,)->name('permission.update');
     Route::delete('/permissions/{permission}', App\Http\Controllers\Permission\DestroyController::class,)->name('permission.delete');
-    // 
+    //
 
     // for hospitals
     Route::get('/hospitals', App\Http\Controllers\Hospital\IndexController::class)->name('hospital.index');
@@ -90,13 +88,13 @@ Route::group(['middleware' => 'role:admin'], function () {
     Route::delete('/diseases/{disease}', App\Http\Controllers\Disease\DestroyController::class,)->name('disease.delete');
     //
 });
- 
+
 
 // for today
 Route::get('/todays', App\Http\Controllers\Today\IndexController::class)->name('today.index');//->middleware('permissions:show today');
 Route::get('/todays/edit', App\Http\Controllers\Today\EditController::class,)->name('today.edit')->middleware('permissions:show today,edit today');
 Route::patch('/todays', App\Http\Controllers\Today\UpdateController::class,)->name('today.update')->middleware('permissions:show today,edit today');
-// 
+//
 
 // for booking
 Route::get('/bookings', App\Http\Controllers\Booking\IndexController::class)->name('booking.index'); //->middleware('permissions:show booking');
@@ -105,7 +103,7 @@ Route::get('/bookings/create/hospital', [\App\Http\Controllers\Booking\CreateCon
 Route::post('/bookings', App\Http\Controllers\Booking\StoreController::class)->name('booking.store');//->middleware('permissions:show booking,create booking,edit booking');
 Route::patch('/bookings', App\Http\Controllers\Booking\UpdateController::class,)->name('booking.update');//->middleware('permissions:show booking,create booking,edit booking');
 // Route::delete('/bookings/{booking}', App\Http\Controllers\Booking\DestroyController::class,)->name('booking.delete');
-// 
+//
 
 // "geo_lat": "54.764049",
     // "geo_lon": "56.05606"

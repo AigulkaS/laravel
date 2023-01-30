@@ -151,7 +151,7 @@ const routes = [
                         },
                         children: [
                             {
-                                path: '/admin/roles/create',
+                                path: 'create',
                                 component: () => import('../components/Admin/Roles/Create.vue'),
                                 name: 'role_create',
                                 meta : {
@@ -161,7 +161,7 @@ const routes = [
                                 },
                             },
                             {
-                                path: '/admin/roles/:id/edit',
+                                path: ':id/edit',
                                 props: route => ({
                                     id: route.params.id,
                                 }),
@@ -175,7 +175,7 @@ const routes = [
                                 },
                             },
                             {
-                                path: '/admin/roles/:id/show',
+                                path: ':id/show',
                                 props: route => ({
                                     id: route.params.id,
                                 }),
@@ -197,7 +197,7 @@ const routes = [
                         },
                         children: [
                             {
-                                path: '/admin/permissions/create',
+                                path: 'create',
                                 component: () => import('../components/Admin/Permissions/Create.vue'),
                                 name: 'permission_create',
                                 meta : {
@@ -208,7 +208,7 @@ const routes = [
                                 },
                             },
                             {
-                                path: '/admin/permissions/:id/edit',
+                                path: ':id/edit',
                                 props: route => ({
                                     id: route.params.id,
                                 }),
@@ -221,7 +221,7 @@ const routes = [
                                 },
                             },
                             {
-                                path: '/admin/permissions/:id/show',
+                                path: ':id/show',
                                 props: route => ({
                                     id: route.params.id,
                                 }),
@@ -244,7 +244,7 @@ const routes = [
                         },
                         children: [
                             {
-                                path: '/admin/hospitals/create',
+                                path: 'create',
                                 component: () => import('../components/Admin/Hospitals/Create.vue'),
                                 name: 'hospital_create',
                                 meta : {
@@ -254,7 +254,7 @@ const routes = [
                                 },
                             },
                             {
-                                path: '/admin/hospitals/:id/edit',
+                                path: ':id/edit',
                                 props: route => ({
                                     id: route.params.id,
                                 }),
@@ -267,7 +267,7 @@ const routes = [
                                 },
                             },
                             {
-                                path: '/admin/hospitals/:id/show',
+                                path: ':id/show',
                                 props: route => ({
                                     id: route.params.id,
                                 }),
@@ -290,7 +290,7 @@ const routes = [
                         },
                         children: [
                             {
-                                path: '/admin/diseases/create',
+                                path: 'create',
                                 component: () => import('../components/Admin/Diseases/Create.vue'),
                                 name: 'disease_create',
                                 meta : {
@@ -301,7 +301,7 @@ const routes = [
                                 },
                             },
                             {
-                                path: '/admin/diseases/:id/edit',
+                                path: ':id/edit',
                                 props: route => ({
                                     id: route.params.id,
                                 }),
@@ -314,7 +314,7 @@ const routes = [
                                 },
                             },
                             {
-                                path: '/admin/diseases/:id/show',
+                                path: ':id/show',
                                 props: route => ({
                                     id: route.params.id,
                                 }),
@@ -356,6 +356,13 @@ const routes = [
             },
 
         ]
+    },
+    {
+        path: '/:pathMatch(.*)*',
+        component: () => import('../components/ErrorPage/ErrorPage.vue'),
+        props: () => ({
+            err: {status: 404}
+        }),
     }
 ]
 const router = createRouter({
