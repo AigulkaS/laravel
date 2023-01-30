@@ -13,12 +13,12 @@ class IndexController extends BaseController
     {
 
         $data = $request->validated();
-        
+
         $filter = app()->make(DiseaseFilter::class, ['queryParams' => array_filter($data)]);
-        
+
         $disease = Disease::filter($filter)->get();
-        
+
         return DiseaseResource::collection($disease);
     }
-  
+
 }

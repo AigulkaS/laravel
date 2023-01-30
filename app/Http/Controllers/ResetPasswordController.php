@@ -17,7 +17,7 @@ class ResetPasswordController extends Controller
             'password' => 'required|min:6|confirmed',
         ]);
 
-        $status = Password::reset(
+        Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function ($user, $password) use ($request) {
                 $user->forceFill([
@@ -31,7 +31,7 @@ class ResetPasswordController extends Controller
         );
 
         return response()->json([
-            "msg" => "Пароль успешно сброшен!",
+            "message" => "Пароль успешно сброшен!",
         ], 200);
     }
 }
