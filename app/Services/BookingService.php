@@ -127,8 +127,6 @@ class BookingService {
     }
 
     public function getNearestHospital($data) {
-        
-
         $geo_lat = floatval($data['geo_lat']);
         
         $geo_lon = floatval($data['geo_lon']);
@@ -144,18 +142,11 @@ class BookingService {
                         $query->where('status', 1)
                               ->orWhere('status', 2);
                     })
-                    ->get();
-        // dump( $dateTime);     
-        // dump('booked');     
-        // dump( $bookings) ;     
+                    ->get();   
         foreach($bookings as $booking) {
-            
             $hospital = $booking->hospital;
             
-            
             $otherRoom = false;
-            // dump('count($hospital->rooms');
-            // dump(count($hospital->rooms));
             if (count($hospital->rooms)>1) {
                 foreach($hospital->rooms as $room) {
                     $roomBooking = Booking::where('date_time', $dateTime)
@@ -187,15 +178,11 @@ class BookingService {
             unset($bookedHospital['rooms']);
             $arrBookedHospitals[]= $bookedHospital;
         }
-        // dump('arrBookedHospitals');
-        // dump($arrBookedHospitals);
-        
+
         foreach($arrBookedHospitals as $bookedHospital) {
             $key = array_search($bookedHospital, $hospitals);
             unset($hospitals[$key]);
         }
-        // dump('hospitals');
-        // dd($hospitals);
 
         if(count($hospitals) == 0) {
             $bookings = Booking::where('date_time', $dateTime)
@@ -354,30 +341,21 @@ class BookingService {
             DB::beginTransaction();
             for ($i = 0; $i < $data['booking_hours']; $i++) {
                 $storeData['date_time'] = $dateTime->format('Y-m-d H:00:00');
-                dump(' $storeData[date_time]');
-                dump( $storeData['date_time']);
 
                 $booking = Booking::where('date_time', $storeData['date_time'])
                     ->where('hospital_id',$storeData['hospital_id'])
                     ->where('room_id', $storeData['room_id'])
                     ->first();
-                dump(' $booking');
-                dump( $booking);
                 if ($booking == null) {
                     $booking = Booking::create($storeData);
                 } else {
-                    dump(' $storeData');
-                    dump( $storeData);
                     $booking->update($storeData);
-                    dump( 'updated');
                     $booking->fresh();
                 }
             
                 $bookings[]=$booking;
                 $dateTime->add(new DateInterval('PT1H'));
             }
-            dump('$bookings');
-            dd($bookings);
             DB::commit();
         } catch(\Exception $e) {
             DB::rollBack();

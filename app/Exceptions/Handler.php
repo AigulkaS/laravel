@@ -51,44 +51,29 @@ class Handler extends ExceptionHandler
         //     //
         // });
 
-        // $this->renderable(function (NotFoundHttpException $e, $request) {
-        //     return response()->json(...);
+        // $this->renderable(function (Exception $e, $request) {
+        //     error_log('bbbbb');
+        //     error_log(get_class($e));
+        //     if ($request->is('api/*')) {
+        //         return response()->json([
+        //             'message' => 'Record not found.'
+        //         ], 404);
+        //     }
         // });
 
-        $this->renderable(function (Exception $e, $request) {
-            error_log('bbbbb');
-            error_log(get_class($e));
-            if ($request->is('api/*')) {
-                return response()->json([
-                    'message' => 'Record not found.'
-                ], 404);
-            }
-        });
-
-        $this->renderable(function (NotFoundHttpException $e, $request) {
-            if ($request->is('api/*')) {
-              if ($e->getPrevious() instanceof ModelNotFoundException) {
-                  return response()->json([
-                      'status' => 204,
-                      'message' => 'Data not found'
-                  ], 200);
-              }
-              return response()->json([
-                  'status' => 404,
-                  'message' => 'Target not found'
-              ], 404);
-            }
-          });
-
-          $this->renderable(function (NotFoundHttpException $e, $request) {
-            echo 'Some';
-            if ($request->is('api/*')) {
-                return response()->json([
-                    'message' => 'Record not found.'
-                ], 404);
-            }
-        });
-
-
+        // $this->renderable(function (NotFoundHttpException $e, $request) {
+        //     if ($request->is('api/*')) {
+        //       if ($e->getPrevious() instanceof ModelNotFoundException) {
+        //           return response()->json([
+        //               'status' => 204,
+        //               'message' => 'Data not found'
+        //           ], 200);
+        //       }
+        //       return response()->json([
+        //           'status' => 404,
+        //           'message' => 'Target not found'
+        //       ], 404);
+        //     }
+        //   });
     }
 }
