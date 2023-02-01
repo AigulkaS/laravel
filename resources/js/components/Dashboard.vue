@@ -15,21 +15,16 @@
                                 Главная
                             </router-link>
                         </li>
-                        <li class="nav-item" v-if="auth_user.role_name == roles.admin">
+                        <li class="nav-item" v-if="auth_user && auth_user.role_name == roles.admin">
                             <router-link :to="{name:'users'}" class="nav-link">
-                                Админка {{}}
+                                Админка
                             </router-link>
                         </li>
-                        <li class="nav-item" v-if="[roles.admin, roles.surgeon, roles.cardiologist].includes(auth_user.role_name)">
+                        <li class="nav-item" v-if="auth_user && [roles.admin, roles.surgeon, roles.cardiologist].includes(auth_user.role_name)">
                             <router-link :to="{name:'hospitals_booking'}" class="nav-link">
                                 Больницы
                             </router-link>
                         </li>
-<!--                        <li class="nav-item">-->
-<!--                            <router-link :to="{name:'hospital_booking', params: {id: 1}}" class="nav-link">-->
-<!--                                Бронирование-->
-<!--                            </router-link>-->
-<!--                        </li>-->
                     </ul>
                     <div class="d-flex">
                         <ul class="navbar-nav">
@@ -87,8 +82,6 @@
                         </template>
 
                     </li>
-<!--                    <li class="breadcrumb-item"><a href="#">Library</a></li>-->
-<!--                    <li class="breadcrumb-item active" aria-current="page">Data</li>-->
                 </ol>
             </nav>
         </div>
@@ -109,19 +102,17 @@ export default {
     name: "Dashboard",
     data() {
         return {
-            // auth_user: false,
+            auth_user: false,
             roles: roles,
         }
     },
     mounted() {
         console.log(this.$route)
         // console.log(this.$refs.qwe.test())
-        // this.auth_user = localStorage.getItem('auth_user') ? true : false;
+        // console.log(this.$refs.qwe)
+        this.auth_user = localStorage.getItem('auth_user') ? JSON.parse(localStorage.getItem('auth_user')) : null;
     },
     computed:{
-        auth_user() {
-            return localStorage.getItem('auth_user') ? JSON.parse(localStorage.getItem('auth_user')) : null
-        },
       breadcrumbs() {
           let arr = [];
           this.$route.matched.forEach((el, index) => {
@@ -140,7 +131,7 @@ export default {
     watch: {
         $route (to, from) {
             console.log(this.$route)
-            // this.auth_user = localStorage.getItem('auth_user') ? true : false
+            this.auth_user = localStorage.getItem('auth_user') ? JSON.parse(localStorage.getItem('auth_user')) : null;
         }
     },
     methods: {

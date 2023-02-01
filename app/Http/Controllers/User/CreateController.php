@@ -15,7 +15,7 @@ class CreateController extends BaseController
     {
         $roles = Role::all();
         $hospitals = Hospital::all();
-        
+
         return response()->json([
             'roles' => RoleResource::collection($roles),
             'hospitals' => HospitalResource::collection($hospitals),
@@ -27,6 +27,6 @@ class CreateController extends BaseController
 
 
 
-                
-            
+
+
 }

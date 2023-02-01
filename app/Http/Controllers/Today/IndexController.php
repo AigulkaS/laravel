@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Today;
 
+use App\Events\TodaysIndexEvent;
 use App\Http\Filters\TodayFilter;
 use App\Http\Requests\Today\FilterRequest;
 use App\Http\Resources\TodayResource;
@@ -13,12 +14,12 @@ class IndexController extends BaseController
     {
 
         $data = $request->validated();
-        
+
         $filter = app()->make(TodayFilter::class, ['queryParams' => array_filter($data)]);
-        
+
         $today = Today::filter($filter)->get();
-        
+
         return TodayResource::collection($today);
     }
-  
+
 }

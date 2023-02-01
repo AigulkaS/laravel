@@ -12,6 +12,6 @@ class ShowController extends BaseController
         return new DiseaseResource($disease);
     }
 
-                
-            
+
+
 }

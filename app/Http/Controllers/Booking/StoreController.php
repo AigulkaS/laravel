@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Booking;
 
+use App\Events\BookingsStoreEvent;
 use App\Http\Requests\Booking\StoreRequest;
 use App\Http\Resources\BookingResource;
 
@@ -19,12 +20,15 @@ class StoreController extends BaseController
 
         // return new BookingResource($booking);
 
+        event(new BookingsStoreEvent($bookings instanceof String ? $bookings : BookingResource::collection($bookings)));
+
+
         return $bookings instanceof String ? $bookings : BookingResource::collection($bookings);
 
         // return redirect()->route('user.index');
     }
 
 
-                
-            
+
+
 }
