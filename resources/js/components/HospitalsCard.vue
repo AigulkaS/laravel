@@ -265,9 +265,9 @@ export default {
             this.updateHospitalOrderly(orderly);
         });
         socket.on('bookings-store:App\\Events\\BookingsStoreEvent', (data) => {
-            console.log(data);
-            // let arr = data.result;
-            // this.updateHospitalRoomStatus(arr);
+            // console.log(data);
+            let arr = data.result;
+            this.updateHospitalRoomStatus(arr);
         });
 
         this.getData();
