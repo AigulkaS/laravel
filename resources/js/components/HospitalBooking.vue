@@ -260,9 +260,9 @@ export default {
             this.updateRoomStatus(arr);
         });
         socket.on('bookings-store:App\\Events\\BookingsStoreEvent', (data) => {
-            console.log(data);
-            // let arr = data.result;
-            // this.updateHospitalRoomStatus(arr);
+            // console.log(data);
+            let arr = data.result;
+            this.updateHospitalRoomStatus(arr);
         });
         this.getData();
     },
@@ -329,7 +329,7 @@ export default {
                     room_id: this.rooms[this.modal.room_index].id,
                     status: this.newStatus,
                     date_time: this.rooms[this.modal.room_index].val[this.modal.val_index].time,
-                    booking_hours: this.clock
+                    booking_hours: this.newStatus == 0 ? 1 : this.clock
                 },
                 {headers: {Authorization: localStorage.getItem('access_token')}
             }).then(res => {
