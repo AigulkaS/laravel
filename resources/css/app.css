@@ -1,0 +1,113 @@
+
+
+.multiselect-option.is-selected {
+    background: #0d6efd !important;
+}
+.multiselect {
+    background-color: #f8fafc !important;
+}
+
+.bg-red-300 {
+    background-color: #ea868f;
+}
+.bg-green-300 {
+    background-color: #75b798;
+}
+.bg-yellow-300 {
+    background-color: #ffda6a;
+}
+.cursor {
+    cursor: pointer !important;
+}
+
+.autocomplete {
+    /*the container must be positioned relative:*/
+    position: relative;
+    /*display: inline-block;*/
+}
+
+.autocomplete-items {
+    position: absolute;
+    border: 1px solid #d4d4d4;
+    border-bottom: none;
+    border-top: none;
+    z-index: 99;
+    /*position the autocomplete items to be the same width as the container:*/
+    top: 100%;
+    left: 0;
+    right: 0;
+}
+.autocomplete-items div {
+    /*padding: 10px;*/
+    cursor: pointer;
+    background-color: #fff;
+    border-bottom: 1px solid #d4d4d4;
+}
+autocomplete-disabled-item  div {
+    border-bottom: 1px solid #d4d4d4;
+}
+.autocomplete-items div:hover {
+    /*when hovering an item:*/
+    background-color: #e9e9e9;
+}
+
+.bg-gray-300 {
+    background-color: #e9ecef;
+}
+
+.btn-circle {
+    width: 30px;
+    height: 30px;
+    padding: 6px 0px;
+    border-radius: 15px;
+    text-align: center;
+    font-size: 12px;
+    line-height: 1.42857;
+}
+
+
+@media screen and (max-width: 767.98px) {
+    .table-mobile table {
+        /*border: 0;*/
+    }
+
+    table caption {
+        /*font-size: 1.3em;*/
+    }
+
+    .table-mobile table thead {
+        border: none;
+        clip: rect(0 0 0 0);
+        height: 1px;
+        margin: -1px;
+        overflow: hidden;
+        padding: 0;
+        position: absolute;
+        width: 1px;
+    }
+
+    .table-mobile table tr {
+        border-bottom: 3px solid #ddd;
+        display: block;
+        margin-bottom: .625em;
+    }
+
+    .table-mobile table td {
+        border-bottom: 1px solid #ddd;
+        display: block;
+        /*font-size: .8em;*/
+        text-align: right;
+    }
+
+    .table-mobile table td::before {
+        content: attr(data-label);
+        float: left;
+        font-weight: bold;
+        /*text-transform: uppercase;*/
+    }
+
+    .table-mobile table td:last-child {
+        border-bottom: 0;
+    }
+
+}

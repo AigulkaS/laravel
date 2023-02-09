@@ -5,10 +5,31 @@
         "build": "vite build"
     },
     "devDependencies": {
+        "@popperjs/core": "^2.10.2",
+        "@vitejs/plugin-vue": "^3.2.0",
         "axios": "^0.27",
+        "bootstrap": "^5.1.3",
         "laravel-vite-plugin": "^0.5.0",
         "lodash": "^4.17.19",
         "postcss": "^8.1.14",
-        "vite": "^3.0.0"
+        "sass": "^1.32.11",
+        "vite": "^3.0.0",
+        "vue": "^3.2.36"
+    },
+    "dependencies": {
+        "@fortawesome/fontawesome-svg-core": "^6.2.1",
+        "@fortawesome/free-solid-svg-icons": "^6.2.1",
+        "@fortawesome/vue-fontawesome": "^3.0.2",
+        "@vueform/multiselect": "^2.5.7",
+        "@vuelidate/core": "^2.0.0",
+        "@vuelidate/validators": "^2.0.0",
+        "dayjs": "^1.11.7",
+        "ioredis": "^5.2.5",
+        "socket.io": "^4.5.4",
+        "socket.io-client": "^4.5.4",
+        "vue-dadata": "^3.0.0-beta.9",
+        "vue-loader": "^17.0.0",
+        "vue-multiselect": "^3.0.0-alpha.2",
+        "vue-router": "^4.1.5"
     }
 }
