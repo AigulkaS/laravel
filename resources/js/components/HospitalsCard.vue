@@ -2,7 +2,7 @@
     <div>
         <error-page v-if="errPage" :err="errs"></error-page>
 
-        <div v-else-if="successPage">
+        <div v-else-if="successPage" :class="$route.name == 'hospitals_booking' ? 'container' : ''">
             <div id="today" class="text-center fw-bold">
                 <h3 class="mb-6">Сегодня - {{ $dayjs().format('DD.MM.YYYY') }}</h3>
             </div>
@@ -13,9 +13,21 @@
 
             <errors-validation :validationErrors="errs"/>
 
+            <button v-if="auth_user && auth_user.role_name == 'admin'" type="button" class="btn btn-primary" @click.prevent="pushDemo()">
+                PushDemo
+            </button>
+
             <div v-if="warning" class="alert alert-warning" role="alert">
                 {{warning}}
             </div>
+
+
+
+
+
+
+
+
 
             <div v-else-if="bookings.length > 0">
                 <div v-if="auth_user && auth_user.email_verified_at && [roles.admin, roles.dispatcher].includes(auth_user.role_name)">
@@ -190,6 +202,7 @@
 </template>
 
 <script>
+
 
 import {ref} from 'vue';
 import useValidate from '@vuelidate/core'
@@ -437,8 +450,18 @@ export default {
                     })
                     .catch(err => this.errorsMessage(err));
             }, time)
-        }
-
+        },
+        pushDemo() {
+console.log('push.demo')
+            axios.get('/api/push', {
+                headers: {Authorization: localStorage.getItem('access_token')}
+            }).then(res => {
+              console.log(res)
+            }).catch(err => {
+                console.log(err)
+                console.log(err.response)
+            })
+        },
     },
 
 

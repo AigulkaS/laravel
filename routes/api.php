@@ -34,10 +34,11 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 });
 
 
+Route::get('/users/create', App\Http\Controllers\User\CreateController::class)->name('user.create');
+
 Route::group(['middleware' => 'role:admin'], function () {
     // for users
     Route::get('/users', App\Http\Controllers\User\IndexController::class)->name('user.index');
-    Route::get('/users/create', App\Http\Controllers\User\CreateController::class)->name('user.create');
     Route::post('/users', App\Http\Controllers\User\StoreController::class)->name('user.store');
     Route::get('/users/{user}', App\Http\Controllers\User\ShowController::class,)->name('user.show');
     Route::get('/users/{user}/edit', App\Http\Controllers\User\EditController::class,)->name('user.edit');
@@ -107,3 +108,8 @@ Route::patch('/bookings', App\Http\Controllers\Booking\UpdateController::class,)
 
 // "geo_lat": "54.764049",
     // "geo_lon": "56.05606"
+
+
+Route::post('/push', [\App\Http\Controllers\PushController::class, 'store'])->name('store');
+Route::post('/notifications', [\App\Http\Controllers\PushController::class, 'storePush'])->name('storePush');
+Route::get('/push', [\App\Http\Controllers\PushController::class, 'push'])->name('push');

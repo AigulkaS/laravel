@@ -38,8 +38,6 @@ const routes = [
                 meta: {
                     guest: true,
                     breadcrumb: 'Авторизация',
-                    // middleware: "guest",
-                    // title: `Login`
                 }
             },
             {
@@ -49,8 +47,6 @@ const routes = [
                 meta: {
                     guest: true,
                     breadcrumb: 'Регистрация',
-                    // middleware: "guest",
-                    // title: `Register`
                 }
             },
             {
@@ -60,8 +56,6 @@ const routes = [
                 meta: {
                     guest: true,
                     breadcrumb: 'Сброс пароля',
-                    // middleware: "guest",
-                    // title: `PasswordReset`
                 }
             },
             {
@@ -75,8 +69,6 @@ const routes = [
                 meta: {
                     // guest: true,
                     breadcrumb: 'Подтвеждение Email',
-                    // middleware: "guest",
-                    // title: `PasswordReset`
                 }
 
             },
@@ -100,7 +92,6 @@ const routes = [
                 name: 'admin_page',
                 redirect: { name: 'users' },
                 meta : {
-                    // guest : true
                     email_verified: true,
                     requiresAuth: true,
                     breadcrumb: 'Админка',
@@ -330,7 +321,6 @@ const routes = [
                     }
                 ]
             },
-
             {
                 path: '/hospitals',
                 component: () => import('../components/HospitalsCard.vue'),
@@ -338,7 +328,7 @@ const routes = [
                 meta : {
                     breadcrumb: 'Больницы',
                     // email_verified: true,
-                    // requiresAuth: true,
+                    requiresAuth: true,
                 },
             },
             {
@@ -351,19 +341,19 @@ const routes = [
                 meta : {
                     breadcrumb: 'График',
                     // email_verified: true,
-                    // requiresAuth: true,
+                    requiresAuth: true,
                 },
             },
-
+            {
+                path: '/:pathMatch(.*)*',
+                component: () => import('../components/ErrorPage/ErrorPage.vue'),
+                props: () => ({
+                    err: {status: 404}
+                }),
+            }
         ]
     },
-    {
-        path: '/:pathMatch(.*)*',
-        component: () => import('../components/ErrorPage/ErrorPage.vue'),
-        props: () => ({
-            err: {status: 404}
-        }),
-    }
+
 ]
 const router = createRouter({
     history: createWebHistory(),
@@ -380,11 +370,11 @@ router.beforeEach((to, from, next) => {
     if(to.matched.some(record => record.meta.requiresAuth)) {
         if (localStorage.getItem('access_token') == null) {
             next({
-                // path: '/login',
                 name: 'login',
                 params: { nextUrl: to.fullPath }
             })
         } else {
+            // import '../enable-push.js';
             let user = JSON.parse(localStorage.getItem('auth_user'))
             if(to.matched.some(record => record.meta.is_admin)) {
                 if(user.is_admin == 1){
@@ -408,7 +398,7 @@ router.beforeEach((to, from, next) => {
         else{
             next({ name: 'home'})
         }
-    }else {
+    } else {
         next()
     }
 })
