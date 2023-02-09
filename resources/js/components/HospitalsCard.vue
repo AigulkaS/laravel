@@ -14,7 +14,7 @@
             <errors-validation :validationErrors="errs"/>
 
             <button v-if="auth_user && auth_user.role_name == 'admin'" type="button" class="btn btn-primary" @click.prevent="pushDemo()">
-                PushDemo
+                PushDemo11
             </button>
 
             <div v-if="warning" class="alert alert-warning" role="alert">
