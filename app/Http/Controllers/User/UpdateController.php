@@ -16,7 +16,6 @@ class UpdateController extends BaseController
         $user = $this->service->update($user, $data);
 
         return new UserResource($user);
-//         return redirect()->route('user.show', $user->id);
     }
 
 

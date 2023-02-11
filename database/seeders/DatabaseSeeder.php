@@ -25,13 +25,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // \App\Models\User::factory(10)->create();
-
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
-
         DB::table('roles')->insert([
             'name' => 'admin',
             'label' => 'админ',
@@ -48,27 +41,81 @@ class DatabaseSeeder extends Seeder
             'name' => 'dispatcher',
             'label' => 'дистпетчер',
         ]);
-        // Role::factory(4)->create();
-        Permission::factory(3)->create();
+        
+        DB::table('permissions')->insert([
+            'name' => 'create booking',
+            'label' => 'create booking',
+        ]);
+
+        DB::table('permissions')->insert([
+            'name' => 'edit booking',
+            'label' => 'edit booking',
+        ]);
+
+        DB::table('permissions')->insert([
+            'name' => 'show booking',
+            'label' => 'show booking',
+        ]);
+
+        DB::table('permissions')->insert([
+            'name' => 'edit today',
+            'label' => 'edit today',
+        ]);
+
+        DB::table('permissions')->insert([
+            'name' => 'show today',
+            'label' => 'show today',
+        ]);
+
         for ($i = 1; $i <= 5; $i++) {
-            $this->permissionRoleFactoryCreate();
+            DB::table('permission_roles')->insert([
+                'permission_id' => $i,
+                'role_id' => 1,
+            ]);
+            DB::table('permission_roles')->insert([
+                'permission_id' => $i,
+                'role_id' => 2,
+            ]);
+            DB::table('permission_roles')->insert([
+                'permission_id' => $i,
+                'role_id' => 3,
+            ]);
+
+            if ($i != 4) {
+                DB::table('permission_roles')->insert([
+                    'permission_id' => $i,
+                    'role_id' => 4,
+                ]);
+            }  
         }
-        Hospital::factory(3)->create();
-        HospitalRoom::factory(4)->create();
+
+        DB::table('hospitals')->insert([
+            'full_name' => 'default',
+            'short_name' => 'default',
+            'address' => 'default',
+            'geo_lat' => '0.0',
+            'geo_lon' => '0.0',
+        ]);
+
+        DB::table('hospital_rooms')->insert([
+            'hospital_id' => 1,
+            'name' => 'default',
+        ]);
+
+//         HospitalRoom::factory(4)->create();
         DB::table('diseases')->insert([
             'name' => 'OKC ST+',
-            'code' => 101,
+            'code' => 1,
         ]);
         DB::table('diseases')->insert([
             'name' => 'OKC ST-',
-            'code' => 102,
+            'code' => 2,
         ]);
-        // Disease::factory(2)->create();
-        // Brigade::factory(5)->create();
-        User::factory(10)->create();
-        // Today::factory(1)->create();
+// ;
+//         User::factory(10)->create();
+
         $this->todaysFactoryCreate();
-        Booking::factory(10)->create();
+//         Booking::factory(10)->create();
     }
 
     private function permissionRoleFactoryCreate() {
@@ -79,14 +126,14 @@ class DatabaseSeeder extends Seeder
     }
 
     private function todaysFactoryCreate() {
-        $surgeons = User::where('role_id', 2)->get();
-        $cardiologists = User::where('role_id', 3)->get();
+        // $surgeons = User::where('role_id', 2)->get();
+        // $cardiologists = User::where('role_id', 3)->get();
         $hospitals=Hospital::all();
         foreach($hospitals as $hospital) {
             DB::table('todays')->insert([
                 'hospital_id' => $hospital->id,
-                'surgeon_id' => $surgeons->random()->id,
-                'cardiologist_id' => $cardiologists->random()->id,
+                // 'surgeon_id' => $surgeons->random()->id,
+                // 'cardiologist_id' => $cardiologists->random()->id,
             ]);
         }
     }
