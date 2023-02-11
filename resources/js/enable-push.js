@@ -20,7 +20,7 @@ function initSW() {
     console.log(navigator)
     console.log(navigator.serviceWorker)
 
-    if ('serviceWorker' in navigator) {
+    // if ('serviceWorker' in navigator) {
 
         navigator.serviceWorker.register('/sw.js')
             .then(() => {
@@ -32,7 +32,7 @@ function initSW() {
                 console.log(11111)
                 console.log(err)
             });
-    }
+    // }
 }
 
 function initPush() {
@@ -103,18 +103,20 @@ function storePushSubscription(pushSubscription) {
     }
     // axios.post('/subscriptions', data)
     //     .then(() => { this.loading = false })
+    if (localStorage.getItem('auth_user')) {
+        axios.post('/api/push', data, {
+            headers: {
+                Authorization: localStorage.getItem('access_token')
+            }
+        }).then(res => {
+            console.log(res)
+            // this.loading = false
+        }).catch(err => {
+            console.log(err)
+            console.log(err.response)
+        })
+    }
 
-    axios.post('/api/push', data, {
-        headers: {
-            Authorization: localStorage.getItem('access_token')
-        }
-    }).then(res => {
-        console.log(res)
-        // this.loading = false
-    }).catch(err => {
-        console.log(err)
-        console.log(err.response)
-    })
 
 
 
