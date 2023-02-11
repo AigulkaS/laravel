@@ -46,7 +46,6 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
-        error_log('aaaaa');
         // $this->reportable(function (Throwable $e) {
         //     //
         // });

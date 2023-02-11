@@ -56,6 +56,7 @@ const mixin = {
                     case 500:
                     case 404:
                     case 401:
+                    case 403:
                         console.log(err.response.status)
                         this.errPage = true;
                         this.errs = err.response;
