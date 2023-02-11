@@ -20,16 +20,19 @@ function initSW() {
     console.log(navigator)
     console.log(navigator.serviceWorker)
 
-    navigator.serviceWorker.register('/sw.js' )
-        .then(() => {
-            console.log(88888888888)
-            console.log('serviceWorker installed!')
-            initPush();
-        })
-        .catch((err) => {
-            console.log(11111)
-            console.log(err)
-        });
+    if ('serviceWorker' in navigator) {
+
+        navigator.serviceWorker.register('/sw.js')
+            .then(() => {
+                console.log(88888888888)
+                console.log('serviceWorker installed!')
+                initPush();
+            })
+            .catch((err) => {
+                console.log(11111)
+                console.log(err)
+            });
+    }
 }
 
 function initPush() {
