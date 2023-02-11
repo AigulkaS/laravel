@@ -17,6 +17,9 @@ function initSW() {
         return;
     }
     //register the service worker
+    console.log(navigator)
+    console.log(navigator.serviceWorker)
+
     navigator.serviceWorker.register('/sw.js' )
         .then(() => {
             console.log(88888888888)
