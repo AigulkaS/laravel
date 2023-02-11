@@ -33,10 +33,12 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
 });
 
+
 Route::get('/users/create', App\Http\Controllers\User\CreateController::class)->name('user.create');
 Route::get('/users/{user}', App\Http\Controllers\User\ShowController::class,)->name('user.show');
 Route::get('/users/{user}/edit', App\Http\Controllers\User\EditController::class,)->name('user.edit');
 Route::patch('/users/{user}', App\Http\Controllers\User\UpdateController::class,)->name('user.update');
+
 Route::group(['middleware' => 'role:admin'], function () {
     // for users
     Route::get('/users', App\Http\Controllers\User\IndexController::class)->name('user.index');
@@ -103,3 +105,8 @@ Route::post('/bookings', App\Http\Controllers\Booking\StoreController::class)->n
 Route::patch('/bookings', App\Http\Controllers\Booking\UpdateController::class,)->name('booking.update')->middleware('permissions:show booking,create booking,edit booking');
 // Route::delete('/bookings/{booking}', App\Http\Controllers\Booking\DestroyController::class,)->name('booking.delete');
 //
+
+Route::post('/push', [\App\Http\Controllers\PushController::class, 'store'])->name('store');
+Route::post('/notifications', [\App\Http\Controllers\PushController::class, 'storePush'])->name('storePush');
+Route::get('/push', [\App\Http\Controllers\PushController::class, 'push'])->name('push');
+

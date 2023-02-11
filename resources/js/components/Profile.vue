@@ -126,12 +126,13 @@
                                 Роль
                             </label>
                             <div class="col-sm-10">
-                                <div v-if="!edit" class="form-control-plaintext">{{user.role_name}}</div>
-                                <select v-else class="form-control form-select" v-model="user.role_id">
-                                    <option v-for="role in roles" :key="role.id" :value="role.id">
-                                        {{ role.name }}
-                                    </option>
-                                </select>
+                                <div class="form-control-plaintext">{{user.role_name}}</div>
+<!--                                <div v-if="!edit" class="form-control-plaintext">{{user.role_name}}</div>-->
+<!--                                <select v-else class="form-control form-select" v-model="user.role_id">-->
+<!--                                    <option v-for="role in roles" :key="role.id" :value="role.id">-->
+<!--                                        {{ role.name }}-->
+<!--                                    </option>-->
+<!--                                </select>-->
                             </div>
                         </div>
 
@@ -140,12 +141,13 @@
                                 Больница
                             </label>
                             <div class="col-sm-10">
-                                <div v-if="!edit" class="form-control-plaintext">{{user.hospital_name}}</div>
-                                <select v-else class="form-control form-select" v-model="user.hospital_id">
-                                    <option v-for="hospital in hospitals" :key="hospital.id" :value="hospital.id">
-                                        {{ hospital.short_name }}
-                                    </option>
-                                </select>
+                                <div class="form-control-plaintext">{{user.hospital_name}}</div>
+<!--                                <div v-if="!edit" class="form-control-plaintext">{{user.hospital_name}}</div>-->
+<!--                                <select v-else class="form-control form-select" v-model="user.hospital_id">-->
+<!--                                    <option v-for="hospital in hospitals" :key="hospital.id" :value="hospital.id">-->
+<!--                                        {{ hospital.short_name }}-->
+<!--                                    </option>-->
+<!--                                </select>-->
                             </div>
                         </div>
 

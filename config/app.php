@@ -198,6 +198,7 @@ return [
 
 //        LaravelFlare\MailDebug\MailDebugServiceProvider::class,
 
+
     ],
 
     /*

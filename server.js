@@ -2,7 +2,8 @@ const http = require('http').Server();
 // const io = require('socket.io')(http);
 const io = require('socket.io')(http, {
     cors: {
-        origins: ['http://127.0.0.1:8000']
+        // origins: ['http://127.0.0.1:8000']
+        origins: [process.env.APP_URL]
     }
 });
 

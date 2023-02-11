@@ -3,6 +3,8 @@ import '../sass/app.scss';
 import '../css/app.css';
 import "@vueform/multiselect/themes/default.css";
 
+import './enable-push.js';
+
 // import 'jquery';
 // import $ from "jquery";
 
