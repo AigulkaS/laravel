@@ -93,8 +93,8 @@ export default {
     },
     mounted() {
 
-        console.log(88881111)
-        console.log(this.$dayjs().format('YYYY-MM-DD HH:mm:ss'))
+        // console.log(88881111)
+        // console.log(this.$dayjs().format('YYYY-MM-DD HH:mm:ss'))
 
         this.successPage = true;
 
