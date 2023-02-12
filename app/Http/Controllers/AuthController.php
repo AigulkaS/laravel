@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
@@ -17,6 +18,11 @@ class AuthController extends Controller
     public function register(StoreRequest $request) {
         $data = $request->validated();
         $data['password'] = Hash::make($data['password']);
+
+        //Временно
+        $data['email_verified_at'] = Date::now();
+        //
+
         $user = User::firstOrCreate([
             'email' => $data['email']
         ], $data);
@@ -24,6 +30,7 @@ class AuthController extends Controller
         if ($user) {
             event(new Registered($user));
             $token = $user->createToken('access_token')->plainTextToken;
+
             return response()->json([
                 'access_token' => $token,
                 'token_type' => 'Bearer',

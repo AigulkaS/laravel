@@ -17,10 +17,10 @@ function initSW() {
         return;
     }
     //register the service worker
-    console.log(navigator)
-    console.log(navigator.serviceWorker)
+    // console.log(navigator)
+    // console.log(navigator.serviceWorker)
 
-    // if ('serviceWorker' in navigator) {
+    if ('serviceWorker' in navigator) {
 
         navigator.serviceWorker.register('/sw.js')
             .then(() => {
@@ -32,7 +32,7 @@ function initSW() {
                 console.log(11111)
                 console.log(err)
             });
-    // }
+    }
 }
 
 function initPush() {
