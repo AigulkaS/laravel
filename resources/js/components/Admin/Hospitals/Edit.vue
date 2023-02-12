@@ -309,6 +309,7 @@ export default {
             }
         },
         lazyCaller(value, time = 1000) {
+            console.log(this.url)
             this.errs = null;
             clearTimeout(this.timeout);
             this.timeout = setTimeout(() => {
