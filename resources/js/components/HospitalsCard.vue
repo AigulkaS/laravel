@@ -267,21 +267,21 @@ export default {
         }
     },
     mounted() {
-        const socket = io(this.server_url);
-
-        socket.on('bookings-update:App\\Events\\BookingsUpdateEvent', (data) => {
-            let arr = data.result;
-            this.updateHospitalRoomStatus(arr);
-        });
-        socket.on('todays-update:App\\Events\\TodaysUpdateEvent', (data) => {
-            let orderly = data.result;
-            this.updateHospitalOrderly(orderly);
-        });
-        socket.on('bookings-store:App\\Events\\BookingsStoreEvent', (data) => {
-            // console.log(data);
-            let arr = data.result;
-            this.updateHospitalRoomStatus(arr);
-        });
+        // const socket = io(this.server_url);
+        //
+        // socket.on('bookings-update:App\\Events\\BookingsUpdateEvent', (data) => {
+        //     let arr = data.result;
+        //     this.updateHospitalRoomStatus(arr);
+        // });
+        // socket.on('todays-update:App\\Events\\TodaysUpdateEvent', (data) => {
+        //     let orderly = data.result;
+        //     this.updateHospitalOrderly(orderly);
+        // });
+        // socket.on('bookings-store:App\\Events\\BookingsStoreEvent', (data) => {
+        //     // console.log(data);
+        //     let arr = data.result;
+        //     this.updateHospitalRoomStatus(arr);
+        // });
 
         this.getData();
     },
