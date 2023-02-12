@@ -246,24 +246,20 @@ export default {
         }
     },
     mounted() {
-        const socket = io(this.server_url);
-        // const socket = io(`http://127.0.0.1:3000`);
-
-        // const socket = io(`${this.app_url}:${this.server_port}`);
-        // const socket = io('http://127.0.0.1:3000');
-        socket.on('todays-update:App\\Events\\TodaysUpdateEvent', (data) => {
-            this.orderly = data.result;
-        });
-
-        socket.on('bookings-update:App\\Events\\BookingsUpdateEvent', (data) => {
-            let arr = data.result;
-            this.updateRoomStatus(arr);
-        });
-        socket.on('bookings-store:App\\Events\\BookingsStoreEvent', (data) => {
-            // console.log(data);
-            let arr = data.result;
-            this.updateHospitalRoomStatus(arr);
-        });
+        // const socket = io(this.server_url);
+        // socket.on('todays-update:App\\Events\\TodaysUpdateEvent', (data) => {
+        //     this.orderly = data.result;
+        // });
+        //
+        // socket.on('bookings-update:App\\Events\\BookingsUpdateEvent', (data) => {
+        //     let arr = data.result;
+        //     this.updateRoomStatus(arr);
+        // });
+        // socket.on('bookings-store:App\\Events\\BookingsStoreEvent', (data) => {
+        //     // console.log(data);
+        //     let arr = data.result;
+        //     this.updateHospitalRoomStatus(arr);
+        // });
         this.getData();
     },
     computed: {

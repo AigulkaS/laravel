@@ -309,7 +309,7 @@ export default {
             }
         },
         lazyCaller(value, time = 1000) {
-            console.log(this.url)
+            // console.log(this.url)
             this.errs = null;
             clearTimeout(this.timeout);
             this.timeout = setTimeout(() => {
@@ -337,7 +337,7 @@ export default {
                     .then(response => response.text())
                     .then(result => {
                         // console.log(result);
-                        console.log(JSON.parse(result));
+                        // console.log(JSON.parse(result));
                         let address = JSON.parse(result)
                         this.addresses = address.suggestions;
                         this.suggestions = this.addresses.length == 0 ? false : true
