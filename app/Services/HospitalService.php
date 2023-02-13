@@ -12,11 +12,14 @@ class HospitalService {
     public function store($data) {
         try {
             DB::beginTransaction();
+            
             $rooms = $data['hospital_rooms'];
             unset($data['hospital_rooms']);
 
             $newRooms = $this->getNewRooms($rooms);
+            
             $hospital = Hospital::create($data);
+
             $todayData = [
                 'hospital_id' => $hospital->id,
             ];
