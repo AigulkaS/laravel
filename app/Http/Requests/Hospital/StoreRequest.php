@@ -28,6 +28,8 @@ class StoreRequest extends FormRequest
             'short_name' => 'required|string',
             'address' => 'required|string',
             'hospital_rooms' => 'required', 
+            'geo_lat' => 'required|string', 
+            'geo_lon' => 'required|string', 
         ];
 
     }
