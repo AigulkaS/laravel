@@ -19,7 +19,7 @@ return new class extends Migration
             $table->integer('type');
             $table->string('full_name');
             $table->string('short_name');
-            $table->string('address');
+            $table->string('address')->nullable();
             $table->string('geo_lat')->nullable();
             $table->string('geo_lon')->nullable();
             $table->softDeletes();
