@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Booking;
+namespace App\Http\Requests\Operator;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -24,13 +24,10 @@ class UpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'condition_id' => 'required|integer',
+            'date' => 'required|string',
             'hospital_id' => 'required|integer',
-            'room_id' => 'required|integer',
-            'user_id' => 'required|integer',
-            'status' => 'required|integer',
-            'date_time' => 'required|string',
-            'booking_hours' => 'required|integer',
+            'surgeon_id' => 'required|integer',
+            'cardiologist_id' => 'required|integer',
         ];
 
     }

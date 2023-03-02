@@ -90,11 +90,14 @@ Route::group(['middleware' => 'role:admin'], function () {
     //
 });
 
+// for disable hospital room
+Route::get('/hospital_rooms/disable', App\Http\Controllers\Hospital\DisableController::class,)->name('hospital_room.disable')->middleware('permissions:edit operator');
 
-// for today
-Route::get('/todays', App\Http\Controllers\Today\IndexController::class)->name('today.index');//->middleware('permissions:show today');
-Route::get('/todays/edit', App\Http\Controllers\Today\EditController::class,)->name('today.edit')->middleware('permissions:edit today');
-Route::patch('/todays', App\Http\Controllers\Today\UpdateController::class,)->name('today.update')->middleware('permissions:edit today');
+
+// for operators
+Route::get('/operators', App\Http\Controllers\Operator\IndexController::class)->name('operator.index');
+Route::get('/operators/edit', App\Http\Controllers\Operator\EditController::class,)->name('operator.edit')->middleware('permissions:edit operator');
+Route::post('/operators', App\Http\Controllers\Operator\UpdateController::class,)->name('operator.update')->middleware('permissions:edit operator');
 //
 
 // for booking

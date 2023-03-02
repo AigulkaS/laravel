@@ -16,11 +16,12 @@ return new class extends Migration
         // Schema::drop('hospitals');
         Schema::create('hospitals', function (Blueprint $table) {
             $table->id();
+            $table->integer('type');
             $table->string('full_name');
             $table->string('short_name');
             $table->string('address');
-            $table->string('geo_lat');
-            $table->string('geo_lon');
+            $table->string('geo_lat')->nullable();
+            $table->string('geo_lon')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

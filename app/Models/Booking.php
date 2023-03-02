@@ -24,8 +24,8 @@ class Booking extends Model
         return $this->belongsTo(User::class, 'cardiologist_id', 'id');
     }
 
-    public function dispatcher() {
-        return $this->belongsTo(User::class, 'dispatcher_id', 'id');
+    public function user() {
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
     public function room() {
@@ -38,5 +38,9 @@ class Booking extends Model
 
     public function disease() {
         return $this->belongsTo(Disease::class, 'disease_id', 'id');
+    }
+
+    public function condition() {
+        return $this->belongsTo(PatientCondition::class, 'condition_id', 'id');
     }
 }

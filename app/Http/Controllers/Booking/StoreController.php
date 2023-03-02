@@ -18,14 +18,10 @@ class StoreController extends BaseController
 
         $bookings = $this->service->store($data);
 
-        // return new BookingResource($booking);
-
         event(new BookingsStoreEvent($bookings instanceof String ? $bookings : BookingResource::collection($bookings)));
-
 
         return $bookings instanceof String ? $bookings : BookingResource::collection($bookings);
 
-        // return redirect()->route('user.index');
     }
 
 

@@ -14,7 +14,8 @@ class StoreController extends BaseController
         
         $hospital = $this->service->store($data);
 
-        return new HospitalResource($hospital);
+        // return new HospitalResource($hospital);
+        return $hospital instanceof String ? $hospital : new HospitalResource($hospital);
     }
      
 }

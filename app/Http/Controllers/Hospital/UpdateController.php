@@ -14,7 +14,8 @@ class UpdateController extends BaseController
 
         $hospital = $this->service->update($hospital, $data);
             
-        return new HospitalResource($hospital);
+        // return new HospitalResource($hospital);
+        return $hospital instanceof String ? $hospital : new HospitalResource($hospital);
     }
 
         
