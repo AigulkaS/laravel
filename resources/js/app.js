@@ -49,6 +49,7 @@ const mixin = {
     },
     methods: {
         errorsMessage(err) {
+            console.log(err)
             console.log(err.response)
             if (err.response.data.errors) {
                 this.errs = {};

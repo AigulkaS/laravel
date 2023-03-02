@@ -22,13 +22,6 @@
             </div>
 
 
-
-
-
-
-
-
-
             <div v-else-if="bookings.length > 0">
                 <div v-if="auth_user && auth_user.email_verified_at && [roles.admin, roles.dispatcher].includes(auth_user.role_name)">
                     <button type="button" class="btn btn-primary" @click.prevent="addBooking()">
@@ -290,18 +283,26 @@ export default {
     },
     methods: {
         getData() {
-            axios.get(`/api/todays/`,{
+            // axios.get(`/api/todays/`,{
+            axios.get(`/api/operators`,{
                 headers: {Authorization: localStorage.getItem('access_token')}
             }).then(res => {
                 console.log(res);
-                let element = res.data.data.find(el => el.surgeon_id == '')
-                if (typeof element !== 'undefined')  {
-                    this.warning = `${element.hospital_name} не указала дежурных врачей!
+                if (res.data.data.length == 0) {
+                    this.warning = `Не указаны дежурные врачи больниц!
                     Дождитесь пока укажут дежурных врачей, после чего вы получите возможность увидеть
                      график свободных операционных.`
                 } else {
                     this.getBooking()
                 }
+                // let element = res.data.data.find(el => el.surgeon_id == '')
+                // if (typeof element !== 'undefined')  {
+                //     this.warning = `${element.hospital_name} не указала дежурных врачей!
+                //     Дождитесь пока укажут дежурных врачей, после чего вы получите возможность увидеть
+                //      график свободных операционных.`
+                // } else {
+                //     this.getBooking()
+                // }
             }).catch(err => {
                 this.errorsMessage(err);
             }).finally(() => this.successPage = true);
