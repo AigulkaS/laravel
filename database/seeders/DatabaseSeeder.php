@@ -39,7 +39,11 @@ class DatabaseSeeder extends Seeder
         ]);
         DB::table('roles')->insert([
             'name' => 'dispatcher',
-            'label' => 'дистпетчер',
+            'label' => 'дистпетчер СМП',
+        ]);
+        DB::table('roles')->insert([
+            'name' => 'doctor_ambulance',
+            'label' => 'фельдшер/врач СМП',
         ]);
         
         DB::table('permissions')->insert([
@@ -58,13 +62,13 @@ class DatabaseSeeder extends Seeder
         ]);
 
         DB::table('permissions')->insert([
-            'name' => 'edit today',
-            'label' => 'edit today',
+            'name' => 'edit operator',
+            'label' => 'edit operator',
         ]);
 
         DB::table('permissions')->insert([
-            'name' => 'show today',
-            'label' => 'show today',
+            'name' => 'show operator',
+            'label' => 'show operator',
         ]);
 
         for ($i = 1; $i <= 5; $i++) {
@@ -86,10 +90,16 @@ class DatabaseSeeder extends Seeder
                     'permission_id' => $i,
                     'role_id' => 4,
                 ]);
+
+                DB::table('permission_roles')->insert([
+                    'permission_id' => $i,
+                    'role_id' => 5,
+                ]);
             }  
         }
 
         DB::table('hospitals')->insert([
+            'type' => 1,
             'full_name' => 'default',
             'short_name' => 'default',
             'address' => 'default',
@@ -111,10 +121,20 @@ class DatabaseSeeder extends Seeder
             'name' => 'OKC ST-',
             'code' => 2,
         ]);
-// ;
-//         User::factory(10)->create();
 
-        $this->todaysFactoryCreate();
+        DB::table('patient_conditions')->insert([
+            'name' => 'Среднее',
+        ]);
+        DB::table('patient_conditions')->insert([
+            'name' => 'Тяжелое',
+        ]);
+        DB::table('patient_conditions')->insert([
+            'name' => 'Крайне тяжелое',
+        ]);
+// ;
+        User::factory(10)->create();
+
+        // $this->todaysFactoryCreate();
 //         Booking::factory(10)->create();
     }
 
@@ -126,14 +146,14 @@ class DatabaseSeeder extends Seeder
     }
 
     private function todaysFactoryCreate() {
-        // $surgeons = User::where('role_id', 2)->get();
-        // $cardiologists = User::where('role_id', 3)->get();
+        $surgeons = User::where('role_id', 2)->get();
+        $cardiologists = User::where('role_id', 3)->get();
         $hospitals=Hospital::all();
         foreach($hospitals as $hospital) {
             DB::table('todays')->insert([
                 'hospital_id' => $hospital->id,
-                // 'surgeon_id' => $surgeons->random()->id,
-                // 'cardiologist_id' => $cardiologists->random()->id,
+                'surgeon_id' => $surgeons->random()->id,
+                'cardiologist_id' => $cardiologists->random()->id,
             ]);
         }
     }

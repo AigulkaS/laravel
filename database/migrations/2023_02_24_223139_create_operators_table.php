@@ -13,15 +13,16 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('todays', function (Blueprint $table) {
+        Schema::create('operators', function (Blueprint $table) {
             $table->id();
             $table->timestamp('date')->nullable();
             $table->unsignedBigInteger('hospital_id');
             $table->unsignedBigInteger('surgeon_id')->nullable();
             $table->unsignedBigInteger('cardiologist_id')->nullable();
-            $table->foreign('surgeon_id', 'todays_surgeon_fk')->references('id')->on('users');
-            $table->foreign('cardiologist_id', 'todays_cardiologist_fk')->references('id')->on('users');
-            $table->foreign('hospital_id', 'todays_hospital_fk')->references('id')->on('hospitals');
+            $table->foreign('surgeon_id', 'operators_surgeon_fk')->references('id')->on('users');
+            $table->foreign('cardiologist_id', 'operators_cardiologist_fk')->references('id')->on('users');
+            $table->foreign('hospital_id', 'operators_hospital_fk')->references('id')->on('hospitals');
+            $table->index(['id', 'hospital_id'], 'operator_idx');
             $table->softDeletes();
             $table->timestamps();
         });
@@ -34,6 +35,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('todays');
+        Schema::dropIfExists('operators');
     }
 };

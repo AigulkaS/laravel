@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Hospital extends Model
+class Operator extends Model
 {
     use HasFactory;
     use SoftDeletes;
@@ -16,15 +16,15 @@ class Hospital extends Model
     protected $guarded = false;
     public $timestamps = false;
 
-    public function rooms() {
-        return $this->hasMany(HospitalRoom::class, 'hospital_id', 'id');
+    public function hospital() {
+        return $this->belongsTo(Hospital::class);
     }
 
-    public function bookings() {
-        return $this->hasMany(Booking::class);
+    public function surgeon() {
+        return $this->belongsTo(User::class, 'surgeon_id', 'id');
     }
 
-    // public function today() {
-    //     return $this->hasOne(Today::class, 'hospital_id', 'id');
-    // }
+    public function cardiologist() {
+        return $this->belongsTo(User::class, 'cardiologist_id', 'id');
+    }
 }

@@ -5,15 +5,25 @@ namespace App\Services;
 use App\Http\Resources\BookingResource;
 use App\Models\Booking;
 use App\Models\Hospital;
+use App\Models\Operator;
 use App\Models\Today;
 use DateInterval;
 use DateTime;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 
 class BookingService {
 
     public function getAllHospitalsInfo() {
-        $hospitals = Hospital::all();
+        $now = new DateTime();
+        $nowHour = $now->format('H');
+        if ($nowHour >=0 && $nowHour <8) {
+            $now = $now->modify('-1 day');
+        }
+        $now = $now->format('Y-m-d 00:00:00');
+
+        // $hospitals = Hospital::all();
+        $hospitals = Hospital::where('type',1)->get();
 
         $data = [];
         foreach($hospitals as $hospital) {
@@ -48,22 +58,27 @@ class BookingService {
 
                 $arrRoom[] = [
                     'id' => $room->id,
+                    'condition' =>$room->condition,
                     'name' => $room->name,
                     'val' => $val,
                 ];
             }
 
+            $operators = Operator::where('hospital_id', $hospital->id)
+                        ->where('date', $now)->get();
+            $operator = $operators->isEmpty() ? null : $operators[0];
+
             $data[] = [
                 'hospital_id' => $hospital->id,
                 'hospital_name' => $hospital->short_name,
-                'surgeon_id' => $hospital->today->surgeon_id,
-                'surgeon_last_name' => $hospital->today->surgeon->last_name,
-                'surgeon_first_name' => $hospital->today->surgeon->first_name,
-                'surgeon_patronymic' => $hospital->today->surgeon->patronymic,
-                'cardiologist_id' => $hospital->today->cardiologist_id,
-                'cardiologist_last_name' => $hospital->today->cardiologist->last_name,
-                'cardiologist_first_name' => $hospital->today->cardiologist->first_name,
-                'cardiologist_patronymic' => $hospital->today->cardiologist->patronymic,
+                'surgeon_id' => $operator == null ? 'default' : $operator->surgeon_id,
+                'surgeon_last_name' => $operator == null ? 'default' : $operator->surgeon->last_name,
+                'surgeon_first_name' => $operator == null ? 'default' : $operator->surgeon->first_name,
+                'surgeon_patronymic' => $operator == null ? 'default' : $operator->surgeon->patronymic,
+                'cardiologist_id' => $operator == null ? 'default' : $operator->cardiologist_id,
+                'cardiologist_last_name' => $operator == null ? 'default' : $operator->cardiologist->last_name,
+                'cardiologist_first_name' => $operator == null ? 'default' : $operator->cardiologist->first_name,
+                'cardiologist_patronymic' => $operator == null ? 'default' : $operator->cardiologist->patronymic,
                 'rooms' => $arrRoom,
             ];
         }
@@ -80,12 +95,15 @@ class BookingService {
         foreach($rooms as $room) {
             $val = [];
             $start = new DateTime();
-            $start->setTime(0,0,0);
+            $startHour = $start->format('H');
+            if ($startHour >=0 && $startHour <8) {
+                $start = $start->modify('-1 day');
+            }
+            $start->setTime(8,0,0);
 
             $i = 0;
             do {
                 $time = $start->format('Y-m-d H:00:00');
-
                 $bookings = Booking::where('hospital_id', $hospital->id)
                     ->where('room_id', $room->id)
                     ->where('date_time', $time)->get();
@@ -102,26 +120,44 @@ class BookingService {
 
                     $start->add(new DateInterval('PT1H'));
                     $i++;
-            } while($i <24);
+            } while($i <48);
 
             $arrRoom[] = [
                 'id' => $room->id,
+                'condition' =>$room->condition,
                 'name' => $room->name,
                 'val' => $val,
             ];
         }
 
+        $arrDate=[];
+        $now = new DateTime();
+        $nowHour = $now->format('H');
+        if ($nowHour >=0 && $nowHour <8) {
+            $now = $now->modify('-1 day');
+        }
+        for ($i = 0; $i<2; $i++) {
+            $operators = Operator::where('hospital_id', $hospital->id)
+                ->where('date', $now->format('Y-m-d 00:00:00'))->get();
+            $operator = $operators->isEmpty() ? null : $operators[0];
+            $arrDate[] = [
+                'date' => $now->format('Y-m-d 00:00:00'),
+                'surgeon_id' => $operator == null ? 'default' : $operator->surgeon_id,
+                'surgeon_last_name' => $operator == null ? 'default' : $operator->surgeon->last_name,
+                'surgeon_first_name' => $operator == null ? 'default' : $operator->surgeon->first_name,
+                'surgeon_patronymic' => $operator == null ? 'default' : $operator->surgeon->patronymic,
+                'cardiologist_id' => $operator == null ? 'default' : $operator->cardiologist_id,
+                'cardiologist_last_name' => $operator == null ? 'default' : $operator->cardiologist->last_name,
+                'cardiologist_first_name' => $operator == null ? 'default' : $operator->cardiologist->first_name,
+                'cardiologist_patronymic' => $operator == null ? 'default' : $operator->cardiologist->patronymic,
+            ];
+            $now = $now->modify('+1 day');
+        }
+
         return [
             'hospital_id' => $hospital->id,
             'hospital_name' => $hospital->short_name,
-            'surgeon_id' => $hospital->today->surgeon_id,
-            'surgeon_last_name' => $hospital->today->surgeon->last_name,
-            'surgeon_first_name' => $hospital->today->surgeon->first_name,
-            'surgeon_patronymic' => $hospital->today->surgeon->patronymic,
-            'cardiologist_id' => $hospital->today->cardiologist_id,
-            'cardiologist_last_name' => $hospital->today->cardiologist->last_name,
-            'cardiologist_first_name' => $hospital->today->cardiologist->first_name,
-            'cardiologist_patronymic' => $hospital->today->cardiologist->patronymic,
+            'dates' => $arrDate,
             'rooms' => $arrRoom,
         ];
     }
@@ -134,7 +170,8 @@ class BookingService {
         $dateTime = new DateTime();
         $dateTime = $dateTime->format('Y-m-d H:00:00');
 
-        $hospitals = Hospital::all()->toArray();
+        // $hospitals = Hospital::all()->toArray();
+        $hospitals = Hospital::where('type',1)->get()->toArray();
 
         $arrBookedHospitals = [];
         $bookings = Booking::where('date_time', $dateTime)
@@ -249,7 +286,8 @@ class BookingService {
         $storeData = [
             'hospital_id' => $data['hospital_id'],
             'disease_id' => $data['disease_id'],
-            'dispatcher_id' => $data['dispatcher_id'],
+            'condition_id' => $data['condition_id'],
+            'user_id' => $data['user_id'],
         ];
         $hospital = Hospital::find($data['hospital_id']);
         $rooms = $hospital->rooms;
@@ -285,10 +323,17 @@ class BookingService {
             $storeData['room_id'] = $rooms[0]->id;
         }
 
-        $today = Today::where('hospital_id', $hospital->id)->first();
+        $now = new DateTime();
+        $nowHour = $now->format('H');
+        if ($nowHour >=0 && $nowHour <8) {
+            $now = $now->modify('-1 day');
+        }
+        $operator = Operator::where('hospital_id', $hospital->id)
+                ->where('date', $now->format('Y-m-d 00:00:00'))->first();
+        // $today = Today::where('hospital_id', $hospital->id)->first();
 
-        $storeData['surgeon_id'] = $today->surgeon_id;
-        $storeData['cardiologist_id'] = $today->cardiologist_id;
+        $storeData['surgeon_id'] = $operator->surgeon_id;
+        $storeData['cardiologist_id'] = $operator->cardiologist_id;
         if($data['disease_id'] == 1) {
             $storeData['status'] = 1;
         } else {
@@ -298,7 +343,9 @@ class BookingService {
 
         try {
             DB::beginTransaction();
-            for ($i = 0; $i < $data['booking_hours']; $i++) {
+            //! for ($i = 0; $i < $data['booking_hours']; $i++) {
+            //! BOOKING FOR 2 HOURS
+            for ($i = 0; $i < 2; $i++) {
                 $storeData['date_time'] = $dateTime->format('Y-m-d H:00:00');
                 $booking = Booking::where('date_time', $storeData['date_time'])
                     ->where('hospital_id', $hospital->id)
@@ -325,15 +372,26 @@ class BookingService {
     public function update($data) {
         $storeData = [
             'hospital_id' => $data['hospital_id'],
+            'condition_id' => $data['condition_id'],
             'disease_id' => $data['status'] == 0 ? 2 : $data['status'],
             'status' => $data['status'],
             'room_id' => $data['room_id'],
+            'user_id' => $data['user_id'],
         ];
-        $today = Today::where('hospital_id', $data['hospital_id'])->first();
 
-        $storeData['surgeon_id'] = $today->surgeon_id;
-        $storeData['cardiologist_id'] = $today->cardiologist_id;
-        $storeData['dispatcher_id'] = $storeData['surgeon_id'];
+        $now = new DateTime();
+        $nowHour = $now->format('H');
+        if ($nowHour >=0 && $nowHour <8) {
+            $now = $now->modify('-1 day');
+        }
+        $operator = Operator::where('hospital_id', $data['hospital_id'])
+                ->where('date', $now->format('Y-m-d 00:00:00'))->first();
+        // $today = Today::where('hospital_id', $data['hospital_id'])->first();
+
+        $storeData['surgeon_id'] = $operator->surgeon_id;
+        $storeData['cardiologist_id'] = $operator->cardiologist_id;
+        // $storeData['dispatcher_id'] = $storeData['surgeon_id'];
+        // $storeData['user_id'] = auth('sanctum')->user()->id;
 
         $dateTime = new DateTime($data['date_time']);
         $bookings = [];
@@ -341,6 +399,8 @@ class BookingService {
         try {
             DB::beginTransaction();
             for ($i = 0; $i < $data['booking_hours']; $i++) {
+            //! BOOKING FOR 2 HOURS
+            //! for ($i = 0; $i < 2; $i++) {
                 $storeData['date_time'] = $dateTime->format('Y-m-d H:00:00');
                 $booking = Booking::where('date_time', $storeData['date_time'])
                     ->where('hospital_id',$storeData['hospital_id'])
