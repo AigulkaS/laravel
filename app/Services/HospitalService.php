@@ -22,7 +22,7 @@ class HospitalService {
             ];
             Today::create($todayData);
             $hospital->rooms()->saveMany($newRooms);
-            
+
             DB::commit();
 
         } catch(\Exception $e) {
@@ -50,7 +50,7 @@ class HospitalService {
         } catch(\Exception $e) {
             DB::rollBack();
             return $e->getMessage();
-        } 
+        }
 
         return $hospital;
     }
@@ -67,7 +67,7 @@ class HospitalService {
         } catch(\Exception $e) {
             DB::rollBack();
             return $e->getMessage();
-        } 
+        }
 
         return "delete successfully";
     }
