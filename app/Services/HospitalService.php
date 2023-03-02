@@ -16,14 +16,15 @@ class HospitalService {
             $rooms = $data['hospital_rooms'];
             unset($data['hospital_rooms']);
 
-            if($rooms == 'null') {
+            if($data['type'] == 2) {
+                unset($data['address']);
                 unset($data['geo_lat']);
                 unset($data['geo_lon']);
             }
 
             $hospital = Hospital::create($data);
 
-            if ($rooms != 'null') {
+            if ($data['type'] == 1) {
                 $newRooms = $this->getNewRooms($rooms);
                 $hospital->rooms()->saveMany($newRooms);
             } 
@@ -50,7 +51,8 @@ class HospitalService {
             $rooms = $data['hospital_rooms'];
             unset($data['hospital_rooms']);
 
-            if($rooms == 'null') {
+            if($data['type'] == 2) {
+                unset($data['address']);
                 unset($data['geo_lat']);
                 unset($data['geo_lon']);
             }
@@ -58,7 +60,7 @@ class HospitalService {
             $hospital->update($data);
             $hospital->fresh();
 
-            if($rooms != 'null') {
+            if($data['type'] == 1) {
                 $updatedRooms = $this->getUpdatedRooms($rooms);
                 $hospital->rooms()->saveMany($updatedRooms);
             } 
