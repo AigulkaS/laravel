@@ -406,7 +406,8 @@ export default {
     },
     methods: {
         getData() {
-            axios.get(`/api/todays/`,{
+            // axios.get(`/api/todays/`,{
+            axios.get(`/api/operators`,{
                 headers: {Authorization: localStorage.getItem('access_token')},
                 params: {hospital_id: this.$route.params.id ? this.$route.params.id : this.auth_user.hospital_id}
             }).then(res => {
@@ -494,7 +495,8 @@ export default {
         modalOrder() {
             this.errs = null;
             this.myModalOrderly = new Modal(document.getElementById('modalOrderly'), {})
-            axios.get(`/api/todays/edit`,{
+            // axios.get(`/api/todays/edit`,{
+            axios.get(`/api/operators/edit`,{
                 headers: {Authorization: localStorage.getItem('access_token')},
                 params: {hospital_id: this.$route.params.id ? this.$route.params.id : this.auth_user.hospital_id}
             }).then(res => {
@@ -513,7 +515,8 @@ export default {
             this.v$.$validate() // checks all inputs
             if (!this.v$.$error) {
                 this.processing = true;
-                axios.patch(`/api/todays`,
+                // axios.patch(`/api/todays`,
+                axios.patch(`/api/operators`,
                     {
                         hospital_id: this.$route.params.id ? this.$route.params.id : this.auth_user.hospital_id,
                         cardiologist_id: this.cardiologist_id,
