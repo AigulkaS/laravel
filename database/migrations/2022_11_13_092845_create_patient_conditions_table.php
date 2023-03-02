@@ -13,11 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('brigades', function (Blueprint $table) {
+        Schema::create('patient_conditions', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('hospital_id');
-            $table->string('name'); 
+            $table->string('name');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('brigades');
+        Schema::dropIfExists('patient_conditions');
     }
 };
