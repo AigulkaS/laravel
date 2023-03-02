@@ -13,8 +13,8 @@ use App\Notifications\VerifyEmailNotification;
 use App\Notifications\ResetPasswordNotification;
 use NotificationChannels\WebPush\HasPushSubscriptions;
 
-class User extends Authenticatable implements MustVerifyEmail
-//class User extends Authenticatable
+//class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
     use SoftDeletes;
