@@ -13,8 +13,8 @@ use App\Notifications\VerifyEmailNotification;
 use App\Notifications\ResetPasswordNotification;
 use NotificationChannels\WebPush\HasPushSubscriptions;
 
-//class User extends Authenticatable implements MustVerifyEmail
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
+//class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
     use SoftDeletes;
@@ -56,15 +56,15 @@ class User extends Authenticatable
 
 
 
-//    public function sendEmailVerificationNotification()
-//    {
-//        $this->notify(new VerifyEmailNotification());
-//    }
-//
-//    public function sendPasswordResetNotification($token)
-//    {
-//        $this->notify(new ResetPasswordNotification($token));
-//    }
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new VerifyEmailNotification());
+    }
+
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ResetPasswordNotification($token));
+    }
 
     public function role() {
         return $this->belongsTo(Role::class);

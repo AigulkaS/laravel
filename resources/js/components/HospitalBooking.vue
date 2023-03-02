@@ -9,80 +9,209 @@
                 <!--Errors-->
                 <errors-validation :validationErrors="errs"/>
 
-                <!--Add Orderlies-->
-                <div v-if="canAddOrderly()" class="alert alert-warning fw-bolder" role="alert">
-                    Для просмотра и редактирования графика занятости операционных укажите
-                    дежурного хирирга и кардиолога на {{ $dayjs().format('DD.MM.YYYY') }}.
-                    <div class="mt-3">
-                        <button type="button" @click="modalOrder()" class="btn btn-primary">
-                            <font-awesome-icon icon="fa-solid fa-pencil" /> Добавить дежурных
-                        </button>
-                    </div>
+                <!--Badge Statuses-->
+                <div>
+                    <h3 v-for="status in statuses" class="d-inline-flex me-1">
+                            <span class="badge" :class="'bg-'+status.color+'-300'" style="color: black">
+                                {{status.label}}
+                            </span>
+                    </h3>
                 </div>
 
-                <!--Orderly FIO-->
-                <div v-else>
-                    <div class="mt-3" v-if="canUpdate()">
-                        <button type="button" @click="modalOrder()" class="btn btn-primary">
-                            <font-awesome-icon icon="fa-solid fa-pencil" /> Сменить дежурных
-                        </button>
-                    </div>
-                    <div class="d-flex my-3">
-                        <div class="me-auto fs-5">
-                            <div>
-                                <span class="fw-bold">Деж. кардиолог: </span>
-                                <span>{{orderly.cardiologist_last_name}} {{orderly.cardiologist_first_name}} {{orderly.cardiologist_patronymic}}</span>
-                            </div>
-                            <div>
-                                <span class="fw-bold">Деж. хирург: </span>
-                                <span>{{orderly.surgeon_last_name}} {{orderly.surgeon_first_name}} {{orderly.surgeon_patronymic}}</span>
+                <div class="row">
+
+                    <div class="col-sm-6">
+
+                        <!--Add Orderlies-->
+                        <div v-if="canAddOrderly()" class="alert alert-warning fw-bolder" role="alert">
+                            Для просмотра и редактирования графика занятости операционных укажите
+                            дежурного хирирга и кардиолога на {{ $dayjs().format('DD.MM.YYYY') }}.
+                            <div class="mt-3">
+                                <button type="button" @click="modalOrder()" class="btn btn-primary">
+                                    <font-awesome-icon icon="fa-solid fa-pencil" /> Добавить дежурных
+                                </button>
                             </div>
                         </div>
-                        <div class="align-self-center">
-                            <h5>{{ $dayjs().format('DD.MM.YYYY') }}</h5>
-                        </div>
-                    </div>
 
-                    <!--Badge Statuses-->
-                    <div>
-                        <h3 v-for="status in statuses" class="d-inline-flex me-1">
-                            <span class="badge" :class="'bg-'+status.color+'-300'" style="color: black">{{status.label}}</span>
-                        </h3>
-                    </div>
+                        <!--Orderly FIO-->
+                        <div v-else>
+                            <div class="mt-3" v-if="canUpdate()">
+                                <button type="button" @click="modalOrder()" class="btn btn-primary">
+                                    <font-awesome-icon icon="fa-solid fa-pencil" /> Сменить дежурных
+                                </button>
+                            </div>
+                            <div class="d-flex my-3">
+                                <div class="me-auto fs-5">
+                                    <div>
+                                        <span class="fw-bold">Деж. кардиолог: </span>
+                                        <span>{{orderly.cardiologist_last_name}} {{orderly.cardiologist_first_name}} {{orderly.cardiologist_patronymic}}</span>
+                                    </div>
+                                    <div>
+                                        <span class="fw-bold">Деж. хирург: </span>
+                                        <span>{{orderly.surgeon_last_name}} {{orderly.surgeon_first_name}} {{orderly.surgeon_patronymic}}</span>
+                                    </div>
+                                </div>
+<!--                                <div class="align-self-center">-->
+<!--                                    <h5>{{ $dayjs().format('DD.MM.YYYY') }}</h5>-->
+<!--                                </div>-->
+                            </div>
 
-                    <!--time columns-->
-                    <!--Cards-->
-                    <div class="row justify-content-center">
-                        <div class="col-sm-6"
-                             v-for="(room, index) in rooms" :key="index">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title fs-4 fw-bold">Операционня {{room.name}}</h5>
-                                    <div class="card-text">
+                            <div class="align-self-center text-center">
+                                <h5>{{ $dayjs().format('DD.MM.YYYY') }}</h5>
+                            </div>
 
-                                        <div class="row row-cols-3 row-cols-sm-6 p-0 mx-1">
-                                            <div class="col text-center border-white p-0"
-                                                 v-for="(val, i) in room.val" :key="i">
+                            <!--                    &lt;!&ndash;Badge Statuses&ndash;&gt;-->
+                            <!--                    <div>-->
+                            <!--                        <h3 v-for="status in statuses" class="d-inline-flex me-1">-->
+                            <!--                            <span class="badge" :class="'bg-'+status.color+'-300'" style="color: black">-->
+                            <!--                                {{status.label}}-->
+                            <!--                            </span>-->
+                            <!--                        </h3>-->
+                            <!--                    </div>-->
 
-                                                <div class="square" @click="bookingRoom(room.name, val, index, i)"
-                                                     :class="val.status == 0
+                            <!--time columns-->
+                            <!--Cards-->
+                            <div class="row justify-content-center">
+                                <!--                        <div class="col-sm-6"-->
+                                <div class="col-sm-12"
+                                     v-for="(room, index) in rooms" :key="index">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title fs-4 fw-bold">{{room.name}}</h5>
+                                            <div class="card-text">
+
+                                                <div class="row row-cols-3 row-cols-sm-6 p-0 mx-1">
+                                                    <div class="col text-center border-white p-0"
+                                                         v-for="(val, i) in room.val" :key="i">
+
+                                                        <div class="square" @click="bookingRoom(room.name, val, index, i)"
+                                                             :class="val.status == 0
                                              ? 'bg-green-300'
                                              : val.status == 1 ? 'bg-red-300' : 'bg-yellow-300',
                                               canUpdate() ? 'cursor' : ''">
-                                                    <div>
-                                                        <div><div class="fw-bold fs-5 text-wrap">{{ $dayjs(val.time).format('HH:mm') }}</div></div>
+                                                            <div>
+                                                                <div class="fw-bold fs-5 text-wrap">
+                                                                    {{ $dayjs(val.time).format('HH:mm') }}
+                                                                    <div class="line_height">-</div>
+                                                                    {{ $dayjs(val.time).add(1, 'hour').format('HH:mm') }}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
                                                     </div>
                                                 </div>
 
                                             </div>
                                         </div>
-
                                     </div>
                                 </div>
                             </div>
                         </div>
+
                     </div>
+
+                    <div class="col-sm-6">
+
+                        <!--Add Orderlies-->
+                        <div v-if="canAddOrderly()" class="alert alert-warning fw-bolder" role="alert">
+                            Для просмотра и редактирования графика занятости операционных укажите
+                            дежурного хирирга и кардиолога на {{ $dayjs().format('DD.MM.YYYY') }}.
+                            <div class="mt-3">
+                                <button type="button" @click="modalOrder()" class="btn btn-primary">
+                                    <font-awesome-icon icon="fa-solid fa-pencil" /> Добавить дежурных
+                                </button>
+                            </div>
+                        </div>
+
+                        <!--Orderly FIO-->
+                        <div v-else>
+                            <div class="mt-3" v-if="canUpdate()">
+                                <button type="button" @click="modalOrder()" class="btn btn-primary">
+                                    <font-awesome-icon icon="fa-solid fa-pencil" /> Сменить дежурных
+                                </button>
+                            </div>
+                            <div class="d-flex my-3">
+                                <div class="me-auto fs-5">
+                                    <div>
+                                        <span class="fw-bold">Деж. кардиолог: </span>
+                                        <span>{{orderly.cardiologist_last_name}} {{orderly.cardiologist_first_name}} {{orderly.cardiologist_patronymic}}</span>
+                                    </div>
+                                    <div>
+                                        <span class="fw-bold">Деж. хирург: </span>
+                                        <span>{{orderly.surgeon_last_name}} {{orderly.surgeon_first_name}} {{orderly.surgeon_patronymic}}</span>
+                                    </div>
+                                </div>
+<!--                                <div class="align-self-center">-->
+<!--                                    <h5>{{ $dayjs().format('DD.MM.YYYY') }}</h5>-->
+<!--                                </div>-->
+                            </div>
+
+                            <div class="align-self-center text-center">
+                                <h5>{{ $dayjs().format('DD.MM.YYYY') }}</h5>
+                            </div>
+
+                            <!--                    &lt;!&ndash;Badge Statuses&ndash;&gt;-->
+                            <!--                    <div>-->
+                            <!--                        <h3 v-for="status in statuses" class="d-inline-flex me-1">-->
+                            <!--                            <span class="badge" :class="'bg-'+status.color+'-300'" style="color: black">-->
+                            <!--                                {{status.label}}-->
+                            <!--                            </span>-->
+                            <!--                        </h3>-->
+                            <!--                    </div>-->
+
+                            <!--time columns-->
+                            <!--Cards-->
+                            <div class="row justify-content-center">
+                                <!--                        <div class="col-sm-6"-->
+                                <div class="col-sm-12"
+                                     v-for="(room, index) in rooms" :key="index">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title fs-4 fw-bold">{{room.name}}</h5>
+                                            <div class="my-1 d-flex justify-content-end">
+                                                <button type="button" @click="OffOnHospitalRoom()" class="btn  btn-sm"
+                                                        :class="disabled_hospital_room ? 'btn-success' : 'btn-secondary'">
+                                                    <font-awesome-icon icon="fa-solid fa-pencil" />
+                                                    {{disabled_hospital_room ? 'Открыть' : 'Закрыть'}} операционную
+                                                </button>
+                                            </div>
+                                            <div class="card-text" :class="disabled_hospital_room ? 'disabledcard' : ''">
+
+                                                <div class="row row-cols-3 row-cols-sm-6 p-0 mx-1">
+                                                    <div class="col text-center border-white p-0"
+                                                         v-for="(val, i) in room.val" :key="i">
+
+                                                        <div class="square" @click="bookingRoom(room.name, val, index, i)"
+                                                             :class="val.status == 0
+                                             ? 'bg-green-300'
+                                             : val.status == 1 ? 'bg-red-300' : 'bg-yellow-300',
+                                              canUpdate() && !disabled_hospital_room ? 'cursor' : ''">
+                                                            <div>
+                                                                <div class="fw-bold fs-5 text-wrap">
+                                                                    {{ $dayjs(val.time).format('HH:mm') }}
+                                                                    <div class="line_height">-</div>
+                                                                    {{ $dayjs(val.time).add(1, 'hour').format('HH:mm') }}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
                 </div>
+
+
+
+
 
                 <!-- Modal clocks -->
                 <div class="modal fade" id="statusModal"
@@ -92,7 +221,7 @@
                         <div class="modal-content">
                             <div v-if="modal" class="modal-header">
                                 <h5 class="modal-title" id="statusModalLabel">
-                                    Операционная {{modal ? modal.room_name : ''}}
+                                    {{modal ? modal.room_name : ''}}
                                 </h5>
                                 <button type="button" class="btn-close" @click.prevent="closeModal()"></button>
                             </div>
@@ -234,6 +363,7 @@ export default {
         cardiologist_id: null,
         processing: false,
         rooms: [],
+        disabled_hospital_room:false,
         roles,
         wait,
         statuses,
@@ -417,12 +547,23 @@ export default {
         closeModal() {
             this.errors = null;
             this.myModal.hide();
+        },
+        OffOnHospitalRoom() {
+            this.disabled_hospital_room = !this.disabled_hospital_room
+            console.log(555)
         }
     },
 }
 </script>
 
 <style scoped>
+.disabledcard {
+    opacity: 0.4;
+}
+
+.line_height {
+    line-height: 0.3 !important;
+}
 .border-white {
     border: 1px solid #fff;
 }
