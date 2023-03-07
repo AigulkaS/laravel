@@ -273,6 +273,52 @@ const routes = [
                         ]
                     },
                     {
+                        path: 'ambulance_stations',
+                        component: () => import('../components/Admin/AmbulanceStations/AmbulanceStations.vue'),
+                        name: 'ambulance_stations',
+                        meta : {
+                            breadcrumb: 'Станции СМП',
+                        },
+                        children: [
+                            {
+                                path: 'create',
+                                component: () => import('../components/Admin/AmbulanceStations/Create.vue'),
+                                name: 'ambulance_station_create',
+                                meta : {
+                                    email_verified: true,
+                                    requiresAuth: true,
+                                    breadcrumb: 'Добавить станцию СМП',
+                                },
+                            },
+                            {
+                                path: ':id/edit',
+                                props: route => ({
+                                    id: route.params.id,
+                                }),
+                                component: () => import('../components/Admin/AmbulanceStations/Edit.vue'),
+                                name: 'ambulance_station_edit',
+                                meta : {
+                                    email_verified: true,
+                                    requiresAuth: true,
+                                    breadcrumb: 'Редактирование',
+                                },
+                            },
+                            {
+                                path: ':id/show',
+                                props: route => ({
+                                    id: route.params.id,
+                                }),
+                                component: () => import('../components/Admin/AmbulanceStations/Show.vue'),
+                                name: 'ambulance_station_show',
+                                meta : {
+                                    email_verified: true,
+                                    requiresAuth: true,
+                                    breadcrumb: 'Просмотр',
+                                },
+                            },
+                        ]
+                    },
+                    {
                         path: 'diseases',
                         component: () => import('../components/Admin/Diseases/Diseases.vue'),
                         name: 'diseases',

@@ -15,6 +15,9 @@
                         <li class="list-group-item" :class="$route.name == 'hospitals' ? 'active' : ''">
                             <router-link class="nav-link" :to="{name: 'hospitals'}">Больницы</router-link>
                         </li>
+                        <li class="list-group-item" :class="$route.name == 'ambulance_stations' ? 'active' : ''">
+                            <router-link class="nav-link" :to="{name: 'ambulance_stations'}">Станции СМП</router-link>
+                        </li>
                         <li class="list-group-item" :class="$route.name == 'diseases' ? 'active' : ''">
                             <router-link class="nav-link" :to="{name: 'diseases'}">Диагнозы</router-link>
                         </li>
@@ -36,7 +39,7 @@ export default {
     name: "Admin",
     data() {
         return {
-            links: ['users', 'roles', 'permissions', 'hospitals', 'diseases']
+            links: ['users', 'roles', 'permissions', 'hospitals', 'diseases', 'ambulance_stations']
         }
     },
     methods: {

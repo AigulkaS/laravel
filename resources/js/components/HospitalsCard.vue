@@ -17,12 +17,28 @@
 <!--                PushDemo11-->
 <!--            </button>-->
 
-            <div v-if="warning" class="alert alert-warning" role="alert">
+            <div v-if="auth_user && warning" class="alert alert-warning" role="alert">
                 {{warning}}
+                <div>
+                    <div class="fw-bolder">Больницы, не указавщие дежурных врачей:</div>
+                    <ul>
+                        <li v-for="hospital in emptyOrderlies">{{hospital.hospital_name}}</li>
+                    </ul>
+                </div>
+                <div v-if="auth_user && auth_user.role_name == roles.admin">
+                    <div>
+                        <b>Только для админа</b>
+                        <br>
+                        <button type="button" @click="addOrderlies()" class="btn btn-primary">
+                            <font-awesome-icon icon="fa-solid fa-pencil" /> Добавить дежурных
+                        </button>
+                    </div>
+                </div>
             </div>
 
 
-            <div v-else-if="bookings.length > 0">
+<!--            <div v-else-if="bookings.length > 0">-->
+            <div>
                 <div v-if="auth_user && auth_user.email_verified_at && [roles.admin, roles.dispatcher].includes(auth_user.role_name)">
                     <button type="button" class="btn btn-primary" @click.prevent="addBooking()">
                         <font-awesome-icon icon="fa-solid fa-plus" /> Добавить бронь
@@ -151,8 +167,24 @@
                                     />
                                     <span v-if="v$.disease_id.$error" :class="v$.disease_id.$error ? 'text-danger' : ''">
                                       Поле диагноз обязательное поле для заполнения
-                                </span>
+                                    </span>
                                 </div>
+                                <div class="mb-3">
+                                    <label class="col-form-label">Состояние пациента</label>
+                                    <Multiselect
+                                        v-model="v$.condition_id.$model"
+                                        :class="v$.condition_id.$error ? 'border-danger' : ''"
+                                        :close-on-select="true"
+                                        :hide-selected="false"
+                                        label="name"
+                                        valueProp="id"
+                                        :options="conditions"
+                                    />
+                                    <span v-if="v$.condition_id.$error" :class="v$.condition_id.$error ? 'text-danger' : ''">
+                                      Поле состояние пациента обязательное поле для заполнения
+                                    </span>
+                                </div>
+
                                 <div class="mb-3">
                                     <button type="submit" :disabled="processing" @click.prevent="hospitalSearch()"
                                             class="btn btn-primary btn-block">
@@ -189,6 +221,88 @@
                     </div>
                 </div>
             </div>
+
+
+            <!-- Modal Orderly -->
+            <div class="modal fade" id="modalOrderlyHospital"
+                 data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalOrderlyLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalOrderlyLabel">
+                                Добавить дежурных
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="alert alert-primary">
+                                Дежурные на {{$dayjs().set('hour', 8).set('minute', 0).format('DD.MM.YYYY HH:mm')}} - {{$dayjs().add(1, 'day').set('hour', 8).set('minute', 0).format('DD.MM.YYYY HH:mm')}}
+                            </div>
+                            <form class="row">
+                                <div class="form-group row my-1">
+                                    <label class="col-sm-5 col-form-label fw-bold">
+                                        Выберите больницу
+                                    </label>
+                                    <div class="col-sm-7">
+                                        <select class="form-control form-select" v-model="v$.hospital_id.$model"
+                                                :class="v$.hospital_id.$error ? 'border-danger' : ''">
+                                            <option v-for="hospital in emptyOrderlies" :key="hospital.hospital_id"
+                                                    :value="hospital.hospital_id">
+                                                {{ hospital.hospital_name }}
+                                            </option>
+                                        </select>
+                                        <span v-if="v$.hospital_id.$error" class="text-danger">
+                                          Выберите больницу обязательное поле для заполнения
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row my-1">
+                                    <label class="col-sm-5 col-form-label fw-bold">
+                                        Деж. кардиолог
+                                    </label>
+                                    <div class="col-sm-7">
+                                        <select class="form-control form-select" v-model="v$.cardiologist_id.$model"
+                                                :class="v$.cardiologist_id.$error ? 'border-danger' : ''">
+                                            <option v-for="cardiologist in cardiologists" :key="cardiologist.id"
+                                                    :value="cardiologist.id">
+                                                {{ cardiologist.last_name }} {{cardiologist.first_name}} {{cardiologist.patronymic}}
+                                            </option>
+                                        </select>
+                                        <span v-if="v$.cardiologist_id.$error" class="text-danger">
+                                          Деж. кардиолог обязательное поле для заполнения
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row my-1">
+                                    <label class="col-sm-5 col-form-label fw-bold">
+                                        Деж. хирург
+                                    </label>
+                                    <div class="col-sm-7">
+                                        <select class="form-control form-select" v-model="v$.surgeon_id.$model"
+                                                :class="v$.surgeon_id.$error ? 'border-danger' : ''">
+                                            <option v-for="surgeon in surgeons" :key="surgeon.id" :value="surgeon.id">
+                                                {{ surgeon.last_name }} {{surgeon.first_name}} {{surgeon.patronymic}}
+                                            </option>
+                                        </select>
+                                        <span v-if="v$.surgeon_id.$error" class="text-danger">
+                                          Деж. хирург обязательное поле для заполнения
+                                        </span>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                            <button type="button" @click.prevent="updateOrderly()" :disabled="processing" class="btn btn-primary btn-block">
+                                {{ processing ? wait : "Сохранить" }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -201,7 +315,7 @@ import {ref} from 'vue';
 import useValidate from '@vuelidate/core'
 import { required} from '@vuelidate/validators'
 import { Modal } from 'bootstrap'
-import {roles, wait, statuses, server_url} from "../consts";
+import {roles, wait, statuses, server_url, hospital_type} from "../consts";
 
 export default {
     name: "HospitalsCard",
@@ -229,6 +343,7 @@ export default {
             token: import.meta.env.VITE_APP_DADATA_API_KEY,
             suggestions: true,
             disease_id: null,
+            condition_id: null,
             processing: false,
             timeout: null,
             myModal: null,
@@ -237,11 +352,22 @@ export default {
             warning: null,
             bookings: [],
             diseases: [],
+            conditions: [],
             free_hospital: null,
+            emptyOrderlies: [],
+            hospital_id: null,
+            surgeon_id: null,
+            cardiologist_id: null,
+            hospitals: [],
+            myModalOrderly: null,
+            cardiologists: [],
+            surgeons: [],
+
             roles,
             wait,
             statuses,
             server_url,
+            hospital_type,
         }
     },
     validations() {
@@ -249,6 +375,33 @@ export default {
             suggestion: { required },
             query: { required },
             disease_id: { required },
+            condition_id: { required },
+
+            hospital_id: { required },
+            cardiologist_id: { required },
+            surgeon_id: { required },
+        }
+    },
+    watch: {
+        hospital_id (newValue, oldValue) {
+            if (newValue !== oldValue) {
+                this.errs = null;
+                this.cardiologist_id = null;
+                this.surgeon_id = null;
+                axios.get(`/api/operators/edit`,{
+                    headers: {Authorization: localStorage.getItem('access_token')},
+                    params: {hospital_id: newValue}
+                }).then(res => {
+                    console.log(res);
+                    this.cardiologists = res.data.cardiologist;
+                    this.surgeons = res.data.surgeons;
+                }).catch(err => {
+                    this.errorsMessage(err);
+                }).finally(() => {
+                    this.myModalOrderly.show();
+                });
+            }
+
         }
     },
     computed: {
@@ -280,29 +433,25 @@ export default {
     },
     beforeUnmount() {
         if (this.myModal) this.myModal.hide();
+        if (this.myModalOrderly) this.myModalOrderly.hide();
     },
     methods: {
         getData() {
-            // axios.get(`/api/todays/`,{
-            axios.get(`/api/operators`,{
-                headers: {Authorization: localStorage.getItem('access_token')}
+            axios.get(`/api/bookings`,{
+                headers: {Authorization: localStorage.getItem('access_token')},
             }).then(res => {
                 console.log(res);
-                if (res.data.data.length == 0) {
+                this.bookings = res.data;
+                this.bookings.forEach(el => {
+                    if (el.surgeon_id == 'default') {
+                        this.emptyOrderlies.push({hospital_id: el.hospital_id, hospital_name: el.hospital_name})
+                    }
+                });
+                if (this.emptyOrderlies.length > 0) {
                     this.warning = `Не указаны дежурные врачи больниц!
                     Дождитесь пока укажут дежурных врачей, после чего вы получите возможность увидеть
                      график свободных операционных.`
-                } else {
-                    this.getBooking()
                 }
-                // let element = res.data.data.find(el => el.surgeon_id == '')
-                // if (typeof element !== 'undefined')  {
-                //     this.warning = `${element.hospital_name} не указала дежурных врачей!
-                //     Дождитесь пока укажут дежурных врачей, после чего вы получите возможность увидеть
-                //      график свободных операционных.`
-                // } else {
-                //     this.getBooking()
-                // }
             }).catch(err => {
                 this.errorsMessage(err);
             }).finally(() => this.successPage = true);
@@ -315,7 +464,7 @@ export default {
                 this.bookings = res.data;
             }).catch(err => {
                 this.errorsMessage(err);
-            });
+            }).finally(() => this.successPage = true);
         },
         updateHospitalRoomStatus(arr) {
             let hospitalIndex = this.bookings.findIndex(element => element.hospital_id == arr[0].hospital_id);
@@ -353,6 +502,7 @@ export default {
             }).then(res => {
                 console.log(res);
                 this.diseases = res.data.disease;
+                this.conditions = res.data.conditions;
             }).catch(err => {
                 this.errorsMessage(err);
             }).finally(() => this.myModal.show());
@@ -453,7 +603,7 @@ export default {
             }, time)
         },
         pushDemo() {
-console.log('push.demo')
+            console.log('push.demo')
             axios.get('/api/push', {
                 headers: {Authorization: localStorage.getItem('access_token')}
             }).then(res => {
@@ -463,79 +613,66 @@ console.log('push.demo')
                 console.log(err.response)
             })
         },
+        addOrderlies() {
+            if (!this.myModalOrderly) {
+                this.myModalOrderly = new Modal(document.getElementById('modalOrderlyHospital'), {});
+            }
+            this.myModalOrderly.show()
+        },
+        updateOrderly() {
+            this.errs = null
+            this.success = null;
+            // this.v$.$validate() // checks all inputs
+            // if (!this.v$.$error) {
+            if (!this.v$.hospital_id.$error && !this.v$.surgeon_id.$error && !this.v$.cardiologist_id.$error) {
+                console.log(this.$dayjs().format('YYYY-MM-DD HH:mm:ss'))
+                this.processing = true;
+                axios.post(`/api/operators`,
+                    {
+                        date: this.$dayjs().set('hour', 0).set('minute', 0).set('second', 0).format('YYYY-MM-DD HH:mm:ss'),
+                        hospital_id: this.hospital_id,
+                        cardiologist_id: this.cardiologist_id,
+                        surgeon_id: this.surgeon_id,
+                    },
+                    {
+                        headers: {Authorization: localStorage.getItem('access_token')}
+                    }).then(res => {
+                    console.log(res);
+                    this.bookings.find(el => {
+                       if (el.hospital_id == res.data.data.hospital_id) {
+                           el.cardiologist_id = res.data.data.cardiologist_id;
+                           el.cardiologist_first_name = res.data.data.cardiologist_first_name;
+                           el.cardiologist_last_name = res.data.data.cardiologist_last_name;
+                           el.cardiologist_patronymic = res.data.data.cardiologist_patronymic;
+
+                           el.surgeon_id = res.data.data.surgeon_id;
+                           el.surgeon_first_name = res.data.data.surgeon_first_name;
+                           el.surgeon_last_name = res.data.data.surgeon_last_name;
+                           el.surgeon_patronymic = res.data.data.surgeon_patronymic;
+                       }
+                    });
+                    let index = this.emptyOrderlies.findIndex(el => el.hospital_id == res.data.data.hospital_id);
+                    if (index > -1) {
+                        this.emptyOrderlies.splice(index, 1);
+                    }
+                    if (this.emptyOrderlies.length == 0) {
+                        this.warning = false;
+                    }
+                    console.log(this.bookings);
+                }).catch(err => {
+                    this.errorsMessage(err);
+                }).finally(() => {
+                    this.processing = false;
+                    this.myModalOrderly.hide();
+                })
+            } else {
+                window.scrollTo(0,0);
+            }
+
+        },
     },
 
 
 
 }
 </script>
-
-<!--<style>-->
-<!--.autocomplete {-->
-<!--    /*the container must be positioned relative:*/-->
-<!--    position: relative;-->
-<!--    /*display: inline-block;*/-->
-<!--}-->
-
-<!--.autocomplete-items {-->
-<!--    position: absolute;-->
-<!--    border: 1px solid #d4d4d4;-->
-<!--    border-bottom: none;-->
-<!--    border-top: none;-->
-<!--    z-index: 99;-->
-<!--    /*position the autocomplete items to be the same width as the container:*/-->
-<!--    top: 100%;-->
-<!--    left: 0;-->
-<!--    right: 0;-->
-<!--}-->
-<!--.autocomplete-items div {-->
-<!--    /*padding: 10px;*/-->
-<!--    cursor: pointer;-->
-<!--    background-color: #fff;-->
-<!--    border-bottom: 1px solid #d4d4d4;-->
-<!--}-->
-<!--autocomplete-disabled-item  div {-->
-<!--    border-bottom: 1px solid #d4d4d4;-->
-<!--}-->
-<!--.autocomplete-items div:hover {-->
-<!--    /*when hovering an item:*/-->
-<!--    background-color: #e9e9e9;-->
-<!--}-->
-
-<!--.bg-gray-300 {-->
-<!--    background-color: #e9ecef;-->
-<!--}-->
-<!--.bg-red-400 {-->
-<!--    background-color: #e35d6a;-->
-<!--}-->
-<!--.bg-green-400 {-->
-<!--    background-color: #479f76;-->
-<!--}-->
-<!--.bg-yellow-400 {-->
-<!--    background-color: #ffcd39;-->
-<!--}-->
-
-<!--/*.bg-red-300 {*/-->
-<!--/*    background-color: #ea868f;*/-->
-<!--/*}*/-->
-<!--/*.bg-green-300 {*/-->
-<!--/*    background-color: #75b798;*/-->
-<!--/*}*/-->
-<!--/*.bg-yellow-300 {*/-->
-<!--/*    background-color: #ffda6a;*/-->
-<!--/*}*/-->
-
-<!--.bg-red-200 {-->
-<!--    background-color: #f1aeb5;-->
-<!--}-->
-<!--.bg-green-200 {-->
-<!--    background-color: #a3cfbb;-->
-<!--}-->
-<!--.bg-yellow-200 {-->
-<!--    background-color: #ffe69c;-->
-<!--}-->
-<!--</style>-->
-
-<style scoped>
-
-</style>
