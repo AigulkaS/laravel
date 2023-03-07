@@ -128,7 +128,7 @@ import { required } from '@vuelidate/validators';
 import { ref } from 'vue';
 // import { VueDadata } from 'vue-dadata';
 // import 'vue-dadata/dist/style.css';
-import {wait} from "../../../consts";
+import {wait, hospital_type} from "../../../consts";
 
 // export default defineComponent ({
 export default {
@@ -189,10 +189,12 @@ export default {
             suggestions: true,
 
             wait,
+            hospital_type,
         }
     },
     mounted() {
-        this.getData();
+        // this.getData();
+        this.successPage = true
         // console.log(this.suggestion)
     },
     validations() {
@@ -243,6 +245,7 @@ export default {
             if (!this.v$.$error) {
                 this.processing = true;
                 axios.post('/api/hospitals', {
+                        type:  hospital_type.hospital,
                         full_name: this.hospital.full_name,
                         short_name: this.hospital.short_name,
                         address: this.suggestion.unrestricted_value,

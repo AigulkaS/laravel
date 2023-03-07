@@ -3,15 +3,15 @@
         <error-page v-if="errPage" :err="errs"></error-page>
 
         <div v-else-if="successPage">
-            <div v-if="$route.name == 'hospitals'">
-                <div class="row" v-if="hospitals">
+            <div v-if="$route.name == 'ambulance_stations'">
+                <div class="row" v-if="stations">
                     <div class="d-flex my-3">
                         <div class="me-auto ">
-                            <h4 class="my-3">Больницы</h4>
+                            <h4 class="my-3">Станции СМП</h4>
                         </div>
                         <div class="align-self-center">
-                            <router-link :to="{name: 'hospital_create'}" type="button" class="btn btn-primary">
-                                <font-awesome-icon icon="fa-solid fa-plus" /> Добавить новую больницу
+                            <router-link :to="{name: 'ambulance_station_create'}" type="button" class="btn btn-primary">
+                                <font-awesome-icon icon="fa-solid fa-plus" /> Добавить новую станцию СМП
                             </router-link>
                         </div>
                     </div>
@@ -28,34 +28,25 @@
                             <tr>
                                 <th scope="col">id</th>
                                 <th scope="col">Наименование</th>
-                                <th scope="col">Адрес</th>
-                                <th scope="col">Кабинеты</th>
                                 <th scope="col"></th>
                                 <th scope="col"></th>
                             </tr>
                             </thead>
                             <tbody>
-                            <tr v-for="(hospital, index) in hospitals">
-                                <td scope="row" data-label="id">{{hospital.id}}</td>
+                            <tr v-for="(station, index) in stations">
+                                <td scope="row" data-label="id">{{station.id}}</td>
                                 <td data-label="Наименование">
-                                    <router-link :to="{name: 'hospital_show', params: {id: hospital.id}}">
-                                        {{hospital.short_name}}</router-link>
-                                </td>
-                                <td data-label="Адрес">
-                                    {{hospital.address}}
-                                </td>
-                                <td data-label="Кабинеты">
-                                    <ul class="list-style-none my-1 px-1" v-for="room in hospital.rooms">
-                                        <li class="pl-1">{{ room.name }}</li>
-                                    </ul>
+                                    <router-link :to="{name: 'ambulance_station_show', params: {id: station.id}}">
+                                        {{station.short_name}}</router-link>
                                 </td>
                                 <td data-label="Редактировать">
-                                    <router-link :to="{name: 'hospital_edit', params: {'id': hospital.id}}" tag="button" class="btn btn-warning" title="Редактировать">
+                                    <router-link :to="{name: 'ambulance_station_edit',
+                                    params: {'id': station.id}}" tag="button" class="btn btn-warning" title="Редактировать">
                                         <font-awesome-icon icon="fa-solid fa-pencil" :style="{ color: 'black' }" />
                                     </router-link>
                                 </td>
                                 <td data-label="Удалить">
-                                    <button @click.prevent="deleteItem(hospital.id)" class="btn btn-danger" title="Удалить">
+                                    <button @click.prevent="deleteItem(station.id)" class="btn btn-danger" title="Удалить">
                                         <font-awesome-icon icon="fa-solid fa-trash-can" :style="{ color: 'white' }" />
                                     </button>
                                 </td>
@@ -79,10 +70,10 @@
 import {hospital_type} from "../../../consts";
 
 export default {
-    name: "Hospitals",
+    name: "AmbulanceStations",
     data() {
         return {
-            hospitals: null,
+            stations: null,
             success : null,
             hospital_type,
         }
@@ -94,22 +85,22 @@ export default {
         getData() {
             axios.get('/api/hospitals', {
                 headers: {Authorization: localStorage.getItem('access_token')},
-                params: {type: this.hospital_type.hospital}
+                params: {type: this.hospital_type.smp}
             }).then(res => {
                 console.log(res);
-                this.hospitals = res.data.data;
+                this.stations = res.data.data;
             }).catch(err => {
                 this.errorsMessage(err);
             }).finally(() => this.successPage = true)
         },
-        deleteItem(hospital_id) {
+        deleteItem(station_id) {
             this.eers = null;
-            axios.delete(`/api/hospitals/${hospital_id}`, {
+            axios.delete(`/api/hospitals/${station_id}`, {
                 headers: {Authorization: localStorage.getItem('access_token')}
             }).then(res => {
                 console.log(res);
                 this.getData();
-                this.success = 'Вы удалили больницу';
+                this.success = 'Вы удалили станцию СМП';
                 setTimeout(()=>{
                     this.success = null;
                 },1500)
@@ -118,15 +109,13 @@ export default {
             })
         },
         onAddChild (value) {
-            this.hospitals.push(value);
+            this.stations.push(value);
         },
         onChangeChild (value) {
-            let hospitalIndex = this.hospitals.findIndex(el => el.id == value.id);
+            let hospitalIndex = this.stations.findIndex(el => el.id == value.id);
             if (hospitalIndex != -1) {
-                this.hospitals[hospitalIndex].address = value.address;
-                this.hospitals[hospitalIndex].full_name = value.full_name;
-                this.hospitals[hospitalIndex].short_name = value.short_name;
-                this.hospitals[hospitalIndex].rooms = value.rooms;
+                this.stations[hospitalIndex].full_name = value.full_name;
+                this.stations[hospitalIndex].short_name = value.short_name;
             }
         },
     }
@@ -134,7 +123,4 @@ export default {
 </script>
 
 <style scoped>
-.list-style-none {
-    list-style-type: none;
-}
 </style>
