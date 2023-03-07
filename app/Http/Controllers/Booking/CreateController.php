@@ -25,10 +25,13 @@ class CreateController extends BaseController
     {
         $data = $request->validated();
 
-        $hospital = $this->service->getNearestHospital($data);
+        $dateTime = $this->service->getDateTimeForBook();
+
+        $hospital = $this->service->getNearestHospital($data, $dateTime);
         
         return response()->json([
-            'data' => $hospital,
+            'hospital' => $hospital,
+            'dateTime' => $dateTime,
         ], 200);
     }
 

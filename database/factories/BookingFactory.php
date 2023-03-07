@@ -29,8 +29,6 @@ class BookingFactory extends Factory
             'status' => random_int(0,2),
             'hospital_id' => Hospital::get()->random()->id,
             'room_id' => HospitalRoom::get()->random()->id,
-            'surgeon_id' => User::get()->random()->id,
-            'cardiologist_id' => User::get()->random()->id,
             'user_id' => User::get()->random()->id,
             'disease_id' => Disease::get()->random()->id,
             'condition_id' => PatientCondition::get()->random()->id,

@@ -33,18 +33,19 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
 });
 
-
+// for users
 Route::get('/users/create', App\Http\Controllers\User\CreateController::class)->name('user.create');
 Route::get('/users/{user}', App\Http\Controllers\User\ShowController::class,)->name('user.show');
 Route::get('/users/{user}/edit', App\Http\Controllers\User\EditController::class,)->name('user.edit');
 Route::patch('/users/{user}', App\Http\Controllers\User\UpdateController::class,)->name('user.update');
 
+Route::get('/users', App\Http\Controllers\User\IndexController::class)->name('user.index')->middleware('role:admin,moderator');
+Route::post('/users', App\Http\Controllers\User\StoreController::class)->name('user.store')->middleware('role:admin,moderator');
+Route::delete('/users/{user}', App\Http\Controllers\User\DestroyController::class,)->name('user.delete')->middleware('role:admin,moderator');
+//
+
 Route::group(['middleware' => 'role:admin'], function () {
-    // for users
-    Route::get('/users', App\Http\Controllers\User\IndexController::class)->name('user.index');
-    Route::post('/users', App\Http\Controllers\User\StoreController::class)->name('user.store');
-    Route::delete('/users/{user}', App\Http\Controllers\User\DestroyController::class,)->name('user.delete');
-    //
+    
 // ->middleware('permissions:edit booking,edit today')
 
     // for roles
@@ -103,9 +104,11 @@ Route::post('/operators', App\Http\Controllers\Operator\UpdateController::class,
 // for booking
 Route::get('/bookings', App\Http\Controllers\Booking\IndexController::class)->name('booking.index'); //->middleware('permissions:show booking');
 Route::get('/bookings/create/disease', [\App\Http\Controllers\Booking\CreateController::class, 'disease'])->name('disease')->middleware('permissions:show booking,create booking,edit booking');
-Route::get('/bookings/create/hospital', [\App\Http\Controllers\Booking\CreateController::class, 'hospital'])->name('hospital')->middleware('permissions:show booking,create booking,edit booking');
-Route::post('/bookings', App\Http\Controllers\Booking\StoreController::class)->name('booking.store')->middleware('permissions:show booking,create booking,edit booking');
+// Route::get('/bookings/create/hospital', [\App\Http\Controllers\Booking\CreateController::class, 'hospital'])->name('hospital')->middleware('permissions:show booking,create booking,edit booking');
+// Route::post('/bookings', App\Http\Controllers\Booking\StoreController::class)->name('booking.store')->middleware('permissions:show booking,create booking,edit booking');
+Route::post('/bookings', App\Http\Controllers\Booking\StoreControllerNew::class)->name('booking.store')->middleware('permissions:show booking,create booking,edit booking');
 Route::patch('/bookings', App\Http\Controllers\Booking\UpdateController::class,)->name('booking.update')->middleware('permissions:show booking,create booking,edit booking');
+// Route::patch('/bookings', App\Http\Controllers\Booking\UpdateControllerNew::class,)->name('booking.update')->middleware('permissions:show booking,create booking,edit booking');
 // Route::delete('/bookings/{booking}', App\Http\Controllers\Booking\DestroyController::class,)->name('booking.delete');
 //
 

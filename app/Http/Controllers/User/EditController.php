@@ -15,12 +15,14 @@ class EditController extends BaseController
     public function __invoke(User $user)
     {
         $roles = Role::all();
-        $hospitals = Hospital::all();
+        $hospitals = Hospital::where('type',1)->get();
+        $smps = Hospital::where('type',2)->get();
 
         return response()->json([
             'user' => new UserResource($user),
             'roles' => RoleResource::collection($roles),
             'hospitals' => HospitalResource::collection($hospitals),
+            'smps' => HospitalResource::collection($smps),
         ], 200);
         
         // return view('user.edit', compact('user', 'roles', 'hospitals'));

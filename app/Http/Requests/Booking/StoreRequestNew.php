@@ -4,7 +4,7 @@ namespace App\Http\Requests\Booking;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateRequest extends FormRequest
+class StoreRequestNew extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,13 +24,13 @@ class UpdateRequest extends FormRequest
     public function rules()
     {
         return [
+            'geo_lat' => 'required|string',
+            'geo_lon' => 'required|string',
+            'disease_id' => 'required|integer',
             'condition_id' => 'required|integer',
-            'hospital_id' => 'required|integer',
-            'room_id' => 'required|integer',
-            'user_id' => 'required|integer',  //!
-            'status' => 'required|integer',
-            'date_time' => 'required|string',
-            'booking_hours' => 'required|integer',
+            'user_id' => 'required|integer',
+            // 'hospital_id' => 'required|integer',
+            // 'date_time' => 'required|string',
         ];
 
     }
