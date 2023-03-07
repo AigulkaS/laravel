@@ -16,14 +16,6 @@ class Booking extends Model
     protected $guarded = false;
     public $timestamps = false;
 
-    public function surgeon() {
-        return $this->belongsTo(User::class, 'surgeon_id', 'id');
-    }
-
-    public function cardiologist() {
-        return $this->belongsTo(User::class, 'cardiologist_id', 'id');
-    }
-
     public function user() {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }

@@ -137,7 +137,6 @@ return [
         'cardiologist_id' => 'Дежурный кардиолог',
         'code' => 'Код диагноза',
         'disease_id' => 'Заболевание',
-        'dispatcher_id' => 'Диспетчер',
         'booking_hours' => 'Время бронирования',
 
     ],

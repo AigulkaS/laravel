@@ -38,12 +38,12 @@ class DatabaseSeeder extends Seeder
             'label' => 'кардиолог',
         ]);
         DB::table('roles')->insert([
-            'name' => 'dispatcher',
-            'label' => 'дистпетчер СМП',
+            'name' => 'smp',
+            'label' => 'фельдшер/врач СМП',
         ]);
         DB::table('roles')->insert([
-            'name' => 'doctor_ambulance',
-            'label' => 'фельдшер/врач СМП',
+            'name' => 'moderator',
+            'label' => 'модератор',
         ]);
         
         DB::table('permissions')->insert([
@@ -85,15 +85,15 @@ class DatabaseSeeder extends Seeder
                 'role_id' => 3,
             ]);
 
+            DB::table('permission_roles')->insert([
+                'permission_id' => $i,
+                'role_id' => 5,
+            ]);
+
             if ($i != 4) {
                 DB::table('permission_roles')->insert([
                     'permission_id' => $i,
                     'role_id' => 4,
-                ]);
-
-                DB::table('permission_roles')->insert([
-                    'permission_id' => $i,
-                    'role_id' => 5,
                 ]);
             }  
         }

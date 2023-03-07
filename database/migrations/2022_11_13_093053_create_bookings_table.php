@@ -19,16 +19,12 @@ return new class extends Migration
             $table->unsignedBigInteger('status');
             $table->unsignedBigInteger('hospital_id');
             $table->unsignedBigInteger('room_id');
-            $table->unsignedBigInteger('surgeon_id');
-            $table->unsignedBigInteger('cardiologist_id');
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('disease_id');
             $table->unsignedBigInteger('condition_id');
             $table->timestamp('date_time');
             $table->foreign('hospital_id')->references('id')->on('hospitals');
             $table->foreign('room_id')->references('id')->on('hospital_rooms');
-            $table->foreign('surgeon_id')->references('id')->on('users');
-            $table->foreign('cardiologist_id')->references('id')->on('users');
             $table->foreign('user_id')->references('id')->on('users');
             $table->foreign('disease_id')->references('id')->on('diseases');
             $table->foreign('condition_id')->references('id')->on('patient_conditions');

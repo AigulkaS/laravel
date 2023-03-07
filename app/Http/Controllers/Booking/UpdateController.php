@@ -15,7 +15,7 @@ class UpdateController extends BaseController
 
         $bookings = $this->service->update($data);
 
-        event(new BookingsUpdateEvent($bookings instanceof String ? $bookings : BookingResource::collection($bookings)));
+        // event(new BookingsUpdateEvent($bookings instanceof String ? $bookings : BookingResource::collection($bookings)));
 
 
         return $bookings instanceof String ? $bookings : BookingResource::collection($bookings);

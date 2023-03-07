@@ -11,10 +11,6 @@ class BookingFilter extends AbstractFilter
 
     public const STATUS = 'status';
     public const HOSPITAL_ID = 'hospital_id';
-    public const SURGEON_ID = 'surgeon_id';
-    public const CARDIOLOGIST_ID = 'cardiologist_id';
-    // public const START_TIME = 'start_time';
-    // public const END_TIME = 'end_time';
     public const DATE = 'date';
     public const PERIOD = 'period';
 
@@ -24,10 +20,6 @@ class BookingFilter extends AbstractFilter
         return [
             self::STATUS => [$this, 'status'],
             self::HOSPITAL_ID => [$this, 'hospitalId'],
-            self::SURGEON_ID => [$this, 'surgeonId'],
-            self::CARDIOLOGIST_ID => [$this, 'cardiologistId'],
-            // self::START_TIME => [$this, 'startTime'],
-            // self::END_TIME => [$this, 'endTime'],
             self::DATE => [$this, 'date'],
             self::PERIOD => [$this, 'betweenDateTime'],
         ];
@@ -52,16 +44,6 @@ class BookingFilter extends AbstractFilter
     {
         $builder->where('cardiologist_id', $value);
     }
-
-    // public function startTime(Builder $builder, $value)
-    // {
-    //     $builder->where('start_time', $value);
-    // }
-
-    // public function endTime(Builder $builder, $value)
-    // {
-    //     $builder->where('end_time', $value);
-    // }
 
     public function date(Builder $builder, $dateValue)
     {
