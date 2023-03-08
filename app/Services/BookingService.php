@@ -334,7 +334,7 @@ class BookingService {
         }
 
 
-        $now = DateTime::createFromFormat('Y-m-d h:i:s', $dateTime);
+        $now = DateTime::createFromFormat('Y-m-d H:i:s', $dateTime);
         // $now = new DateTime();
         $nowHour = $now->format('H');
         if ($nowHour >=0 && $nowHour <8) {
@@ -355,7 +355,7 @@ class BookingService {
 
         try {
             DB::beginTransaction();
-            $dateTime = DateTime::createFromFormat('Y-m-d h:i:s', $dateTime);
+            $dateTime = DateTime::createFromFormat('Y-m-d H:i:s', $dateTime);
 
             //! for ($i = 0; $i < $data['booking_hours']; $i++) {
             //! BOOKING FOR 2 HOURS
@@ -473,8 +473,6 @@ class BookingService {
                 }
             }
 
-
-            //!!!! what for
             if(count($hospitals) > 0) {
                 $arrHospitals = collect($hospitals)->toArray();
                 $hospitals = [];
@@ -483,8 +481,6 @@ class BookingService {
                     $hospitals[]= $hospital;
                 }
             }
-
-            //!!!!
         }
 
 
@@ -509,7 +505,7 @@ class BookingService {
             'hospital_id' => $mainHospital['id'],
             'disease_id' => $data['disease_id'],
             'condition_id' => $data['condition_id'],
-            'user_id' => auth('sanctum')->user()->id, // $data['user_id']
+            'user_id' => $data['user_id'], // $data['user_id']auth('sanctum')->user()->id
            
         ];
         
@@ -678,30 +674,74 @@ class BookingService {
     // }
 
     public function getMess($bookings) {
-        $operators = [];
-        foreach ($bookings as $booking) {
-            $now = DateTime::createFromFormat('Y-m-d h:i:s', $booking->date_time);
-            $nowHour = $now->format('H');
-            if ($nowHour >=0 && $nowHour <8) {
-                $now = $now->modify('-1 day');
+        $data =[];
+        if (count($bookings) == 2) {
+            $forTwo = false;
+            $first = DateTime::createFromFormat('Y-m-d H:i:s', $bookings[0]->date_time);
+            $second = DateTime::createFromFormat('Y-m-d H:i:s', $bookings[1]->date_time);
+            $timeStr = $first->format('d.m.y H:i - ');
+            $second->add(new DateInterval('PT1H'));
+
+            $timeStr .= $second->format('H:i');
+            if ($second->format('H') == 8) {
+                $forTwo = true;
             }
 
-            $operator = Operator::where('hospital_id', $booking->hospital_id)
-                                ->where('date',$now->format('Y-m-d 00:00:00'))->first();
-            $operators[]=$operator;
-        }
+            $hour = $first->format('H');
+            if ($hour >=0 && $hour <8) {
+                $first = $first->modify('-1 day');
+            }
 
-        if (count($bookings)>1) {
+            $operator = Operator::where('hospital_id', $bookings[0]->hospital_id)
+                                ->where('date',$first->format('Y-m-d 00:00:00'))->first();
+            $data = [
+                'fio' => $operator->surgeon->last_name . ' ' . $operator->surgeon->first_name . ' ' . $operator->surgeon->patronymic,
+                'phone' => $operator->surgeon->phone,
+                'email' => $operator->surgeon->email,
+                'hospital' => $bookings[0]->hospital->short_name,
+                'disease' =>$bookings[0]->disease->name,
+                'condition' => $bookings[0]->condition->name,
+                'time' => $timeStr,
+            ];
+            
+            if ($forTwo) {
+                $operator = Operator::where('hospital_id', $bookings[0]->hospital_id)
+                                ->where('date',$second->format('Y-m-d 00:00:00'))->first();
+                $data = [
+                    'fio' => $operator->surgeon->last_name . ' ' . $operator->surgeon->first_name . ' ' . $operator->surgeon->patronymic,
+                    'phone' => $operator->surgeon->phone,
+                    'email' => $operator->surgeon->email,
+                    'hospital' => $bookings[0]->hospital->short_name,
+                    'disease' =>$bookings[0]->disease->name,
+                    'condition' => $bookings[0]->condition->name,
+                    'time' => $timeStr,
+                ];
+            }
 
         } else {
+            $first = DateTime::createFromFormat('Y-m-d H:i:s', $bookings[0]->date_time);
+            $timeStr = $first->format('d.m.y H:i - ');
+            $first->add(new DateInterval('PT1H'));
+            $timeStr .= $first->format('H:i');
+            $first = $first->modify('-1 hour');
+            
+            $hour = $first->format('H');
+            if ($hour >=0 && $hour <8) {
+                $first = $first->modify('-1 day');
+            }
+            $operator = Operator::where('hospital_id', $bookings[0]->hospital_id)
+                                ->where('date',$first->format('Y-m-d 00:00:00'))->first();
+            
             $data = [
-                'fio' => $operator->surgeon->last_name,
-                'phone' => $operator->surgeon->last_name,
-                'email' => $operator->surgeon->last_name,
-                'hospital' => $operator->surgeon->last_name,
-                'disease' =>$operator->surgeon->last_name,
-                'condition' => $operator->surgeon->last_name,
+                'fio' => $operator->surgeon->last_name . ' ' . $operator->surgeon->first_name . ' ' . $operator->surgeon->patronymic,
+                'phone' => $operator->surgeon->phone,
+                'email' => $operator->surgeon->email,
+                'hospital' => $bookings[0]->hospital->short_name,
+                'disease' =>$bookings[0]->disease->name,
+                'condition' => $bookings[0]->condition->name,
+                'time' => $timeStr,
             ];
         }
+        return $data;
     }
 }
