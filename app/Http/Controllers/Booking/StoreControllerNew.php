@@ -19,7 +19,7 @@ class StoreControllerNew extends BaseController
 
         $bookings = $this->service->storeNew($data);
 
-        $message = $this->service->getMess($bookings);
+        // $message = $this->service->getMess($bookings);
 
         // event(new BookingsStoreEvent($bookings instanceof String ? $bookings : BookingResource::collection($bookings)));
 

@@ -45,8 +45,6 @@ Route::delete('/users/{user}', App\Http\Controllers\User\DestroyController::clas
 //
 
 Route::group(['middleware' => 'role:admin'], function () {
-    
-// ->middleware('permissions:edit booking,edit today')
 
     // for roles
     Route::get('/roles', App\Http\Controllers\Role\IndexController::class)->name('role.index');

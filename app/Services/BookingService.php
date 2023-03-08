@@ -505,15 +505,15 @@ class BookingService {
             $mainHospital = $hospitals[0];
         }
 
-
         $storeData = [
-            'hospital_id' => $mainHospital->id,
+            'hospital_id' => $mainHospital['id'],
             'disease_id' => $data['disease_id'],
             'condition_id' => $data['condition_id'],
-            'user_id' => $data['user_id'], // auth('sanctum')->user()->id
+            'user_id' => auth('sanctum')->user()->id, // $data['user_id']
            
         ];
-        $hospital = Hospital::find($mainHospital->id);
+        
+        $hospital = Hospital::find($mainHospital['id']);
         $rooms = $hospital->rooms;
 
         if (count($rooms)>1) {
@@ -547,7 +547,7 @@ class BookingService {
         else {
             $storeData['room_id'] = $rooms[0]->id;
         }
-
+        
         $finded = false;
         $bookingHours = 2;
         do {
@@ -589,13 +589,14 @@ class BookingService {
 
         try {
             DB::beginTransaction();
-
+            
             for ($i = 0; $i < $bookingHours; $i++) {
                 $storeData['date_time'] = $dateTime->format('Y-m-d H:00:00');
                 $booking = Booking::where('date_time', $dateTime->format('Y-m-d H:00:00'))
                     ->where('hospital_id', $hospital->id)
                     ->where('room_id', $storeData['room_id'])
                     ->first();
+
                 if ($booking != null) {
                     $booking->delete();
                 }
