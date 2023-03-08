@@ -19,11 +19,19 @@ class StoreControllerNew extends BaseController
 
         $bookings = $this->service->storeNew($data);
 
-        // $message = $this->service->getMess($bookings);
+        $messages = $this->service->getMess($bookings);
 
         // event(new BookingsStoreEvent($bookings instanceof String ? $bookings : BookingResource::collection($bookings)));
 
-        return $bookings instanceof String ? $bookings : BookingResource::collection($bookings);
+        if ($bookings instanceof String) {
+            return $bookings;
+        } else {
+            return response()->json([
+                'bookings' => BookingResource::collection($bookings),
+                'messages' => $messages,
+            ], 200);
+        }
+        // return $bookings instanceof String ? $bookings : BookingResource::collection($bookings);
 
     }
 

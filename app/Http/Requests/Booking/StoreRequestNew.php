@@ -28,7 +28,7 @@ class StoreRequestNew extends FormRequest
             'geo_lon' => 'required|string',
             'disease_id' => 'required|integer',
             'condition_id' => 'required|integer',
-            // 'user_id' => 'required|integer',
+            'user_id' => 'required|integer',
             // 'hospital_id' => 'required|integer',
             // 'date_time' => 'required|string',
         ];
