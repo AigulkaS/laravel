@@ -10,5 +10,5 @@ class Permission extends Model
     use HasFactory;
     
     protected $guarded = false;
-    public $timestamps = false;
+    public $timestamps = true;
 }

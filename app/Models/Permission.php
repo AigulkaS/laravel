@@ -14,7 +14,7 @@ class Permission extends Model
     use Filterable;
     
     protected $guarded = false;
-    public $timestamps = false;
+    public $timestamps = true;
 
     public function roles() {
         return $this->belongsToMany(Role::class, 'permission_roles', 'permission_id', 'role_id');
