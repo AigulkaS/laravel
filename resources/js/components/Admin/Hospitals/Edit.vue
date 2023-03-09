@@ -217,6 +217,12 @@ export default {
     mounted() {
         this.getData();
     },
+    computed: {
+        auth_user() {
+            return localStorage.getItem('auth_user')
+                ? JSON.parse(localStorage.getItem('auth_user')) : null
+        }
+    },
     validations() {
         return {
             hospital: {
@@ -229,7 +235,7 @@ export default {
     },
     methods: {
         getData() {
-            axios.get(`/api/hospitals/${this.id}/edit`, {
+            axios.get(`/api/hospitals/${this.id ? this.id : this.auth_user.hospital_id}/edit`, {
                 headers: {Authorization: localStorage.getItem('access_token')}
             }).then(res => {
                 console.log(res);
@@ -266,10 +272,6 @@ export default {
         update() {
             this.errs = null
             this.success = null;
-            console.log(this.query)
-            console.log(this.suggestion )
-            console.log(this.v$ )
-            console.log(this.v$.hospital.$error )
             this.v$.$validate() // checks all inputs
             this.rooms = this.rooms.filter((el, index) => {
                 return  el.name !== null && el.name !== ''
@@ -299,7 +301,7 @@ export default {
                         hospital_rooms: rooms
                     }
                 }
-                axios.patch(`/api/hospitals/${this.id}`, data,
+                axios.patch(`/api/hospitals/${this.id ? this.id : this.auth_user.hospital_id}`, data,
                     {headers: {Authorization: localStorage.getItem('access_token')}
                 }).then(res => {
                     console.log(res);
@@ -307,7 +309,8 @@ export default {
                     this.success = 'Данные успешно изменены. Перенаправление...';
                     this.$emit('change_data', res.data.data)
                     setTimeout(()=>{
-                        this.$router.push({name:'hospitals'})
+                        // this.$router.push({name:'hospitals'})
+                        this.$router.go(-1)
                     },3000)
                 }).catch(err => {
                     this.errorsMessage(err);

@@ -87,6 +87,66 @@ const routes = [
                 }
             },
             {
+                path: 'users',
+                component: () => import('../components/Admin/Users/Users.vue'),
+                name: 'users_for_moderator',
+                meta: {
+                    breadcrumb: 'Пользователи',
+                },
+                children: [
+                    {
+                        path: ':id/edit',
+                        props: route => ({
+                            id: route.params.id,
+                        }),
+                        component: () => import('../components/Admin/Users/Edit.vue'),
+                        name: 'user_edit_for_moderator',
+                        meta : {
+                            email_verified: true,
+                            requiresAuth: true,
+                            breadcrumb: 'Редактировать',
+                        },
+                    },
+                    {
+                        path: ':id/show',
+                        props: route => ({
+                            id: route.params.id,
+                        }),
+                        component: () => import('../components/Admin/Users/Show.vue'),
+                        name: 'user_show_for_moderator',
+                        meta : {
+                            email_verified: true,
+                            requiresAuth: true,
+                            breadcrumb: 'Просмотр',
+                        },
+                    },
+                ]
+            },
+            {
+                path: 'hospital',
+                component: () => import('../components/Admin/Hospitals/Show.vue'),
+                name: 'hospital_show_user',
+                meta : {
+                    email_verified: true,
+                    requiresAuth: true,
+                    breadcrumb: 'Больница',
+                },
+                children: [
+                    {
+                        path: 'edit',
+                        component: () => import('../components/Admin/Hospitals/Edit.vue'),
+                        name: 'hospital_edit_user',
+                        meta : {
+                            email_verified: true,
+                            requiresAuth: true,
+                            breadcrumb: 'Редактирование',
+                        },
+                    },
+                ],
+            },
+
+
+            {
                 path: 'admin',
                 component: () => import('../components/Admin/Admin.vue'),
                 name: 'admin_page',

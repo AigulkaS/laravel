@@ -130,7 +130,7 @@
                                         :hide-selected="false"
                                         label="full_name"
                                         valueProp="id"
-                                        :options="type == hospital_type.hospital ? hospitals : smp"
+                                        :options="type == hospital_type.hospital ? hospitals : smps"
                                     />
                                     <span v-if="v$.user.hospital_id.$error"
                                           :class="v$.user.hospital_id.$error ? 'text-danger' : ''">
@@ -261,11 +261,11 @@ export default {
                 first_name: "",
                 patronymic: "",
                 phone: "",
-                role_id: null,
+                role_id: 0,
             },
             inputType: 'password',
             hospitals: [],
-            smp: [],
+            smps: [],
             roles: null,
             processing:false,
             type: null,
@@ -296,7 +296,7 @@ export default {
             axios.get('/api/users/create').then(res => {
                 console.log(res);
                 this.hospitals = res.data.hospitals;
-                this.smp = [];
+                this.smps = res.data.smps;
                 this.roles = res.data.roles;
             }).catch(err => {
                 this.errorsMessage(err);
@@ -308,8 +308,7 @@ export default {
         register(){
             console.log(this.v$.user.password.pass_regex.$response)
             if (this.type == this.hospital_type.smp) {
-                this.user.role_id = this.roles.find(el => el.name == this.role.doctor_ambulance).id
-                this.user.hospital_id = 2;
+                this.user.role_id = this.roles.find(el => el.name == this.role.smp).id
             }
             this.v$.$validate() // checks all inputs
             if (!this.v$.$error) {

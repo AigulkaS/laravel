@@ -3,7 +3,8 @@
         <error-page v-if="errPage" :err="errs"></error-page>
 
         <div v-else-if="successPage">
-            <div v-if="$route.name == 'users'">
+            <div v-if="['users', 'users_for_moderator'].includes($route.name)"
+                 :class="$route.name == 'users_for_moderator' ? 'container' : ''">
                 <div class="row" v-if="users">
 
                     <errors-validation :validationErrors="errs"/>
@@ -22,7 +23,7 @@
                                 <th scope="col">Фамилия</th>
                                 <th scope="col">Имя</th>
                                 <th scope="col">Отчество</th>
-                                <th scope="col">Больница</th>
+                                <th scope="col">Больница/СМП</th>
                                 <th scope="col"></th>
                                 <th scope="col"></th>
                             </tr>
@@ -31,16 +32,18 @@
                             <tr v-for="(user, index) in users">
                                 <td scope="row" data-label="id">{{user.id}}</td>
                                 <td data-label="Email">
-                                    <router-link :to="{name: 'user_show', params: {id: user.id}}">
+                                    <router-link :to="{name: $route.name == 'users' ? 'user_show' : 'user_show_for_moderator',
+                                     params: {id: user.id}}">
                                         {{user.email}}</router-link>
                                 </td>
                                 <td data-label="Роль">{{user.role_name}}</td>
                                 <td data-label="Фамилия">{{user.last_name}}</td>
                                 <td data-label="Имя">{{user.first_name}}</td>
                                 <td data-label="Отчество">{{user.patronymic}}</td>
-                                <td data-label="Больница">{{user.hospital_name}}</td>
+                                <td data-label="Больница/СМП">{{user.hospital_name}}</td>
                                 <td data-label="Изменить">
-                                    <router-link :to="{name: 'user_edit', params: {'id': user.id}}" tag="button" class="btn btn-warning" title="Изменить">
+                                    <router-link :to="{name: $route.name == 'users' ? 'user_edit' : 'user_edit_for_moderator',
+                                     params: {'id': user.id}}" tag="button" class="btn btn-warning" title="Изменить">
                                         <font-awesome-icon icon="fa-solid fa-pencil" :style="{ color: 'black' }" />
                                     </router-link>
                                 </td>
@@ -87,14 +90,25 @@ export default {
         this.getData(this.current_page);
         // console.log(this.$refs.asd);
     },
+    computed: {
+        auth_user() {
+            return localStorage.getItem('auth_user')
+                ? JSON.parse(localStorage.getItem('auth_user')) : null
+        }
+    },
     methods: {
         // test2() {
         //     console.log('test2')
         //     // console.log(this.$refs.asd);
         // },
         getData(page) {
-            axios.get(`/api/users?page=${page}`, {
-                headers: {Authorization: localStorage.getItem('access_token')}
+            let params = {page: page};
+            if (this.$route.name == 'users_for_moderator') {
+                params.hospital_id = this.auth_user.hospital_id
+            }
+            axios.get(`/api/users`, {
+                headers: {Authorization: localStorage.getItem('access_token')},
+                params: params
             }).then(res => {
                 console.log(res);
                 this.users = res.data.data;
