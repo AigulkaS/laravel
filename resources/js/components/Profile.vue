@@ -191,6 +191,7 @@ export default {
             edit: false,
             roles: [],
             hospitals: [],
+            smps: [],
             wait,
         }
     },
@@ -233,6 +234,7 @@ export default {
                 console.log(res);
                 this.roles = res.data.roles;
                 this.hospitals = res.data.hospitals;
+                this.smps = res.data.smps;
             }).catch(err => {
                 this.errorsMessage(err);
             }).finally(() => this.edit=!this.edit);

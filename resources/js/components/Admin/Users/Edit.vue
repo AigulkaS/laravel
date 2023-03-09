@@ -108,7 +108,6 @@
                             </label>
                             <div class="col-sm-10">
                                 <select class="form-control form-select" v-model="user.role_id">
-                                    <!--                                <option value selected>122</option>-->
                                     <option v-for="role in roles" :key="role.id" :value="role.id">
                                         {{ role.name }}
                                     </option>
@@ -118,11 +117,12 @@
 
                         <div class="form-group row my-1">
                             <label class="col-sm-2 col-form-label fw-bold">
-                                Больница
+                                {{user.hospital_type && user.hospital_type == hospital_type.hospital
+                                ? 'Больница' : 'СМП'}}
                             </label>
                             <div class="col-sm-10">
                                 <select class="form-control form-select" v-model="user.hospital_id">
-                                    <option v-for="hospital in hospitals" :key="hospital.id" :value="hospital.id">
+                                    <option v-for="hospital in user.hospital_type && user.hospital_type == hospital_type.hospital ? hospitals : smps" :key="hospital.id" :value="hospital.id">
                                         {{ hospital.short_name }}
                                     </option>
                                 </select>
@@ -154,7 +154,7 @@
 <script>
 import useValidate from '@vuelidate/core'
 import { required, minLength } from '@vuelidate/validators'
-import {wait} from "../../../consts";
+import {wait,hospital_type} from "../../../consts";
 
 export default {
     name: "Edit",
@@ -164,11 +164,12 @@ export default {
             v$: useValidate(),
             user: null,
             roles: null,
-            hospitals: null,
+            hospitals: [],
+            smps: [],
             processing: false,
             verify_email: 1,
             success : null,
-            wait
+            wait, hospital_type
         }
     },
     mounted() {
@@ -195,6 +196,7 @@ export default {
                 this.user.sms = this.user.sms == 1 ? true : false;
                 this.roles = res.data.roles;
                 this.hospitals = res.data.hospitals;
+                this.smps = res.data.smps;
             }).catch(err => {
                 this.errorsMessage(err);
             }).finally(() => this.successPage = true);
@@ -205,19 +207,24 @@ export default {
             this.v$.$validate() // checks all inputs
             if (!this.v$.$error) {
                 this.processing = true;
-                this.user.push = this.user.push ? 1 : 0;
-                this.user.sms = this.user.sms ? 1 : 0;
-                axios.patch(`/api/users/${this.id}`, this.user, {
+                axios.patch(`/api/users/${this.id}`, {
+                    role_id: this.user.role_id,
+                    hospital_id: this.user.hospital_id,
+                    last_name: this.user.last_name,
+                    first_name: this.user.first_name,
+                    patronymic: this.user.patronymic,
+                    phone: this.user.phone,
+                    push: this.user.push ? 1 : 0,
+                    sms: this.user.sms ? 1 : 0,
+                }, {
                     headers: {Authorization: localStorage.getItem('access_token')}
                 }).then(res => {
                     console.log(res);
-                    this.user = res.data.data;
-                    this.$emit('change_data', this.user)
-                    this.user.push = this.user.push == 1 ? true : false;
-                    this.user.sms = this.user.sms == 1 ? true : false;
+                    this.$emit('change_data', res.data.data)
                     this.success = 'Данные успешно изменены. Перенаправление...';
                     setTimeout(()=>{
-                        this.$router.push({name:'users'})
+                        // this.$router.push({name:'users'})
+                        this.$router.go(-1);
                     },3000)
                 }).catch(err => {
                     this.errorsMessage(err);
@@ -232,7 +239,3 @@ export default {
     }
 }
 </script>
-
-<style scoped>
-
-</style>

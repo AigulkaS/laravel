@@ -39,7 +39,7 @@
 
 <!--            <div v-else-if="bookings.length > 0">-->
             <div>
-                <div v-if="auth_user && auth_user.email_verified_at && [roles.admin, roles.dispatcher].includes(auth_user.role_name)">
+                <div v-if="auth_user && auth_user.email_verified_at && [roles.admin, roles.smp].includes(auth_user.role_name)">
                     <button type="button" class="btn btn-primary" @click.prevent="addBooking()">
                         <font-awesome-icon icon="fa-solid fa-plus" /> Добавить бронь
                     </button>
@@ -185,35 +185,39 @@
                                     </span>
                                 </div>
 
-                                <div class="mb-3">
-                                    <button type="submit" :disabled="processing" @click.prevent="hospitalSearch()"
-                                            class="btn btn-primary btn-block">
-                                        {{ processing ? wait : "Поиск ближайшей больницы" }}
-                                    </button>
-                                </div>
+<!--                                <div class="mb-3">-->
+<!--                                    <button type="submit" :disabled="processing" @click.prevent="hospitalSearch()"-->
+<!--                                            class="btn btn-primary btn-block">-->
+<!--                                        {{ processing ? wait : "Поиск ближайшей больницы" }}-->
+<!--                                    </button>-->
+<!--                                </div>-->
                             </form>
 
                             <!--                        После того как нашли ближайщую свободную больницу-->
-                            <div v-if="free_hospital">
-                                <h4>Ближайщая свободная больница</h4>
-                                <div class="fs-4 fw-bolder">{{free_hospital.full_name}}<br></div>
-                                <div class="fs-5 fw-bolder">{{free_hospital.address}}<br></div>
-                                <div class="fs-4">
-                                    Забронировать на
-                                    <div class="form-check form-check-inline" v-for="el in 3">
-                                        <input class="form-check-input" type="radio"
-                                               name="inlineRadioOptions" :id="'inlineRadio4'+el"
-                                               :value="el" v-model="clock">
-                                        <label class="form-check-label" :for="'inlineRadio4'+el">{{el}}</label>
-                                    </div>
-                                    часа
-                                </div>
-                            </div>
+<!--                            <div v-if="free_hospital">-->
+<!--                                <h4>Ближайщая свободная больница</h4>-->
+<!--                                <div class="fs-4 fw-bolder">{{free_hospital.full_name}}<br></div>-->
+<!--                                <div class="fs-5 fw-bolder">{{free_hospital.address}}<br></div>-->
+<!--                                <div class="fs-4">-->
+<!--                                    Забронировать на-->
+<!--                                    <div class="form-check form-check-inline" v-for="el in 3">-->
+<!--                                        <input class="form-check-input" type="radio"-->
+<!--                                               name="inlineRadioOptions" :id="'inlineRadio4'+el"-->
+<!--                                               :value="el" v-model="clock">-->
+<!--                                        <label class="form-check-label" :for="'inlineRadio4'+el">{{el}}</label>-->
+<!--                                    </div>-->
+<!--                                    часа-->
+<!--                                </div>-->
+<!--                            </div>-->
 
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" @click.prevent="closeModal()">Отмена</button>
-                            <button v-if="free_hospital" type="button" :disabled="processing"
+<!--                            <button v-if="free_hospital" type="button" :disabled="processing"-->
+<!--                                    @click.prevent="saveBooking()" class="btn btn-primary">-->
+<!--                                {{ processing ? wait : "Забронировать" }}-->
+<!--                            </button>-->
+                            <button type="button" :disabled="processing"
                                     @click.prevent="saveBooking()" class="btn btn-primary">
                                 {{ processing ? wait : "Забронировать" }}
                             </button>
@@ -533,25 +537,28 @@ export default {
             this.errs = null;
             axios.post(`/api/bookings`,
                 {
+                    geo_lat: this.suggestion.data.geo_lat,
+                    geo_lon: this.suggestion.data.geo_lon,
                     disease_id: this.disease_id,
-                    dispatcher_id: this.auth_user.id,
-                    hospital_id: this.free_hospital.id,
-                    booking_hours: this.clock
+                    condition_id: this.condition_id,
+                    user_id: this.auth_user.id,
+                    // hospital_id: this.free_hospital.id,
+                    // booking_hours: this.clock
                 },
                 {headers: {Authorization: localStorage.getItem('access_token')}
             }).then(res => {
                 console.log(res);
-                let data = res.data.data;
-                let hospital_index = this.bookings.findIndex(el => el.hospital_id == data[0].hospital_id);
-                let room_index = this.bookings[hospital_index].rooms.findIndex(el => el.name == data[0].room_name)
-                let time_index = this.bookings[hospital_index].rooms[room_index].val.findIndex(el => el.time == data[0].date_time)
-                for (let i = time_index; i < time_index+data.length; i++) {
-                    if (i >= this.bookings[hospital_index].rooms[room_index].val.length) {
-                        this.bookings[hospital_index].rooms[room_index].val[i-this.bookings[hospital_index].rooms[room_index].val.length].status = data[0].status;
-                    } else {
-                        this.bookings[hospital_index].rooms[room_index].val[i].status = data[0].status;
-                    }
-                }
+                // let data = res.data.data;
+                // let hospital_index = this.bookings.findIndex(el => el.hospital_id == data[0].hospital_id);
+                // let room_index = this.bookings[hospital_index].rooms.findIndex(el => el.name == data[0].room_name)
+                // let time_index = this.bookings[hospital_index].rooms[room_index].val.findIndex(el => el.time == data[0].date_time)
+                // for (let i = time_index; i < time_index+data.length; i++) {
+                //     if (i >= this.bookings[hospital_index].rooms[room_index].val.length) {
+                //         this.bookings[hospital_index].rooms[room_index].val[i-this.bookings[hospital_index].rooms[room_index].val.length].status = data[0].status;
+                //     } else {
+                //         this.bookings[hospital_index].rooms[room_index].val[i].status = data[0].status;
+                //     }
+                // }
                 this.success = 'Бронь успешно дабавлена.';
                 setTimeout(()=>{
                     this.success = null;

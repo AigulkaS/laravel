@@ -25,6 +25,16 @@
                                 Больницы
                             </router-link>
                         </li>
+                        <li class="nav-item" v-if="auth_user && [roles.admin, roles.moderator].includes(auth_user.role_name)">
+                            <router-link :to="{name:'users_for_moderator'}" class="nav-link">
+                                Пользователи
+                            </router-link>
+                        </li>
+                        <li class="nav-item" v-if="auth_user && [roles.admin, roles.surgeon, roles.cardiologist].includes(auth_user.role_name)">
+                            <router-link :to="{name:'hospital_show_user'}" class="nav-link">
+                                Больница
+                            </router-link>
+                        </li>
                     </ul>
                     <div class="d-flex">
                         <ul class="navbar-nav">
