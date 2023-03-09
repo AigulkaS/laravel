@@ -14,5 +14,5 @@ class Disease extends Model
     use Filterable;
     
     protected $guarded = false;
-    // public $timestamps = false;
+    public $timestamps = true;
 }

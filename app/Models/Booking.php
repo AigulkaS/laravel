@@ -14,7 +14,7 @@ class Booking extends Model
     use Filterable;
     
     protected $guarded = false;
-    public $timestamps = false;
+    public $timestamps = true;
 
     public function user() {
         return $this->belongsTo(User::class, 'user_id', 'id');

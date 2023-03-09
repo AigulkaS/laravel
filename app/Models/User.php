@@ -42,7 +42,7 @@ class User extends Authenticatable implements MustVerifyEmail
 //        'remember_token',
 //    ];
 
-    public $timestamps = false;
+    public $timestamps = true;
 
     protected $guarded = false;
     /**

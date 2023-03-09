@@ -609,58 +609,69 @@ class BookingService {
     }
 
     public function update($data) {
-        $storeData = [
-            'hospital_id' => $data['hospital_id'],
-            'condition_id' => $data['condition_id'],
-            'disease_id' => $data['status'] == 0 ? 2 : $data['status'],
-            'status' => $data['status'],
-            'room_id' => $data['room_id'],
-            'user_id' => $data['user_id'],// auth('sanctum')->user()->id
-        ];
-
-        $now = new DateTime();
-        $nowHour = $now->format('H');
-        if ($nowHour >=0 && $nowHour <8) {
-            $now = $now->modify('-1 day');
-        }
-        $operator = Operator::where('hospital_id', $data['hospital_id'])
-                ->where('date', $now->format('Y-m-d 00:00:00'))->first();
-
-        if($operator != null) {
-            $storeData['surgeon_id'] = $operator->surgeon_id;
-            $storeData['cardiologist_id'] = $operator->cardiologist_id;
-        }
-
-        $dateTime = new DateTime($data['date_time']);
         $bookings = [];
-
-        try {
-            DB::beginTransaction();
-            for ($i = 0; $i < $data['booking_hours']; $i++) {
-            //! BOOKING FOR 2 HOURS
-            //! for ($i = 0; $i < 2; $i++) {
-                $storeData['date_time'] = $dateTime->format('Y-m-d H:00:00');
-                $booking = Booking::where('date_time', $storeData['date_time'])
-                    ->where('hospital_id',$storeData['hospital_id'])
-                    ->where('room_id', $storeData['room_id'])
+        if ($data['status'] == 0) {
+            $dateTime = DateTime::createFromFormat('Y-m-d H:i:s', $data['date_time']);
+            try {
+                DB::beginTransaction();
+                for ($i = 0; $i < $data['booking_hours']; $i++) {
+                    $booking = Booking::where('date_time', $dateTime->format('Y-m-d H:00:00'))
+                    ->where('hospital_id', $data['hospital_id'])
+                    ->where('room_id', $data['room_id'])
                     ->first();
-                    
-                if ($booking == null) {
-                    $booking = Booking::create($storeData);
-                } else {
-                    $booking->update($storeData);
-                    $booking->fresh();
-                }
 
-                $bookings[]=$booking;
-                $dateTime->add(new DateInterval('PT1H'));
+                    if ($booking != null) {
+                        $booking->status = 0;
+                        $bookings[]=$booking;
+                        $booking->delete();
+                    }
+                    $dateTime->add(new DateInterval('PT1H'));
+                }
+                DB::commit();
+                return $bookings;
+            } catch(\Exception $e) {
+                DB::rollBack();
+                return $e->getMessage();
             }
-            DB::commit();
-        } catch(\Exception $e) {
-            DB::rollBack();
-            return $e->getMessage();
+            return collect($bookings);
+        } else {
+            $storeData = [
+                'hospital_id' => $data['hospital_id'],
+                'condition_id' => $data['condition_id'],
+                'disease_id' => $data['status'],
+                'status' => $data['status'],
+                'room_id' => $data['room_id'],
+                'user_id' => $data['user_id'],// auth('sanctum')->user()->id
+            ];
+    
+            $dateTime = new DateTime($data['date_time']);
+
+            try {
+                DB::beginTransaction();
+                for ($i = 0; $i < $data['booking_hours']; $i++) {
+                    $storeData['date_time'] = $dateTime->format('Y-m-d H:00:00');
+                    $booking = Booking::where('date_time', $storeData['date_time'])
+                        ->where('hospital_id',$storeData['hospital_id'])
+                        ->where('room_id', $storeData['room_id'])
+                        ->first();
+                        
+                    if ($booking == null) {
+                        $booking = Booking::create($storeData);
+                    } else {
+                        $booking->update($storeData);
+                        $booking->fresh();
+                    }
+    
+                    $bookings[]=$booking;
+                    $dateTime->add(new DateInterval('PT1H'));
+                }
+                DB::commit();
+            } catch(\Exception $e) {
+                DB::rollBack();
+                return $e->getMessage();
+            }
+            return collect($bookings);
         }
-        return collect($bookings);
     }
 
     // public function delete($booking) {
