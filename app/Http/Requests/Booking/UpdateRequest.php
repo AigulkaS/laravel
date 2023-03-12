@@ -24,13 +24,10 @@ class UpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'condition_id' => 'required|integer',
             'hospital_id' => 'required|integer',
             'room_id' => 'required|integer',
-            'user_id' => 'required|integer',  //!
             'status' => 'required|integer',
-            'date_time' => 'required|string',
-            'booking_hours' => 'required|integer',
+            'date_times' => 'required',
         ];
 
     }

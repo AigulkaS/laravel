@@ -35,10 +35,9 @@ class BookingResource extends JsonResource
             'user_first_name' => $this->user->first_name,
             'user_patronymic' => $this->user->patronymic,
             'disease_id' => $this->disease_id,
-            'disease_name' => $this->disease->name,
-            'disease_code' => $this->disease->code,
+            'disease_name' => $this->disease_id == null ? null : $this->disease->name,
             'condition_id' => $this->condition_id,
-            'condition_name' => $this->condition->name,
+            'condition_name' => $this->condition_id == null ? null : $this->condition->name,
             'date_time' => $this->date_time,
         ];
     }

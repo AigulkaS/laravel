@@ -8,16 +8,24 @@ class DestroyRoomController extends BaseController
 {
     public function __invoke(HospitalRoom $hospitalRoom)
     {
-        try {
-            $hospitalRoom->delete();
+        $user = auth('sanctum')->user();
+        if ($user->role->name == 'admin' || $user->hospiatl_id == $hospitalRoom->hospital_id) {
+            try {
+                $hospitalRoom->delete();
+                return response()->json([
+                    "msg" => "delete successfully",
+                ], 200);
+            } catch(\Exception $exception) {
+                return response()->json([
+                    "msg" => $exception->getMessage(),
+                ], 419);
+            }
+        } else {
             return response()->json([
-                "msg" => "delete successfully",
-            ], 200);
-        } catch(\Exception $exception) {
-            return response()->json([
-                "msg" => $exception->getMessage(),
-            ], 419);
+                'message' => 'Access is denied',
+            ], 403);
         }
+        
     }
 
 

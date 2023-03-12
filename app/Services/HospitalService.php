@@ -79,6 +79,7 @@ class HospitalService {
             DB::beginTransaction();
 
             $hospital->rooms()->delete();
+            $hospital->users()->delete();
             // $hospital->today()->delete();
             $hospital->delete();
 
