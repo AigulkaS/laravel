@@ -17,20 +17,18 @@ class StoreControllerNew extends BaseController
     {
         $data = $request->validated();
 
-        $bookings = $this->service->storeNew($data);
+        $bookingsInfo = $this->service->storeNew($data);
 
-        $messages = $this->service->getMess($bookings);
-
-        // event(new BookingsStoreEvent($bookings instanceof String ? $bookings : BookingResource::collection($bookings)));
-
-        if ($bookings instanceof String) {
-            return $bookings;
+        if ($bookingsInfo instanceof String) {
+            return $bookingsInfo;
         } else {
+            $messages = $this->service->getMess($bookingsInfo['hours'], $bookingsInfo['bookings']);
             return response()->json([
-                'bookings' => BookingResource::collection($bookings),
+                'bookings' => BookingResource::collection($bookingsInfo['bookings']),
                 'messages' => $messages,
             ], 200);
         }
+        // event(new BookingsStoreEvent($bookings instanceof String ? $bookings : BookingResource::collection($bookings)));
         // return $bookings instanceof String ? $bookings : BookingResource::collection($bookings);
 
     }

@@ -9,6 +9,13 @@ class EditController extends BaseController
 {
     public function __invoke(Hospital $hospital)
     {
-        return new HospitalResource($hospital);
+        $user = auth('sanctum')->user();
+        if ($user->role->name == 'admin' || $user->hospiatl_id == $hospital->id) {
+            return new HospitalResource($hospital);
+        } else {
+            return response()->json([
+                'message' => 'Access is denied',
+            ], 403);
+        }
     }
 }

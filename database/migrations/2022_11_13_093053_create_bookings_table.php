@@ -20,8 +20,8 @@ return new class extends Migration
             $table->unsignedBigInteger('hospital_id');
             $table->unsignedBigInteger('room_id');
             $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('disease_id');
-            $table->unsignedBigInteger('condition_id');
+            $table->unsignedBigInteger('disease_id')->nullable();
+            $table->unsignedBigInteger('condition_id')->nullable();
             $table->timestamp('date_time');
             $table->foreign('hospital_id')->references('id')->on('hospitals');
             $table->foreign('room_id')->references('id')->on('hospital_rooms');

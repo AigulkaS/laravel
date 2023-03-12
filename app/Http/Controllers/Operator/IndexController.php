@@ -11,14 +11,19 @@ class IndexController extends BaseController
 {
     public function __invoke(FilterRequest $request)
     {
+        if(!auth('sanctum')->check()) {
+            return response()->json([
+                'message' => 'Unauthorized',
+            ], 401);
+        } else {
+            $data = $request->validated();
 
-        $data = $request->validated();
+            $filter = app()->make(OperatorFilter::class, ['queryParams' => array_filter($data)]);
 
-        $filter = app()->make(OperatorFilter::class, ['queryParams' => array_filter($data)]);
+            $operators = Operator::filter($filter)->get();
 
-        $operators = Operator::filter($filter)->get();
-
-        return OperatorResource::collection($operators);
+            return OperatorResource::collection($operators);
+        }
     }
 
 }
