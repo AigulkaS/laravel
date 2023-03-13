@@ -109,7 +109,7 @@
                             <div class="col-sm-10">
                                 <select class="form-control form-select" v-model="user.role_id">
                                     <option v-for="role in roles" :key="role.id" :value="role.id">
-                                        {{ role.name }}
+                                        {{ role.label }}
                                     </option>
                                 </select>
                             </div>
@@ -154,7 +154,7 @@
 <script>
 import useValidate from '@vuelidate/core'
 import { required, minLength } from '@vuelidate/validators'
-import {wait,hospital_type} from "../../../consts";
+import {wait,hospital_type, roles} from "../../../consts";
 
 export default {
     name: "Edit",
@@ -169,11 +169,17 @@ export default {
             processing: false,
             verify_email: 1,
             success : null,
-            wait, hospital_type
+            wait, hospital_type,
+            role: roles,
         }
     },
     mounted() {
         this.getData();
+    },
+    computed: {
+        auth_user() {
+            return localStorage.getItem('auth_user') ? JSON.parse(localStorage.getItem('auth_user')) : null
+        },
     },
     validations() {
         return {
@@ -194,7 +200,11 @@ export default {
                 this.verify_email = this.verify_email == 1 ? true : false;
                 this.user.push = this.user.push == 1 ? true : false;
                 this.user.sms = this.user.sms == 1 ? true : false;
-                this.roles = res.data.roles;
+                if (this.auth_user.role_name == this.role.moderator) {
+                    this.roles = res.data.roles.filter(el => el.name !== this.role.admin)
+                } else {
+                    this.roles = res.data.roles;
+                }
                 this.hospitals = res.data.hospitals;
                 this.smps = res.data.smps;
             }).catch(err => {

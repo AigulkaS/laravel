@@ -77,14 +77,26 @@
                                         <div class="card-body">
                                             <h5 class="card-title fs-4 fw-bold">{{room.name}}</h5>
 
-                                            <div v-if="auth_user && [roles.cardiologist, roles.surgeon].includes(auth_user.role_name)" class="my-1 d-flex justify-content-end">
-                                                <button type="button"
-                                                        @click="OffOnHospitalRoom(room.id, room.condition, index)"
-                                                        class="btn  btn-sm"
-                                                        :class="room.condition == 0 ? 'btn-success' : 'btn-secondary'">
-                                                    <font-awesome-icon icon="fa-solid fa-pencil" />
-                                                    {{room.condition == 0 ? 'Открыть операционную' : 'Закрыть операционную'}}
-                                                </button>
+                                            <div class="my-1 d-flex">
+                                                <div v-if="Object.keys(choice_time).length > 0 && choice_time.day == dateToday.date">
+                                                    <button type="button"
+                                                            @click="bookingRoom(room.name, room.val[choice_time.start_index], index, choice_time.start_index, room.condition, false, dateToday)"
+                                                            class="btn btn-sm btn-danger">
+                                                        <font-awesome-icon icon="fa-solid fa-pencil" />
+                                                        Сменить статус
+                                                    </button>
+                                                </div>
+                                                <div v-if="auth_user && [roles.admin, roles.cardiologist, roles.surgeon].includes(auth_user.role_name)"
+                                                     class="ms-auto">
+                                                    <button type="button"
+                                                            @click="OffOnHospitalRoom(room.id, room.condition, index)"
+                                                            class="btn  btn-sm"
+                                                            :class="room.condition == 0 ? 'btn-success' : 'btn-secondary'">
+                                                        <font-awesome-icon icon="fa-solid fa-pencil" />
+                                                        {{room.condition == 0 ? 'Открыть операционную' : 'Закрыть операционную'}}
+                                                    </button>
+                                                </div>
+
                                             </div>
 
                                             <div class="card-text" :class="room.condition == 0 ? 'disabledcard' : ''">
@@ -93,11 +105,13 @@
                                                     <div class="col text-center border-white p-0"
                                                          v-for="(val, i) in roomsVal(room.val, dateToday)" :key="i">
 
-                                                        <div class="square" @click="bookingRoom(room.name, val, index, i, room.condition)"
-                                                             :class="val.status == 0
+                                                        <div class="square" @dblclick="bookingRoom(room.name, val, index, i, room.condition, true, dateToday)"
+                                                             @click="choicesTime(room.name, val, index, i, room.condition, dateToday)"
+                                                             :class="colorChoiseTime(index, i, dateToday) ? 'bg-choice' : val.status == 0
                                                              ? 'bg-green-300'
                                                              : val.status == 1 ? 'bg-red-300' : 'bg-yellow-300',
-                                                                canUpdate() && room.condition == 1 ? 'cursor' : ''">
+                                                             oldTime(val) ? '' : 'disabledcard',
+                                                                canUpdate() && room.condition == 1 && oldTime(val) ? 'cursor' : ''">
                                                             <div>
                                                                 <div class="fw-bold fs-5 text-wrap">
                                                                     {{ $dayjs(val.time).format('HH:mm') }}
@@ -118,8 +132,6 @@
                         </div>
 
                     </div>
-
-
 
                     <div class="col-sm-6">
 
@@ -173,6 +185,26 @@
                                         <div class="card-body">
                                             <h5 class="card-title fs-4 fw-bold">{{room.name}}</h5>
 
+                                            <div class="my-1 d-flex">
+                                                <div v-if="Object.keys(choice_time).length > 0 && choice_time.day == dateTommorow.date">
+                                                    <button type="button"
+                                                            @click="bookingRoom(room.name, room.val[choice_time.start_index], index, choice_time.start_index, room.condition, false, dateTommorow)"
+                                                            class="btn btn-sm btn-danger">
+                                                        <font-awesome-icon icon="fa-solid fa-pencil" />
+                                                        Сменить статус
+                                                    </button>
+                                                </div>
+                                                <div v-if="auth_user && [roles.admin, roles.cardiologist, roles.surgeon].includes(auth_user.role_name)"
+                                                     class="ms-auto">
+                                                    <button type="button"
+                                                            @click="OffOnHospitalRoom(room.id, room.condition, index)"
+                                                            class="btn  btn-sm"
+                                                            :class="room.condition == 0 ? 'btn-success' : 'btn-secondary'">
+                                                        <font-awesome-icon icon="fa-solid fa-pencil" />
+                                                        {{room.condition == 0 ? 'Открыть операционную' : 'Закрыть операционную'}}
+                                                    </button>
+                                                </div>
+                                            </div>
 
                                             <div class="card-text">
 
@@ -180,11 +212,12 @@
                                                     <div class="col text-center border-white p-0"
                                                          v-for="(val, i) in roomsVal(room.val, dateTommorow)" :key="i">
 
-                                                        <div class="square" @click="bookingRoom(room.name, val, index, i)"
-                                                             :class="val.status == 0
+                                                        <div class="square" @dblclick="bookingRoom(room.name, val, index, i, null,true, dateTommorow)"
+                                                             @click="choicesTime(room.name, val, index, i, room.condition, dateTommorow)"
+                                                             :class="colorChoiseTime(index, i, dateTommorow) ? 'bg-choice' : val.status == 0
                                                              ? 'bg-green-300'
                                                              : val.status == 1 ? 'bg-red-300' : 'bg-yellow-300',
-                                                                canUpdate() ? 'cursor' : ''">
+                                                                canUpdate() && oldTime(val) ? 'cursor' : ''">
                                                             <div>
                                                                 <div class="fw-bold fs-5 text-wrap">
                                                                     {{ $dayjs(val.time).format('HH:mm') }}
@@ -206,12 +239,7 @@
 
                     </div>
 
-
-
                 </div>
-
-
-
 
 
                 <!-- Modal clocks -->
@@ -231,15 +259,21 @@
                                 <errors-validation :validationErrors="errs"/>
 
                                 <h5 class="text-center">
-                                    Время: <span class="fw-bold">{{$dayjs(modal.time).format('HH:mm')}}</span>
+                                    <div>
+                                        Время:
+                                        {{$dayjs(modal.time_start).get('date') == $dayjs(modal.time_end).add(1, 'hour').get('date')
+                                        ? $dayjs(modal.time_start).format('HH:mm') : $dayjs(modal.time_start).format('HH:mm DD.MM.YY')}} -
+                                        {{$dayjs(modal.time_end).add(1, 'hour').format('HH:mm DD.MM.YY')}}
+                                    </div>
                                     Статус: <span class="fw-bold" :class="'bg-'+status.color+'-300'">{{status.label}}</span>
                                 </h5>
                                 <form  @submit.prevent="" class="row">
-                                    <div class="form-group row my-1">
-                                        <label class="col-sm-4 col-form-label fw-bold">
+
+                                    <div class="form-group row my-3">
+                                        <label class="col-sm-5 col-form-label fw-bold">
                                             Изменить статус:
                                         </label>
-                                        <div class="col-sm-8">
+                                        <div class="col-sm-7">
                                             <select class="form-select mb-3"
                                                     v-model="newStatus">
                                                 <template v-for="el in statuses">
@@ -249,21 +283,37 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <div v-if="newStatus !== 0 && newStatus !== status.val" >
-                                        <div class="fs-4">
-                                            Установить статус
-                                            <span class="fw-bolder" :class="'bg-'+statuses[newStatus].color+'-300'">
-                                        {{statuses[newStatus].label}}
-                                    </span><br>
-                                            на <div class="form-check form-check-inline" v-for="el in 3">
-                                            <input class="form-check-input" type="radio"
-                                                   name="inlineRadioOptions" :id="'inlineRadio4'+el"
-                                                   :value="el" v-model="clock">
-                                            <label class="form-check-label" :for="'inlineRadio4'+el">{{el}}</label>
-                                        </div>
-                                            часа
-                                        </div>
-                                    </div>
+
+<!--                                    <div v-if="newStatus !== 0 && newStatus !== status.val" >-->
+<!--                                        <div class="fs-5">-->
+<!--                                            Установить статус-->
+<!--                                            <span class="fw-bolder" :class="'bg-'+statuses[newStatus].color+'-300'">-->
+<!--                                                {{statuses[newStatus].label}}-->
+<!--                                            </span><br>-->
+<!--                                            на-->
+<!--                                            <div class="form-check form-check-inline" v-for="el in 3">-->
+<!--                                                <input class="form-check-input" type="radio"-->
+<!--                                                       name="inlineRadioOptions" :id="'inlineRadio4'+el"-->
+<!--                                                       :value="el" v-model="clock">-->
+<!--                                                <label class="form-check-label" :for="'inlineRadio4'+el">{{el}}</label>-->
+<!--                                            </div>-->
+<!--                                            часа-->
+<!--                                        </div>-->
+<!--                                    </div>-->
+
+<!--                                    <div class="form-group row my-3" v-if="newStatus !== 0">-->
+<!--                                        <label class="col-sm-5 col-form-label fw-bold">Состояние пациента</label>-->
+<!--                                        <div class="col-sm-7">-->
+<!--                                            <Multiselect-->
+<!--                                                v-model="condition_id"-->
+<!--                                                :close-on-select="true"-->
+<!--                                                :hide-selected="false"-->
+<!--                                                label="name"-->
+<!--                                                valueProp="id"-->
+<!--                                                :options="conditions"-->
+<!--                                            />-->
+<!--                                        </div>-->
+<!--                                    </div>-->
                                 </form>
                             </div>
                             <div class="modal-footer">
@@ -374,6 +424,9 @@ export default {
         dateTommorow: null,
         date: null,
         hospital_name: null,
+        condition_id: null,
+        conditions: [],
+        choice_time: {},
 
 
         roles,
@@ -472,23 +525,101 @@ export default {
                 this.errorsMessage(err);
             });
         },
-        bookingRoom(room_name, val, room_index, val_index, room_condition) {
-            if (room_condition == 0) return;
-            if ([this.roles.cardiologist, this.roles.surgeon, this.roles.admin].includes(this.auth_user.role_name)) {
+        bookingRoom(room_name, val, room_index, val_index, room_condition, col, day) {
+            if ((room_condition == 0 && day.date == this.dateToday.date) || this.$dayjs().get('hour') > this.$dayjs(this.choice_time.time[0].time).get('hour')) {
+                if (!col && this.choice_time.start_index !== this.choice_time.end_index) {
+                    this.choice_time.start_index = this.choice_time.start_index+1;
+                } else {
+                    return;
+                }
+            }
+            console.log(this.choice_time)
+            if ([this.roles.cardiologist, this.roles.surgeon, this.roles.moderator, this.roles.admin].includes(this.auth_user.role_name)) {
                 this.errors = null;
+                // if (this.conditions.length == 0) {
+                //     axios.get(`/api/bookings/create/disease`,{
+                //         headers: {Authorization: localStorage.getItem('access_token')},
+                //     }).then(res => {
+                //         console.log(res);
+                //         this.conditions = res.data.conditions;
+                //     }).catch(err => {
+                //         this.errorsMessage(err);
+                //     });
+                // }
                 this.myModal = new Modal(document.getElementById('statusModal'), {})
                 this.modal = {
                     room_name: room_name,
-                    time: val.time,
+                    time_start: this.rooms[room_index].val[this.choice_time.start_index].time, //val.time,
+                    time_end: this.rooms[room_index].val[this.choice_time.end_index].time, //val.time,
                     status: val.status,
                     room_index: room_index,
                     val_index: val_index
                 };
+                // console.log(this.modal)
+                // console.log(this.choice_time)
                 this.newStatus = val.status;
                 this.clock = 2;
                 this.status = this.statuses.find(el => el.val == this.modal.status);
+                this.condition_id = null;
                 this.myModal.show();
             }
+        },
+        choicesTime(room_name, val, room_index, val_index, room_condition, day) {
+            if ((room_condition == 0 && day.date == this.dateToday.date) || !this.oldTime(val)) return;
+            if (Object.keys(this.choice_time).length == 0) {
+                this.choice_time.room_index = room_index;
+                this.choice_time.day = day.date;
+                this.choice_time.start_index = val_index;
+                this.choice_time.end_index = val_index;
+                this.choice_time.time = [
+                    {val: val, val_index: val_index}
+                ]
+            } else {
+                if (this.choice_time.day == day.date && this.choice_time.room_index == room_index) {
+                    if (val_index > this.choice_time.end_index) {
+                        for (let i=this.choice_time.end_index+1; i <= val_index; i++) {
+                            this.choice_time.time.push({val: this.rooms[this.choice_time.room_index].val[i], val_index: i})
+                        }
+                        this.choice_time.end_index = val_index;
+                    } else if (val_index <= this.choice_time.end_index) {
+                        if (val_index == this.choice_time.start_index) {
+                            this.choice_time = {};
+                        } else {
+                            if (val_index > this.choice_time.start_index) {
+                                let col = this.choice_time.time.filter(el => el.val_index >= val_index).length;
+                                let index = this.choice_time.time.findIndex(el => el.val_index == val_index);
+                                this.choice_time.time.splice(index, col);
+                                this.choice_time.end_index = val_index-1;
+                            } else if (val_index < this.choice_time.start_index) {
+                                let arr = [];
+                                for (let i=val_index; i < this.choice_time.start_index; i++) {
+                                    arr.push({val: this.rooms[this.choice_time.room_index].val[i], val_index: i})
+                                }
+                                this.choice_time.time = arr.concat(this.choice_time.time)
+                                this.choice_time.start_index = val_index;
+                            }
+                        }
+                    }
+                } else {
+                    this.choice_time.room_index = room_index;
+                    this.choice_time.day = day.date;
+                    this.choice_time.start_index = val_index;
+                    this.choice_time.end_index = val_index;
+                    this.choice_time.time = [
+                        {val: val, val_index: val_index}
+                    ]
+                }
+            }
+            console.log(this.choice_time)
+        },
+        colorChoiseTime(room_index, val_index, day) {
+            return this.choice_time.day == day.date && this.choice_time.time &&
+            this.choice_time.time.findIndex(el => el.val_index == val_index) > -1 ? true : false;
+        },
+        oldTime(val) {
+            if (this.$dayjs().set('minute', 0).set('second', 0).format('YYYY-MM-DD HH:mm:ss') <= val.time) {
+                return true;
+            } else return false;
         },
         saveStatus() {
             this.errs = null;
@@ -498,7 +629,9 @@ export default {
                     room_id: this.rooms[this.modal.room_index].id,
                     status: this.newStatus,
                     date_time: this.rooms[this.modal.room_index].val[this.modal.val_index].time,
-                    booking_hours: this.newStatus == 0 ? 1 : this.clock
+                    booking_hours: this.newStatus == 0 ? 1 : this.clock,
+                    user_id: this.auth_user.id,
+                    condition_id: this.condition_id ? this.condition_id : 1
                 },
                 {headers: {Authorization: localStorage.getItem('access_token')}
             }).then(res => {
@@ -639,6 +772,10 @@ export default {
                 this.rooms[index].condition = res.data.data.condition
             }).catch(err => {
                 this.errorsMessage(err);
+            }).finally(() => {
+                if (Object.keys(this.choice_time).length > 0 && this.choice_time.day == this.dateToday.date) {
+                    this.choice_time = {}
+                }
             });
 
         },
@@ -656,9 +793,7 @@ export default {
 </script>
 
 <style scoped>
-.disabledcard {
-    opacity: 0.4;
-}
+
 
 .line_height {
     line-height: 0.3 !important;

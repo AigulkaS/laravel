@@ -121,6 +121,7 @@ export default {
         // console.log(this.$refs.qwe.test())
         // console.log(this.$refs.qwe)
         this.auth_user = localStorage.getItem('auth_user') ? JSON.parse(localStorage.getItem('auth_user')) : null;
+        this.getData();
     },
     computed:{
       breadcrumbs() {
@@ -145,6 +146,25 @@ export default {
         }
     },
     methods: {
+        getData() {
+            if (this.auth_user) {
+                axios.get(`/api/users/${this.auth_user.id}`, {},{
+                    headers: {Authorization: localStorage.getItem('access_token')}
+                }).then(res => {
+                    console.log(res);
+                    localStorage.setItem('auth_user', JSON.stringify(res.data.data));
+                    this.auth_user = localStorage.getItem('auth_user') ? JSON.parse(localStorage.getItem('auth_user')) : null;
+                }).catch(err => {
+                    console.log(err.response);
+                    if (err.response.status == 401) {
+                        localStorage.removeItem('access_token');
+                        localStorage.removeItem('auth_user');
+                        this.$router.push({name: "home"});
+                    }
+                })
+            }
+
+        },
         logout() {
             axios.post('/api/logout', {},{
                 headers: {Authorization: localStorage.getItem('access_token')}
@@ -154,7 +174,7 @@ export default {
                 localStorage.removeItem('auth_user');
                 this.$router.push({name: 'login'});
             }).catch(err => {
-                console.log(err.reserved);
+                console.log(err.response);
                 localStorage.removeItem('access_token');
                 localStorage.removeItem('auth_user');
                 this.$router.push({name: 'login'});

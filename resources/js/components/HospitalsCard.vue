@@ -307,6 +307,32 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Modal Hospital Address -->
+            <div class="modal fade" id="modalAddressHospital"
+                 data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalAddressLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalAddressLabel">
+                                Бронь создана
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body" v-if="messages">
+                           <div class="fs-4 fw-bold">{{messages.hospital}}</div>
+                           <div class="fs-5 fw-bolder">{{messages.hospital_address}}</div>
+                           <div class="fs-5 fw-bolder">Диагноз: {{messages.disease}}</div>
+                           <div class="fs-5 fw-bolder">Состояние пациента: {{messages.condition}}</div>
+                           <div class="fs-5 fw-bolder">Время брониования: {{messages.time}}</div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ОК</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -366,6 +392,8 @@ export default {
             myModalOrderly: null,
             cardiologists: [],
             surgeons: [],
+            myModalAddress: null,
+            messages: null,
 
             roles,
             wait,
@@ -438,6 +466,7 @@ export default {
     beforeUnmount() {
         if (this.myModal) this.myModal.hide();
         if (this.myModalOrderly) this.myModalOrderly.hide();
+        if (this.myModalAddress) this.myModalAddress.hide();
     },
     methods: {
         getData() {
@@ -453,8 +482,7 @@ export default {
                 });
                 if (this.emptyOrderlies.length > 0) {
                     this.warning = `Не указаны дежурные врачи больниц!
-                    Дождитесь пока укажут дежурных врачей, после чего вы получите возможность увидеть
-                     график свободных операционных.`
+                    Врачи не получат уведомления о забронированных операционных.`
                 }
             }).catch(err => {
                 this.errorsMessage(err);
@@ -500,16 +528,25 @@ export default {
         addBooking() {
             this.free_hospital = null
             this.errs = null;
-            this.myModal = new Modal(document.getElementById('modalBooking'), {});
-            axios.get(`/api/bookings/create/disease`,{
-                headers: {Authorization: localStorage.getItem('access_token')},
-            }).then(res => {
-                console.log(res);
-                this.diseases = res.data.disease;
-                this.conditions = res.data.conditions;
-            }).catch(err => {
-                this.errorsMessage(err);
-            }).finally(() => this.myModal.show());
+            this.suggestion = '';
+            this.query = '';
+            this.disease_id = null;
+            this.condition_id = null;
+            if (!this.myModal) {
+                this.myModal = new Modal(document.getElementById('modalBooking'), {});
+                axios.get(`/api/bookings/create/disease`,{
+                    headers: {Authorization: localStorage.getItem('access_token')},
+                }).then(res => {
+                    console.log(res);
+                    this.diseases = res.data.disease;
+                    this.conditions = res.data.conditions;
+                }).catch(err => {
+                    this.errorsMessage(err);
+                }).finally(() => this.myModal.show());
+            } else {
+                this.myModal.show()
+            }
+
         },
         hospitalSearch() {
             this.errs = null;
@@ -533,42 +570,54 @@ export default {
             }
         },
         saveBooking() {
-            this.processing = true;
             this.errs = null;
-            axios.post(`/api/bookings`,
-                {
-                    geo_lat: this.suggestion.data.geo_lat,
-                    geo_lon: this.suggestion.data.geo_lon,
-                    disease_id: this.disease_id,
-                    condition_id: this.condition_id,
-                    user_id: this.auth_user.id,
-                    // hospital_id: this.free_hospital.id,
-                    // booking_hours: this.clock
-                },
-                {headers: {Authorization: localStorage.getItem('access_token')}
-            }).then(res => {
-                console.log(res);
-                // let data = res.data.data;
-                // let hospital_index = this.bookings.findIndex(el => el.hospital_id == data[0].hospital_id);
-                // let room_index = this.bookings[hospital_index].rooms.findIndex(el => el.name == data[0].room_name)
-                // let time_index = this.bookings[hospital_index].rooms[room_index].val.findIndex(el => el.time == data[0].date_time)
-                // for (let i = time_index; i < time_index+data.length; i++) {
-                //     if (i >= this.bookings[hospital_index].rooms[room_index].val.length) {
-                //         this.bookings[hospital_index].rooms[room_index].val[i-this.bookings[hospital_index].rooms[room_index].val.length].status = data[0].status;
-                //     } else {
-                //         this.bookings[hospital_index].rooms[room_index].val[i].status = data[0].status;
-                //     }
-                // }
-                this.success = 'Бронь успешно дабавлена.';
-                setTimeout(()=>{
-                    this.success = null;
-                },4000)
-                this.myModal.hide();
-            }).catch(err => {
-                this.errorsMessage(err);
-            }).finally(() => {
-                this.processing = false;
-            })
+            this.v$.$validate();
+            // if (!this.v$.$error) {
+            if (!this.v$.suggestion.$error && !this.v$.disease_id.$error && !this.v$.condition_id.$error) {
+                this.processing = true;
+                axios.post(`/api/bookings`,
+                    {
+                        geo_lat: this.suggestion.data.geo_lat,
+                        geo_lon: this.suggestion.data.geo_lon,
+                        disease_id: this.disease_id,
+                        condition_id: this.condition_id,
+                        user_id: this.auth_user.id
+                        // hospital_id: this.free_hospital.id,
+                        // booking_hours: this.clock
+                    },
+                    {
+                        headers: {Authorization: localStorage.getItem('access_token')}
+                    }).then(res => {
+                    console.log(res);
+                    this.updateHospitalRoomStatus(res.data.bookings)
+                    this.messages = res.data.messages;
+                    if (!this.myModalAddress) {
+                        this.myModalAddress = new Modal(document.getElementById('modalAddressHospital'), {});
+                    }
+                    this.myModal.hide();
+                    this.myModalAddress.show();
+                    // let data = res.data.data;
+                    // let hospital_index = this.bookings.findIndex(el => el.hospital_id == data[0].hospital_id);
+                    // let room_index = this.bookings[hospital_index].rooms.findIndex(el => el.name == data[0].room_name)
+                    // let time_index = this.bookings[hospital_index].rooms[room_index].val.findIndex(el => el.time == data[0].date_time)
+                    // for (let i = time_index; i < time_index+data.length; i++) {
+                    //     if (i >= this.bookings[hospital_index].rooms[room_index].val.length) {
+                    //         this.bookings[hospital_index].rooms[room_index].val[i-this.bookings[hospital_index].rooms[room_index].val.length].status = data[0].status;
+                    //     } else {
+                    //         this.bookings[hospital_index].rooms[room_index].val[i].status = data[0].status;
+                    //     }
+                    // }
+                    // this.success = 'Бронь успешно дабавлена.';
+                    // setTimeout(() => {
+                    //     this.success = null;
+                    // }, 4000)
+                    // this.myModal.hide();
+                }).catch(err => {
+                    this.errorsMessage(err);
+                }).finally(() => {
+                    this.processing = false;
+                });
+            }
 
         },
         closeModal() {

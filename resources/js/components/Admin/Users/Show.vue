@@ -73,7 +73,7 @@
                         </tr>
                         <tr>
                             <th class="col-2">Роль</th>
-                            <td class="col-10">{{user.role_id}}</td>
+                            <td class="col-10">{{user.role_label}}</td>
                         </tr>
                         <tr>
                             <th class="col-2">
