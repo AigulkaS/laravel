@@ -55,15 +55,15 @@
                                     </div>
                                     <span v-if="v$.user.password.$error"
                                           :class="v$.user.password.$error ? 'text-danger' : ''">
-                                        <template v-if="!v$.user.password.pass_regex.$response">
+                                        <div v-if="!v$.user.password.pass_regex.$response">
                                           Пароль должен содержать не менее 1 латинской буквы алфавита и не менее 1 цифры.
-                                        </template>
-                                        <template v-if="!v$.user.password.minLength.$response">
+                                        </div>
+                                        <div v-if="!v$.user.password.minLength.$response">
                                           Пароль должен содержать не менее 6 символов.
-                                        </template>
-                                        <template v-else>
+                                        </div>
+                                        <div v-else>
                                           Пароль обязательное поле для заполнения
-                                        </template>
+                                        </div>
                                     </span>
                                 </div>
 
