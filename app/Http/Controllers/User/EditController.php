@@ -24,24 +24,28 @@ class EditController extends BaseController
                  (strpos($userChecked->role->name, 'moderator') !== false && $userChecked->hospital_id == $user->hospital_id)) {
                 $roles = null;
                 $hospitals = null;
-                $user = auth('sanctum')->user();
-                switch ($user->role->name) {
+                $userCheck = auth('sanctum')->user();
+                switch ($userCheck->role->name) {
                     case 'admin':
-                        $roles = Role::whereNot('name', 'admin')->get();
-                        $hospitals = Hospital::all();
+                        $roles = Role::all();
+                        $hospitals = Hospital::where('type',1)->get();
+                        $smps = Hospital::where('type',2)->get();
                         break;
                     case 'moderator hosp':
-                        $roles = Role::where('name', 'surgeon')->orWhere('name', 'cardiologist')->get();
+                        $roles = Role::where('name', 'surgeon')->orWhere('name', 'cardiologist')
+                            ->orWhere('name', 'moderator hosp')->get();
                         $hospitals = Hospital::where('id', $user->hospital->id)->get();
                         break;
                     case 'moderator smp':
-                        $roles = Role::where('name', 'smp')->get();
-                        $hospitals = Hospital::where('id', $user->hospital->id)->get();
+                        $roles = Role::where('name', 'smp')->orWhere('name', 'moderator smp')->get();
+                        $smps = Hospital::where('id', $user->hospital->id)->get();
                         break;
                 }
                 return response()->json([
-                    'roles' => $roles == null ? [] : RoleResource::collection($roles),
+                    'roles' => RoleResource::collection($roles),
                     'hospitals' => $hospitals == null ? [] : HospitalResource::collection($hospitals),
+                    'smps' => $smps == null ? [] : HospitalResource::collection($smps),
+                    'user' => new UserResource($user),
                 ], 200);
             } else {
                 return response()->json([
