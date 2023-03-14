@@ -9,9 +9,21 @@
 
                     <errors-validation :validationErrors="errs"/>
 
-                    <div class="col-12">
-                        <h4 class="mt-2">Пользователи</h4>
+<!--                    <div class="col-12">-->
+<!--                        <h4 class="mt-2">Пользователи</h4>-->
+<!--                    </div>-->
+
+                    <div class="d-flex my-3">
+                        <div class="me-auto ">
+                            <h4 class="my-3">Пользователи</h4>
+                        </div>
+                        <div class="align-self-center">
+                            <router-link :to="{name: $route.name == 'users' ? 'user_create' : 'user_create_for_moderator'}" type="button" class="btn btn-primary">
+                                <font-awesome-icon icon="fa-solid fa-plus" /> Добавить пользователя
+                            </router-link>
+                        </div>
                     </div>
+
                     <div class="col-12 table-mobile">
                         <table id="table" ref="table" class="table table-striped"
                         >
@@ -62,7 +74,9 @@
                 </div>
             </div>
             <div>
-                <router-view ref="asd" @change_data = "onChangeChild"></router-view>
+                <router-view @change_data = "onChangeChild"
+                             @add_data="onAddChild"
+                ></router-view>
                 <!--            <router-view v-slot="{ Component }">-->
                 <!--                <component ref="asd" :is="Component" />-->
                 <!--            </router-view>-->
@@ -145,6 +159,9 @@ export default {
                 this.users[userIndex].hospital_id = value.hospital_id;
                 this.users[userIndex].phone = value.phone;
             }
+        },
+        onAddChild (value) {
+            this.users.unshift(value);
         },
     }
 }

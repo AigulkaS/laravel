@@ -148,19 +148,20 @@ export default {
     methods: {
         getData() {
             if (this.auth_user) {
-                axios.get(`/api/users/${this.auth_user.id}`, {},{
+                axios.get(`/api/users/${this.auth_user.id}`, {
                     headers: {Authorization: localStorage.getItem('access_token')}
                 }).then(res => {
                     console.log(res);
                     localStorage.setItem('auth_user', JSON.stringify(res.data.data));
                     this.auth_user = localStorage.getItem('auth_user') ? JSON.parse(localStorage.getItem('auth_user')) : null;
                 }).catch(err => {
-                    console.log(err.response);
-                    if (err.response.status == 401) {
-                        localStorage.removeItem('access_token');
-                        localStorage.removeItem('auth_user');
-                        this.$router.push({name: "home"});
-                    }
+                    this.errorsMessage(err);
+                    // console.log(err.response);
+                    // if (err.response.status == 401) {
+                    //     localStorage.removeItem('access_token');
+                    //     localStorage.removeItem('auth_user');
+                    //     this.$router.push({name: "login"});
+                    // }
                 })
             }
 
