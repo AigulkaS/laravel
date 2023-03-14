@@ -95,6 +95,16 @@ const routes = [
                 },
                 children: [
                     {
+                        path: 'create',
+                        component: () => import('../components/Admin/Users/Create.vue'),
+                        name: 'user_create_for_moderator',
+                        meta : {
+                            email_verified: true,
+                            requiresAuth: true,
+                            breadcrumb: 'Добавить пользователя',
+                        },
+                    },
+                    {
                         path: ':id/edit',
                         props: route => ({
                             id: route.params.id,
@@ -165,6 +175,16 @@ const routes = [
                             breadcrumb: 'Пользователи',
                         },
                         children: [
+                            {
+                                path: 'create',
+                                component: () => import('../components/Admin/Users/Create.vue'),
+                                name: 'user_create',
+                                meta : {
+                                    email_verified: true,
+                                    requiresAuth: true,
+                                    breadcrumb: 'Добавить пользователя',
+                                },
+                            },
                             {
                                 path: ':id/edit',
                                 props: route => ({

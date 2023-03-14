@@ -6,7 +6,8 @@ const roles = {
     cardiologist: 'cardiologist',
     dispatcher: 'dispatcher',
     doctor_ambulance: 'doctor_ambulance',
-    moderator: 'moderator',
+    moderator: 'moderator hosp',
+    moderator_smp: 'moderator smp',
     smp: 'smp',
 }
 const wait = 'Подождите';

@@ -58,11 +58,15 @@ const mixin = {
                 switch (err.response.status) {
                     case 500:
                     case 404:
-                    case 401:
                     case 403:
                         console.log(err.response.status)
                         this.errPage = true;
                         this.errs = err.response;
+                        break;
+                    case 401:
+                        localStorage.removeItem('access_token');
+                        localStorage.removeItem('auth_user');
+                        this.$router.push({name: "login"});
                         break;
                     case 422:
                         this.errs = err.response.data.message;

@@ -12,6 +12,10 @@
 
                             <errors-validation :validationErrors="errs"/>
 
+                            <div class="alert alert-primary" role="alert">
+                                Для регистрации на сайте обратитесь к своему руководителю больницы или скорой медицинской помощи.
+                                (или напишите в тех поддержку (почта техподдержки))
+                            </div>
 
                             <form @submit.prevent="register" class="row">
 
@@ -288,8 +292,9 @@ export default {
         }
     },
     mounted() {
+        this.successPage = true
         this.type = this.hospital_type.hospital
-        this.getData();
+        // this.getData();
     },
     methods:{
         getData() {
