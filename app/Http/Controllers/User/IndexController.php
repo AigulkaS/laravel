@@ -15,9 +15,10 @@ class IndexController extends BaseController
         $data = $request->validated();
 
         $filter = app()->make(UserFilter::class, ['queryParams' => array_filter($data)]);
-
-        // $users = User::filter($filter)->get();
-        $users = User::filter($filter)->paginate(10);
+        
+        // $users = User::filter($filter)->orderBy('id', 'DESC')->get();
+        $users = User::filter($filter)->orderBy('id', 'DESC')->paginate(10);
+        
 
         return UserResource::collection($users);
     }

@@ -9,17 +9,11 @@ class IndexController extends BaseController
 {
     public function __invoke(FilterRequest $request)
     {
-        if(!auth('sanctum')->check()) {
-            return response()->json([
-                'message' => 'Unauthorized',
-            ], 401);
+        $data = $request->validated();
+        if(empty($data)) {
+            return $this->service->getAllHospitalsInfo();
         } else {
-            $data = $request->validated();
-            if(empty($data)) {
-                return $this->service->getAllHospitalsInfo();
-            } else {
-                return $this->service->getHospitalInfoById($data['hospital_id']);
-            }
+            return $this->service->getHospitalInfoById($data['hospital_id']);
         }
     }
 
