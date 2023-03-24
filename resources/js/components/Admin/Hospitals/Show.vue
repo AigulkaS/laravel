@@ -37,10 +37,16 @@
                         <tr>
                             <th class="col-2">Кабинеты</th>
                             <td class="col-10">
-                            <span v-for="(room, index) in hospital.rooms">
-                                {{(index+1 !== hospital.rooms.length) ? `${room.name}, ` : room.name}}
-                            </span>
+<!--                            <span v-for="(room, index) in hospital.rooms">-->
+<!--                                {{(index+1 !== hospital.rooms.length) ? `${room.name}, ` : room.name}}-->
+<!--                            </span>-->
+                                <div v-for="(room, index) in hospital.rooms">
+                                    <div class="fw-bolder">{{room.name}}</div>
+                                    <div>Время работы: {{room.start ? room.start : '08^00'}}-{{ room.end ? room.end : '08^00' }}</div>
+                                </div>
+
                             </td>
+
                         </tr>
                         </tbody>
                     </table>

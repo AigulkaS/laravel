@@ -165,7 +165,7 @@ class BookingService {
 
     public function getDateTimeForBook() {
         $dateTime = new DateTime();
-        
+
         $dateTime->add(new DateInterval('PT20M'));
         $dateMinute = $dateTime->format('i');
         $diff = 60 - $dateMinute;
@@ -191,7 +191,7 @@ class BookingService {
                         $query->where('status', 1)
                               ->orWhere('status', 2);
                     })
-                    ->get();   
+                    ->get();
         foreach($bookings as $booking) {
             $hospital = $booking->hospital;
 
@@ -404,20 +404,20 @@ class BookingService {
                             })->get();
         foreach($hospitals as $hospital) {
             foreach($hospital->rooms as $room) {
-                if ($room->start == null || 
+                if ($room->start == null ||
                     ($nowHour>= substr($room->start, 0, 2) && $nowHour < substr($room->end, 0, 2)
                         && substr($room->end, 0, 2) - $nowHour > 1)) {
-                            
+
                     $finded = false;
-                    
+
                     foreach($bookings as $booking) {
                         if ($booking->hospital_id == $hospital->id && $booking->room_id == $room->id) {
                             $finded = true;
                             break;
                         }
                     }
-                   
-                    
+
+
                     if (!$finded) {
 
                         $hospitalsData[] = [
@@ -427,9 +427,9 @@ class BookingService {
                             'geo_lon' => $hospital->geo_lon,
                         ];
                     }
-                    
+
                 }
-            } 
+            }
         }
 
         if (count($hospitalsData)==0) {
@@ -443,7 +443,7 @@ class BookingService {
                             })->get();
                 foreach($hospitals as $hospital) {
                     foreach($hospital->rooms as $room) {
-                        if ($room->start == null || 
+                        if ($room->start == null ||
                             ($nowHour>= substr($room->start, 0, 2) && $nowHour < substr($room->end, 0, 2)
                              && substr($room->end, 0, 2) - $nowHour > 1)) {
                             $addHospital = true;
@@ -458,16 +458,16 @@ class BookingService {
                                     'room_id' => $room->id,
                                     'geo_lat' => $hospital->geo_lat,
                                     'geo_lon' => $hospital->geo_lon,
-                                ]; 
+                                ];
                             }
-                                     
+
                         }
-                    } 
+                    }
                 }
             } else {
                 foreach($bookings as $booking) {
                     $room = $booking->room;
-                    if ($room->start == null || 
+                    if ($room->start == null ||
                             ($nowHour>= substr($room->start, 0, 2) && $nowHour < substr($room->end, 0, 2)
                              && substr($room->end, 0, 2) - $nowHour > 1)) {
                         $addHospital = true;
@@ -510,9 +510,9 @@ class BookingService {
             'status' => $data['disease_id'] == 1 ? 1 : 2,
             'disease_id' => $data['disease_id'],
             'condition_id' => $data['condition_id'],
-            'user_id' => auth('sanctum')->user()->id, 
-            // 'user_id' => 1, 
-           
+            'user_id' => auth('sanctum')->user()->id,
+            // 'user_id' => 1,
+
         ];
 
         $done = false;
@@ -538,38 +538,38 @@ class BookingService {
                         goto loop;
                     } else {
                         if ($storeData['disease_id'] == 1) {
-                          
+
                             $updateBookings[] = $booking;
                         } else {
-                           
+
                             $dateTime->add(new DateInterval('PT1H'));
                             $done = true;
                             goto loop;
                         }
-                        
+
                     }
                 } else {
-                    
+
                     $finded = true;
                 }
-                
+
                 if ($bookingHours<2) {
                     $booking = Booking::create($storeData);
                     $bookingHours++;
                     $bookings[]=$booking;
                 }
-                
+
                 if ($finded && ($bookingHours == 2 || ($done && $bookingHours == 1))) {
                     break;
                 } else {
                     $dateTime->add(new DateInterval('PT1H'));
                 }
             } while(0);
-            
+
             foreach($updateBookings as $updateBooking) {
                 $room = $updateBooking->room;
                 $hour = $dateTime->format('H');
-                if ($room->start == null || 
+                if ($room->start == null ||
                     ($hour>= substr($room->start, 0, 2) && $hour < substr($room->end, 0, 2))) {
                     $updateData = [
                         "date_time" => $dateTime->format('Y-m-d H:00:00')
@@ -596,7 +596,7 @@ class BookingService {
 
     public function storeNew3333($data) {
         $dateTime = new DateTime();
-        
+
         $dateTime->add(new DateInterval('PT20M'));
         // $dateMinute = $dateTime->format('i');
         // $diff = 60 - $dateMinute;
@@ -621,15 +621,15 @@ class BookingService {
                         $query->where('status', 1)
                               ->orWhere('status', 2);
                     })
-                    ->get();   
+                    ->get();
         foreach($bookings as $booking) {
             $hospital = $booking->hospital;
 
             $otherRoom = false;
             if (count($hospital->rooms)>1) {
                 foreach($hospital->rooms as $room) {
-                    if($room->condition == 1 && ($room->start == null || 
-                    ($dateTime->format('H')>= substr($room->start, 0, 2) && 
+                    if($room->condition == 1 && ($room->start == null ||
+                    ($dateTime->format('H')>= substr($room->start, 0, 2) &&
                         $dateTime->format('H') < substr($room->end, 0, 2)))) {
                         $roomBooking = Booking::where('date_time', $dateTime->format('Y-m-d H:00:00'))
                         ->where('hospital_id', $hospital->id)
@@ -639,7 +639,7 @@ class BookingService {
                                   ->orWhere('status', 2);
                         })
                         ->get();
-    
+
                         if (count($roomBooking) == 0) {
                             $otherRoom = true;
                             break;
@@ -716,9 +716,9 @@ class BookingService {
             'disease_id' => $data['disease_id'],
             'condition_id' => $data['condition_id'],
             'user_id' => auth('sanctum')->user()->id, // auth('sanctum')->user()->id $data['user_id']
-           
+
         ];
-        
+
         $hospital = Hospital::find($mainHospital['id']);
         $rooms = $hospital->rooms;
 
@@ -738,7 +738,7 @@ class BookingService {
                         // if($booking->status == 0) {
                         //     $room_id = $room->id;
                         //     break;
-                        // } else 
+                        // } else
                         if($booking->status == 1){
                             if ($room_id == null) {
                                 $room_id = $room->id;
@@ -754,7 +754,7 @@ class BookingService {
         else {
             $storeData['room_id'] = $rooms[0]->id;
         }
-        
+
         $finded = false;
         $bookingHours = 2;
         do {
@@ -868,7 +868,7 @@ class BookingService {
                 'user_id' => auth('sanctum')->user()->id,
                 'status' => $data['status'],
             ];
-   
+
             try {
                 DB::beginTransaction();
                 foreach ($dateTimes as $dateTime) {
@@ -876,19 +876,19 @@ class BookingService {
                     ->where('hospital_id',$storeData['hospital_id'])
                     ->where('room_id', $storeData['room_id'])
                     ->first();
-                    
+
                     if ($booking != null) {
                         $booking->delete();
-                        
-                    } 
+
+                    }
                     $storeData['date_time'] = $dateTime;
-                    
+
                     $booking = Booking::create($storeData);
-                    
+
                     $bookings[]=$booking;
-                    
+
                 }
-                
+
                 DB::commit();
             } catch(\Exception $e) {
                 DB::rollBack();
@@ -900,6 +900,9 @@ class BookingService {
 
     public function getMess($hours, $bookings) {
         $data =[];
+        $fios = [];
+        $phones = [];
+        $emails = [];
         if ($hours == 2) {
             $forTwo = false;
             $first = DateTime::createFromFormat('Y-m-d H:i:s', $bookings[0]->date_time);
@@ -917,9 +920,9 @@ class BookingService {
                 $first = $first->modify('-1 day');
             }
 
-            $fios = [];
-            $phones = [];
-            $emails = [];
+//            $fios = [];
+//            $phones = [];
+//            $emails = [];
             $operator = Operator::where('hospital_id', $bookings[0]->hospital_id)
                                 ->where('date',$first->format('Y-m-d 00:00:00'))->first();
             if ($operator != null) {
@@ -966,7 +969,7 @@ class BookingService {
             $first->add(new DateInterval('PT1H'));
             $timeStr .= $first->format('H:i');
             $first = $first->modify('-1 hour');
-            
+
             $hour = $first->format('H');
             if ($hour >=0 && $hour <8) {
                 $first = $first->modify('-1 day');

@@ -163,7 +163,7 @@
                                     v-model="user.role_id"
                                     :close-on-select="true"
                                     :hide-selected="false"
-                                    label="name"
+                                    label="label"
                                     valueProp="id"
                                     :options="roles ? roles : []"
                                 />
@@ -322,8 +322,8 @@ export default {
                 headers: {Authorization: localStorage.getItem('access_token')},
             }).then(res => {
                 console.log(res);
-                this.hospitals = res.data.hospitals.filter(el => el.type == hospital_type.hospital);
-                this.smps = res.data.hospitals.filter(el => el.type == hospital_type.smp);
+                this.hospitals = res.data.hospitals;
+                this.smps = res.data.smps;
                 this.roles = res.data.roles;
                 if (this.auth_user.role_name !== this.role.admin) {
                     this.user.hospital_id = this.auth_user.hospital_id
