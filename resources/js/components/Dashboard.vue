@@ -25,6 +25,16 @@
                                 Больницы
                             </router-link>
                         </li>
+                        <li class="nav-item" v-if="auth_user && [roles.admin, roles.moderator].includes(auth_user.role_name)">
+                            <router-link :to="{name:'users_for_moderator'}" class="nav-link">
+                                Пользователи
+                            </router-link>
+                        </li>
+                        <li class="nav-item" v-if="auth_user && [roles.admin, roles.surgeon, roles.cardiologist].includes(auth_user.role_name)">
+                            <router-link :to="{name:'hospital_show_user'}" class="nav-link">
+                                Больница
+                            </router-link>
+                        </li>
                     </ul>
                     <div class="d-flex">
                         <ul class="navbar-nav">
@@ -111,6 +121,7 @@ export default {
         // console.log(this.$refs.qwe.test())
         // console.log(this.$refs.qwe)
         this.auth_user = localStorage.getItem('auth_user') ? JSON.parse(localStorage.getItem('auth_user')) : null;
+        this.getData();
     },
     computed:{
       breadcrumbs() {
@@ -135,6 +146,26 @@ export default {
         }
     },
     methods: {
+        getData() {
+            if (this.auth_user) {
+                axios.get(`/api/users/${this.auth_user.id}`, {
+                    headers: {Authorization: localStorage.getItem('access_token')}
+                }).then(res => {
+                    console.log(res);
+                    localStorage.setItem('auth_user', JSON.stringify(res.data.data));
+                    this.auth_user = localStorage.getItem('auth_user') ? JSON.parse(localStorage.getItem('auth_user')) : null;
+                }).catch(err => {
+                    this.errorsMessage(err);
+                    // console.log(err.response);
+                    // if (err.response.status == 401) {
+                    //     localStorage.removeItem('access_token');
+                    //     localStorage.removeItem('auth_user');
+                    //     this.$router.push({name: "login"});
+                    // }
+                })
+            }
+
+        },
         logout() {
             axios.post('/api/logout', {},{
                 headers: {Authorization: localStorage.getItem('access_token')}
@@ -144,7 +175,7 @@ export default {
                 localStorage.removeItem('auth_user');
                 this.$router.push({name: 'login'});
             }).catch(err => {
-                console.log(err.reserved);
+                console.log(err.response);
                 localStorage.removeItem('access_token');
                 localStorage.removeItem('auth_user');
                 this.$router.push({name: 'login'});

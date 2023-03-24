@@ -27,13 +27,13 @@ class HospitalService {
             if ($data['type'] == 1) {
                 $newRooms = $this->getNewRooms($rooms);
                 $hospital->rooms()->saveMany($newRooms);
-            } 
-            
+            }
+
             // $todayData = [
             //     'hospital_id' => $hospital->id,
             // ];
             // Today::create($todayData);
-            
+
             DB::commit();
 
         } catch(\Exception $e) {
@@ -63,13 +63,13 @@ class HospitalService {
             if($data['type'] == 1) {
                 $updatedRooms = $this->getUpdatedRooms($rooms);
                 $hospital->rooms()->saveMany($updatedRooms);
-            } 
+            }
 
             DB::commit();
         } catch(\Exception $e) {
             DB::rollBack();
             return $e->getMessage();
-        } 
+        }
 
         return $hospital;
     }
@@ -87,7 +87,7 @@ class HospitalService {
         } catch(\Exception $e) {
             DB::rollBack();
             return $e->getMessage();
-        } 
+        }
 
         return "delete successfully";
     }
@@ -116,6 +116,7 @@ class HospitalService {
         return $newRooms;
     }
 
+
     public function disable($data) {
         try {
             DB::beginTransaction();
@@ -127,7 +128,7 @@ class HospitalService {
         } catch(\Exception $e) {
             DB::rollBack();
             return $e->getMessage();
-        } 
+        }
         return  $room;
     }
 }

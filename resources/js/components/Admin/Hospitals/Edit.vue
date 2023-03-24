@@ -50,7 +50,7 @@
                                     <input type="text" :value="v$.query.$model"
                                            @input="lazyCaller($event.target.value)"
                                            class="form-control" id="address_sick"
-                                           :class="v$.suggestion.$error || v$.query.$error? 'border-danger' : ''"
+                                           :class="(v$.suggestion.$error && query !== hospital.address) || v$.query.$error? 'border-danger' : ''"
                                     >
                                     <div v-if="addresses.length" class="autocomplete-items">
                                         <div
@@ -68,8 +68,9 @@
                                             {{suggestion = ''}}
                                         </div>
                                     </div>
-                                    <span v-if="v$.suggestion.$error || v$.query.$error"
-                                          :class="v$.suggestion.$error || v$.query.$error ? 'text-danger' : ''">
+<!--                                    <span v-if="v$.suggestion.$error || v$.query.$error"-->
+                                    <span v-if="(v$.suggestion.$error && query !== hospital.address) || v$.query.$error"
+                                          :class="(v$.suggestion.$error && query !== hospital.address) || v$.query.$error ? 'text-danger' : ''">
                                       Поле адрес обязательное поле для заполнения
                                     </span>
                                 </div>
@@ -153,7 +154,7 @@ import { required, email, minLength, sameAs } from '@vuelidate/validators';
 import { ref } from 'vue';
 // import { VueDadata } from 'vue-dadata';
 // import 'vue-dadata/dist/style.css';
-import {wait} from "../../../consts";
+import {wait, hospital_type} from "../../../consts";
 
 // export default defineComponent ({
 export default {
@@ -180,7 +181,7 @@ export default {
     // },
     setup() {
         const query = ref('');
-        const suggestion = ref('');
+        const suggestion = ref('undefined');
         const addresses = ref([]);
         const selectAddress = (address) => {
             query.value = address.value;
@@ -209,11 +210,18 @@ export default {
             token: import.meta.env.VITE_APP_DADATA_API_KEY,
             suggestions: true,
 
-            wait,
+            wait, hospital_type,
+
         }
     },
     mounted() {
         this.getData();
+    },
+    computed: {
+        auth_user() {
+            return localStorage.getItem('auth_user')
+                ? JSON.parse(localStorage.getItem('auth_user')) : null
+        }
     },
     validations() {
         return {
@@ -227,7 +235,7 @@ export default {
     },
     methods: {
         getData() {
-            axios.get(`/api/hospitals/${this.id}/edit`, {
+            axios.get(`/api/hospitals/${this.id ? this.id : this.auth_user.hospital_id}/edit`, {
                 headers: {Authorization: localStorage.getItem('access_token')}
             }).then(res => {
                 console.log(res);
@@ -269,18 +277,22 @@ export default {
                 return  el.name !== null && el.name !== ''
             });
             let rooms = this.hospital.rooms.concat(this.rooms);
-            if (!this.v$.$error) {
+            if (!this.v$.$error || (!this.v$.hospital.$error && this.query == this.hospital.address)) {
                 this.processing = true;
                 let data = {};
-                if (typeof this.suggestion == 'undefined') {
+                if (this.suggestion == 'undefined' && this.query == this.hospital.address) {
                     data = {
+                        type: hospital_type.hospital,
                         full_name: this.hospital.full_name,
                         short_name: this.hospital.short_name,
                         address: this.query,
-                        hospital_rooms: rooms
+                        geo_lat: this.hospital.geo_lat,
+                        geo_lon: this.hospital.geo_lon,
+                        hospital_rooms: rooms,
                     }
                 } else {
                     data = {
+                        type: hospital_type.hospital,
                         full_name: this.hospital.full_name,
                         short_name: this.hospital.short_name,
                         address: this.suggestion.unrestricted_value,
@@ -289,7 +301,7 @@ export default {
                         hospital_rooms: rooms
                     }
                 }
-                axios.patch(`/api/hospitals/${this.id}`, data,
+                axios.patch(`/api/hospitals/${this.id ? this.id : this.auth_user.hospital_id}`, data,
                     {headers: {Authorization: localStorage.getItem('access_token')}
                 }).then(res => {
                     console.log(res);
@@ -297,7 +309,8 @@ export default {
                     this.success = 'Данные успешно изменены. Перенаправление...';
                     this.$emit('change_data', res.data.data)
                     setTimeout(()=>{
-                        this.$router.push({name:'hospitals'})
+                        // this.$router.push({name:'hospitals'})
+                        this.$router.go(-1)
                     },3000)
                 }).catch(err => {
                     this.errorsMessage(err);
