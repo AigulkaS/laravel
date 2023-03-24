@@ -87,6 +87,76 @@ const routes = [
                 }
             },
             {
+                path: 'users',
+                component: () => import('../components/Admin/Users/Users.vue'),
+                name: 'users_for_moderator',
+                meta: {
+                    breadcrumb: 'Пользователи',
+                },
+                children: [
+                    {
+                        path: 'create',
+                        component: () => import('../components/Admin/Users/Create.vue'),
+                        name: 'user_create_for_moderator',
+                        meta : {
+                            email_verified: true,
+                            requiresAuth: true,
+                            breadcrumb: 'Добавить пользователя',
+                        },
+                    },
+                    {
+                        path: ':id/edit',
+                        props: route => ({
+                            id: route.params.id,
+                        }),
+                        component: () => import('../components/Admin/Users/Edit.vue'),
+                        name: 'user_edit_for_moderator',
+                        meta : {
+                            email_verified: true,
+                            requiresAuth: true,
+                            breadcrumb: 'Редактировать',
+                        },
+                    },
+                    {
+                        path: ':id/show',
+                        props: route => ({
+                            id: route.params.id,
+                        }),
+                        component: () => import('../components/Admin/Users/Show.vue'),
+                        name: 'user_show_for_moderator',
+                        meta : {
+                            email_verified: true,
+                            requiresAuth: true,
+                            breadcrumb: 'Просмотр',
+                        },
+                    },
+                ]
+            },
+            {
+                path: 'hospital',
+                component: () => import('../components/Admin/Hospitals/Show.vue'),
+                name: 'hospital_show_user',
+                meta : {
+                    email_verified: true,
+                    requiresAuth: true,
+                    breadcrumb: 'Больница',
+                },
+                children: [
+                    {
+                        path: 'edit',
+                        component: () => import('../components/Admin/Hospitals/Edit.vue'),
+                        name: 'hospital_edit_user',
+                        meta : {
+                            email_verified: true,
+                            requiresAuth: true,
+                            breadcrumb: 'Редактирование',
+                        },
+                    },
+                ],
+            },
+
+
+            {
                 path: 'admin',
                 component: () => import('../components/Admin/Admin.vue'),
                 name: 'admin_page',
@@ -105,6 +175,16 @@ const routes = [
                             breadcrumb: 'Пользователи',
                         },
                         children: [
+                            {
+                                path: 'create',
+                                component: () => import('../components/Admin/Users/Create.vue'),
+                                name: 'user_create',
+                                meta : {
+                                    email_verified: true,
+                                    requiresAuth: true,
+                                    breadcrumb: 'Добавить пользователя',
+                                },
+                            },
                             {
                                 path: ':id/edit',
                                 props: route => ({
@@ -264,6 +344,52 @@ const routes = [
                                 }),
                                 component: () => import('../components/Admin/Hospitals/Show.vue'),
                                 name: 'hospital_show',
+                                meta : {
+                                    email_verified: true,
+                                    requiresAuth: true,
+                                    breadcrumb: 'Просмотр',
+                                },
+                            },
+                        ]
+                    },
+                    {
+                        path: 'ambulance_stations',
+                        component: () => import('../components/Admin/AmbulanceStations/AmbulanceStations.vue'),
+                        name: 'ambulance_stations',
+                        meta : {
+                            breadcrumb: 'Станции СМП',
+                        },
+                        children: [
+                            {
+                                path: 'create',
+                                component: () => import('../components/Admin/AmbulanceStations/Create.vue'),
+                                name: 'ambulance_station_create',
+                                meta : {
+                                    email_verified: true,
+                                    requiresAuth: true,
+                                    breadcrumb: 'Добавить станцию СМП',
+                                },
+                            },
+                            {
+                                path: ':id/edit',
+                                props: route => ({
+                                    id: route.params.id,
+                                }),
+                                component: () => import('../components/Admin/AmbulanceStations/Edit.vue'),
+                                name: 'ambulance_station_edit',
+                                meta : {
+                                    email_verified: true,
+                                    requiresAuth: true,
+                                    breadcrumb: 'Редактирование',
+                                },
+                            },
+                            {
+                                path: ':id/show',
+                                props: route => ({
+                                    id: route.params.id,
+                                }),
+                                component: () => import('../components/Admin/AmbulanceStations/Show.vue'),
+                                name: 'ambulance_station_show',
                                 meta : {
                                     email_verified: true,
                                     requiresAuth: true,

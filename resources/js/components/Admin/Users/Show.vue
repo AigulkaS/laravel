@@ -2,7 +2,7 @@
     <div>
         <error-page v-if="errPage" :err="errs"></error-page>
 
-        <div v-else-if="successPage">
+        <div v-else-if="successPage" :class="$route.name == 'user_show_for_moderator' ? 'container' : ''">
             <div class="row justify-content-center">
 
                 <errors-validation :validationErrors="errs"/>
@@ -14,7 +14,7 @@
                             <h4 class="my-3">Пользователь {{user.last_name}} {{user.first_name}} {{user.patronymic}}}</h4>
                         </div>
                         <div class="align-self-center">
-                            <router-link :to="{name: 'user_edit'}" type="button" class="btn btn-warning">
+                            <router-link :to="{name: $route.name == 'user_show' ? 'user_edit' : 'user_edit_for_moderator'}" type="button" class="btn btn-warning">
                                 <font-awesome-icon icon="fa-solid fa-pencil" /> Редактировать
                             </router-link>
                         </div>
@@ -64,20 +64,23 @@
                         <tr>
                             <th class="col-2">SMS уведомления</th>
                             <td class="col-10">
-                                <div class="col-sm-10 form-check form-switch">
+                                <div class="form-check form-switch">
                                     <div class='form-check form-switch'>
-                                        <input type="checkbox" :v-model="user.sms" disabled class="form-check-input" id="sms">
+                                        <input type="checkbox" v-model="user.sms" disabled class="form-check-input" id="sms">
                                     </div>
                                 </div>
                             </td>
                         </tr>
                         <tr>
                             <th class="col-2">Роль</th>
-                            <td class="col-10">{{user.role_id}}</td>
+                            <td class="col-10">{{user.role_label}}</td>
                         </tr>
                         <tr>
-                            <th class="col-2">Больница</th>
-                            <td class="col-10">{{user.hospital_id}}</td>
+                            <th class="col-2">
+                                {{user.hospital_type && user.hospital_type == hospital_type.hospital
+                                ? 'Больница' : 'СМП'}}
+                            </th>
+                            <td class="col-10">{{user.hospital_name}}</td>
                         </tr>
                         <tr>
                             <th class="col-2">Телефон</th>
@@ -100,6 +103,8 @@
 </template>
 
 <script>
+import {hospital_type} from "../../../consts";
+
 export default {
     name: "Show",
     props: ['id'],
@@ -108,6 +113,7 @@ export default {
             user: null,
             verify_email: 1,
             success : null,
+            hospital_type,
         }
     },
     mounted() {
@@ -120,9 +126,10 @@ export default {
             }).then(res => {
                 console.log(res);
                 this.user = res.data.data;
-                this.user.push = this.user.push ? true : false;
-                this.user.sms = this.user.sms ? true : false;
-                this.verify_email = this.verify_email ? true : false;
+                this.verify_email = this.verify_email == 1 ? true : false;
+                this.user.push = this.user.push == 1 ? true : false;
+                this.user.sms = this.user.sms == 1 ? true : false;
+                console.log(this.user)
             }).catch(err => {
                 this.errorsMessage(err);
             }).finally(() => this.successPage = true);

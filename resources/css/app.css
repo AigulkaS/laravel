@@ -6,6 +6,14 @@
 .multiselect {
     background-color: #f8fafc !important;
 }
+.disabledcard {
+    opacity: 0.4;
+}
+
+.bg-choice {
+    background-color: cornflowerblue !important;
+    color: white !important;
+}
 
 .bg-red-300 {
     background-color: #ea868f;

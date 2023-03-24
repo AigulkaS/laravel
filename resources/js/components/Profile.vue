@@ -126,7 +126,7 @@
                                 Роль
                             </label>
                             <div class="col-sm-10">
-                                <div class="form-control-plaintext">{{user.role_name}}</div>
+                                <div class="form-control-plaintext">{{user.role_label}}</div>
 <!--                                <div v-if="!edit" class="form-control-plaintext">{{user.role_name}}</div>-->
 <!--                                <select v-else class="form-control form-select" v-model="user.role_id">-->
 <!--                                    <option v-for="role in roles" :key="role.id" :value="role.id">-->
@@ -191,6 +191,7 @@ export default {
             edit: false,
             roles: [],
             hospitals: [],
+            smps: [],
             wait,
         }
     },
@@ -233,6 +234,7 @@ export default {
                 console.log(res);
                 this.roles = res.data.roles;
                 this.hospitals = res.data.hospitals;
+                this.smps = res.data.smps;
             }).catch(err => {
                 this.errorsMessage(err);
             }).finally(() => this.edit=!this.edit);
