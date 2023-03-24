@@ -84,12 +84,21 @@
                                             Операционная {{ room.name }}
                                         </div>
                                         <div class="row mb-3">
+<!--                                            :class="'bg-'+statuses[val.status].color+'-300'"-->
+<!--                                            :class="addCssClass(room, '')"-->
                                             <div class="col border p-3 rounded text-center"
                                                  v-for="(val, k) in room.val" :key="k"
-                                                 :class="'bg-'+statuses[val.status].color+'-300'"
-                                            >
-                                                <div><h4>{{$dayjs(val.time).format('HH:mm')}}</h4></div>
-                                                <div class="text-white fw-bolder">{{statuses[val.status].label}}</div>
+                                                 :class="addCssClass(room, val)">
+                                                <div>
+                                                    <h4>
+                                                        {{$dayjs(val.time).format('HH:mm')}}
+                                                        <div class="line_height05">-</div>
+                                                        {{ $dayjs(val.time).add(1, 'hour').format('HH:mm') }}
+                                                    </h4>
+                                                </div>
+                                                <div class="fw-bolder" :class="colorRoomOffTime(room,val) ? 'text-black' : 'text-white'">
+                                                    {{colorRoomOffTime(room,val) ? statuses[3].label : statuses[val.status].label}}
+                                                </div>
                                             </div>
                                             <!--                                        <div class="col d-none d-sm-block border bg-yellow-300 p-3 rounded text-center">-->
                                             <!--                                            <div><h4>14:00</h4></div>-->
@@ -322,10 +331,10 @@
                         </div>
                         <div class="modal-body" v-if="messages">
                            <div class="fs-4 fw-bold">{{messages.hospital}}</div>
-                           <div class="fs-5 fw-bolder">{{messages.hospital_address}}</div>
-                           <div class="fs-5 fw-bolder">Диагноз: {{messages.disease}}</div>
-                           <div class="fs-5 fw-bolder">Состояние пациента: {{messages.condition}}</div>
-                           <div class="fs-5 fw-bolder">Время брониования: {{messages.time}}</div>
+                           <div class="fs-5 fw-bolder">{{messages.address}}</div>
+                           <div class="fs-5"><span class="fw-bolder">Диагноз:</span> {{messages.disease}}</div>
+                           <div class="fs-5"><span class="fw-bolder">Состояние пациента:</span> {{messages.condition}}</div>
+                           <div class="fs-5"><span class="fw-bolder">Время брониования:</span> {{messages.time}}</div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ОК</button>
@@ -445,21 +454,22 @@ export default {
         }
     },
     mounted() {
-        // const socket = io(this.server_url);
-        //
-        // socket.on('bookings-update:App\\Events\\BookingsUpdateEvent', (data) => {
-        //     let arr = data.result;
-        //     this.updateHospitalRoomStatus(arr);
-        // });
-        // socket.on('todays-update:App\\Events\\TodaysUpdateEvent', (data) => {
-        //     let orderly = data.result;
-        //     this.updateHospitalOrderly(orderly);
-        // });
-        // socket.on('bookings-store:App\\Events\\BookingsStoreEvent', (data) => {
-        //     // console.log(data);
-        //     let arr = data.result;
-        //     this.updateHospitalRoomStatus(arr);
-        // });
+        const socket = io(this.server_url);
+
+        socket.on('bookings-update:App\\Events\\BookingsUpdateEvent', (data) => {
+            let arr = data.result;
+            this.updateHospitalRoomStatus(arr);
+        });
+        socket.on('operators-update:App\\Events\\OperatorsUpdateEvent', (data) => {
+            let orderly = data.result;
+            this.updateHospitalOrderly(orderly);
+        });
+        socket.on('bookings-store:App\\Events\\BookingsStoreEvent', (data) => {
+            // console.log(data);
+            let arr = data.result;
+            // this.updateHospitalRoomStatus(arr);
+            this.updateHospitalRoomStatus(arr.bookings)
+        });
 
         this.getData();
     },
@@ -512,26 +522,15 @@ export default {
                 }
             }
         },
-        updateHospitalOrderly(data) {
-            let hospitalIndex = this.bookings.findIndex(element => element.hospital_id == data.hospital_id);
-            if (hospitalIndex != -1) {
-                this.bookings[hospitalIndex].cardiologist_id = data.cardiologist_id
-                this.bookings[hospitalIndex].cardiologist_last_name = data.cardiologist_last_name
-                this.bookings[hospitalIndex].cardiologist_first_name = data.cardiologist_first_name
-                this.bookings[hospitalIndex].cardiologist_patronymic = data.cardiologist_patronymic
-                this.bookings[hospitalIndex].surgeon_id = data.surgeon_id
-                this.bookings[hospitalIndex].surgeon_last_name = data.surgeon_last_name
-                this.bookings[hospitalIndex].surgeon_first_name = data.surgeon_first_name
-                this.bookings[hospitalIndex].surgeon_patronymic = data.surgeon_patronymic
-            }
-        },
         addBooking() {
+            this.v$.$reset();
             this.free_hospital = null
             this.errs = null;
             this.suggestion = '';
             this.query = '';
             this.disease_id = null;
             this.condition_id = null;
+
             if (!this.myModal) {
                 this.myModal = new Modal(document.getElementById('modalBooking'), {});
                 axios.get(`/api/bookings/create/disease`,{
@@ -572,7 +571,6 @@ export default {
         saveBooking() {
             this.errs = null;
             this.v$.$validate();
-            // if (!this.v$.$error) {
             if (!this.v$.suggestion.$error && !this.v$.disease_id.$error && !this.v$.condition_id.$error) {
                 this.processing = true;
                 axios.post(`/api/bookings`,
@@ -581,9 +579,6 @@ export default {
                         geo_lon: this.suggestion.data.geo_lon,
                         disease_id: this.disease_id,
                         condition_id: this.condition_id,
-                        user_id: this.auth_user.id
-                        // hospital_id: this.free_hospital.id,
-                        // booking_hours: this.clock
                     },
                     {
                         headers: {Authorization: localStorage.getItem('access_token')}
@@ -596,22 +591,6 @@ export default {
                     }
                     this.myModal.hide();
                     this.myModalAddress.show();
-                    // let data = res.data.data;
-                    // let hospital_index = this.bookings.findIndex(el => el.hospital_id == data[0].hospital_id);
-                    // let room_index = this.bookings[hospital_index].rooms.findIndex(el => el.name == data[0].room_name)
-                    // let time_index = this.bookings[hospital_index].rooms[room_index].val.findIndex(el => el.time == data[0].date_time)
-                    // for (let i = time_index; i < time_index+data.length; i++) {
-                    //     if (i >= this.bookings[hospital_index].rooms[room_index].val.length) {
-                    //         this.bookings[hospital_index].rooms[room_index].val[i-this.bookings[hospital_index].rooms[room_index].val.length].status = data[0].status;
-                    //     } else {
-                    //         this.bookings[hospital_index].rooms[room_index].val[i].status = data[0].status;
-                    //     }
-                    // }
-                    // this.success = 'Бронь успешно дабавлена.';
-                    // setTimeout(() => {
-                    //     this.success = null;
-                    // }, 4000)
-                    // this.myModal.hide();
                 }).catch(err => {
                     this.errorsMessage(err);
                 }).finally(() => {
@@ -670,6 +649,7 @@ export default {
             })
         },
         addOrderlies() {
+            this.v$.$reset();
             if (!this.myModalOrderly) {
                 this.myModalOrderly = new Modal(document.getElementById('modalOrderlyHospital'), {});
             }
@@ -678,7 +658,7 @@ export default {
         updateOrderly() {
             this.errs = null
             this.success = null;
-            // this.v$.$validate() // checks all inputs
+            this.v$.$validate() // checks all inputs
             // if (!this.v$.$error) {
             if (!this.v$.hospital_id.$error && !this.v$.surgeon_id.$error && !this.v$.cardiologist_id.$error) {
                 console.log(this.$dayjs().format('YYYY-MM-DD HH:mm:ss'))
@@ -694,27 +674,7 @@ export default {
                         headers: {Authorization: localStorage.getItem('access_token')}
                     }).then(res => {
                     console.log(res);
-                    this.bookings.find(el => {
-                       if (el.hospital_id == res.data.data.hospital_id) {
-                           el.cardiologist_id = res.data.data.cardiologist_id;
-                           el.cardiologist_first_name = res.data.data.cardiologist_first_name;
-                           el.cardiologist_last_name = res.data.data.cardiologist_last_name;
-                           el.cardiologist_patronymic = res.data.data.cardiologist_patronymic;
-
-                           el.surgeon_id = res.data.data.surgeon_id;
-                           el.surgeon_first_name = res.data.data.surgeon_first_name;
-                           el.surgeon_last_name = res.data.data.surgeon_last_name;
-                           el.surgeon_patronymic = res.data.data.surgeon_patronymic;
-                       }
-                    });
-                    let index = this.emptyOrderlies.findIndex(el => el.hospital_id == res.data.data.hospital_id);
-                    if (index > -1) {
-                        this.emptyOrderlies.splice(index, 1);
-                    }
-                    if (this.emptyOrderlies.length == 0) {
-                        this.warning = false;
-                    }
-                    console.log(this.bookings);
+                    this.updateHospitalOrderly(res.data.data);
                 }).catch(err => {
                     this.errorsMessage(err);
                 }).finally(() => {
@@ -724,7 +684,61 @@ export default {
             } else {
                 window.scrollTo(0,0);
             }
+        },
+        updateHospitalOrderly(data) {
+            if (this.$dayjs(data.date).format("YY-MM-DD") == this.$dayjs().format('YY-MM-DD')
+                ||
+                (this.$dayjs().format('YY-MM-DD') > this.$dayjs(data.date).format("YY-MM-DD")
+                    && Number(this.$dayjs().format('HH')) < 8)) {
+                this.bookings.find(el => {
+                    if (el.hospital_id == data.hospital_id) {
+                        el.cardiologist_id = data.cardiologist_id;
+                        el.cardiologist_first_name = data.cardiologist_first_name;
+                        el.cardiologist_last_name = data.cardiologist_last_name;
+                        el.cardiologist_patronymic = data.cardiologist_patronymic;
 
+                        el.surgeon_id = data.surgeon_id;
+                        el.surgeon_first_name = data.surgeon_first_name;
+                        el.surgeon_last_name = data.surgeon_last_name;
+                        el.surgeon_patronymic = data.surgeon_patronymic;
+                    }
+                });
+                let index = this.emptyOrderlies.findIndex(el => el.hospital_id == data.hospital_id);
+                if (index > -1) {
+                    this.emptyOrderlies.splice(index, 1);
+                }
+                if (this.emptyOrderlies.length == 0) {
+                    this.warning = false;
+                }
+            }
+        },
+        addCssClass(room, val) {
+            let columnColor = this.colorRoomOffTime(room,val)
+                    ? 'bg-gray-300' : val.status == 0
+                        ? 'bg-green-300' : val.status == 1
+                            ? 'bg-red-300' : 'bg-yellow-300';
+
+
+            let str = `${columnColor}`
+
+            return str
+        },
+        colorRoomOffTime(room, val ) {
+            if (!room.start) return false;
+            if (room.start.substr(0, 2) == room.end.substr(0, 2)) {
+                return false
+            } else if (Number(room.start.substr(0, 2)) < Number(room.end.substr(0, 2))) {
+                if (this.$dayjs(val.time).get('hour') >= Number(room.start.substr(0, 2))
+                    && this.$dayjs(val.time).get('hour') <= Number(room.end.substr(0, 2))-1) {
+                    return false
+                } else return true
+            } else { //start > end
+                if ((this.$dayjs(val.time).get('hour') >= Number(room.start.substr(0, 2))
+                        && this.$dayjs(val.time).get('hour') <= 23) ||
+                    (this.$dayjs(val.time).get('hour') <= Number(room.end.substr(0, 2))-1)) {
+                    return false
+                } else return true
+            }
         },
     },
 
