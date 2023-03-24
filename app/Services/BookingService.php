@@ -668,12 +668,17 @@ class BookingService {
                 $first = $first->modify('-1 day');
             }
 
+            $ids = [];
             $fios = [];
             $phones = [];
             $emails = [];
             $operator = Operator::where('hospital_id', $bookings[0]->hospital_id)
                                 ->where('date',$first->format('Y-m-d 00:00:00'))->first();
             if ($operator != null) {
+                $ids = [
+                    $operator->surgeon->id,
+                    $operator->cardiologist->id
+                ];
                 $fios = [
                     $operator->surgeon->last_name . ' ' . $operator->surgeon->first_name . ' ' . $operator->surgeon->patronymic,
                     $operator->cardiologist->last_name . ' ' . $operator->cardiologist->first_name . ' ' . $operator->cardiologist->patronymic
@@ -692,6 +697,7 @@ class BookingService {
                                     $query->where('name', 'moderator hosp');
                                 })->first();
                 if ($moderator != null) {
+                    $ids[]=$moderator->id;
                     $fios[] = $moderator->last_name . ' ' . $moderator->first_name . ' ' . $moderator->patronymic;
                     $phones[] = $moderator->phone;
                     $emails[] = $moderator->email;
@@ -702,6 +708,8 @@ class BookingService {
                 $operator = Operator::where('hospital_id', $bookings[0]->hospital_id)
                                 ->where('date',$second->format('Y-m-d 00:00:00'))->first();
                 if ($operator != null) {
+                    $ids[] = $operator->surgeon->id;
+                    $ids[] = $operator->cardiologist->id;
                     $fios[] = $operator->surgeon->last_name . ' ' . $operator->surgeon->first_name . ' ' . $operator->surgeon->patronymic;
                     $fios[] = $operator->cardiologist->last_name . ' ' . $operator->cardiologist->first_name . ' ' . $operator->cardiologist->patronymic;
                     $phones[] = $operator->surgeon->phone;
@@ -714,17 +722,24 @@ class BookingService {
                                         $query->where('name', 'moderator hosp');
                                     })->first();
                     if ($moderator != null) {
+                        $ids[]=$moderator->id;
                         $fios[] = $moderator->last_name . ' ' . $moderator->first_name . ' ' . $moderator->patronymic;
                         $phones[] = $moderator->phone;
                         $emails[] = $moderator->email;
                     }
                 }
             }
-
+            $users = [];
+            for ($i = 0; $i < count($ids); $i++) {
+                $users[] = [
+                    'id' => $ids[$i],
+                    'email' => $emails[$i],
+                    'phone' => $phones[$i],
+                    'fio' => $fios[$i]
+                ];
+            }
             $data = [
-                'fio' => $fios,
-                'phone' => $phones,
-                'email' => $emails,
+                'users' => $users,
                 'hospital' => $bookings[0]->hospital->short_name,
                 'address' => $bookings[0]->hospital->address,
                 'disease' =>$bookings[0]->disease->name,
@@ -745,6 +760,10 @@ class BookingService {
             $operator = Operator::where('hospital_id', $bookings[0]->hospital_id)
                                 ->where('date',$first->format('Y-m-d 00:00:00'))->first();
             if ($operator != null) {
+                $ids = [
+                    $operator->surgeon->id,
+                    $operator->cardiologist->id
+                ];
                 $fios = [
                     $operator->surgeon->last_name . ' ' . $operator->surgeon->first_name . ' ' . $operator->surgeon->patronymic,
                     $operator->cardiologist->last_name . ' ' . $operator->cardiologist->first_name . ' ' . $operator->cardiologist->patronymic
@@ -763,15 +782,23 @@ class BookingService {
                                     $query->where('name', 'moderator hosp');
                                 })->first();
                 if ($moderator != null) {
+                    $ids[]=$moderator->id;
                     $fios[] = $moderator->last_name . ' ' . $moderator->first_name . ' ' . $moderator->patronymic;
                     $phones[] = $moderator->phone;
                     $emails[] = $moderator->email;
                 }
             }
+            $users = [];
+            for ($i = 0; $i < count($ids); $i++) {
+                $users[] = [
+                    'id' => $ids[$i],
+                    'email' => $emails[$i],
+                    'phone' => $phones[$i],
+                    'fio' => $fios[$i]
+                ];
+            }
             $data = [
-                'fio' => $fios,
-                'phone' => $phones,
-                'email' => $emails,
+                'users' => $users,
                 'hospital' => $bookings[0]->hospital->short_name,
                 'address' => $bookings[0]->hospital->address,
                 'disease' =>$bookings[0]->disease->name,
