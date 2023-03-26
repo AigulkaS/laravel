@@ -241,7 +241,7 @@
                             <label class="col-sm-3 col-form-label fw-bold" for="phone">Телефон</label>
                             <div class="col-sm-8">
                                 <input type="text" name="phone" v-model="user.phone" id="phone"
-                                       placeholder="Телефон" class="form-control">
+                                       placeholder="Телефон" class="form-control" @input="acceptNumber">
                             </div>
                         </div>
 
@@ -368,7 +368,20 @@ export default {
             } else {
                 window.scrollTo(0,0);
             }
-        }
+        },
+        acceptNumber() {
+            let x = this.user.phone.replace(/\D/g, '')
+                .match(/^(\+7|7|8)(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/);
+
+            let y = x && x[1]
+                ? ['+', '7', '8'].includes(x[1]) ? '+7' : ''
+                : '';
+            let z = x && x[2] ? '(' + x[2] + ')' : '';
+            let c = x && x[3] ? x[3] : '';
+            let v = x && x[4] ? '-' + x[4] : '';
+            let b = x && x[5] ? '-' + x[5] : '';
+            this.user.phone= y+z+c+v+b;
+        },
     }
 }
 </script>

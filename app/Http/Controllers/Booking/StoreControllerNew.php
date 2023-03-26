@@ -6,6 +6,9 @@ use App\Events\BookingsStoreEvent;
 use App\Http\Requests\Booking\StoreRequest;
 use App\Http\Requests\Booking\StoreRequestNew;
 use App\Http\Resources\BookingResource;
+use App\Mail\BookingMail;
+use Illuminate\Support\Facades\Mail;
+
 
 // use App\Http\Requests\User\StoreRequest;
 // use App\Http\Resources\UserResource;
@@ -28,6 +31,18 @@ class StoreControllerNew extends BaseController
                 'bookings' => BookingResource::collection($bookingsInfo['bookings']),
                 'messages' => $messages,
             ]));
+
+            foreach ($messages['users'] as $user) {
+                $data = [
+                    'user' => $user,
+                    'hospital' => $messages['hospital'],
+                    'address' => $messages['address'],
+                    'disease' => $messages['disease'],
+                    'condition' => $messages['condition'],
+                    'time' => $messages['time'],
+                ];
+                Mail::to($user['email'])->send(new BookingMail($data));
+            }
 
             return response()->json([
                 'bookings' => BookingResource::collection($bookingsInfo['bookings']),
