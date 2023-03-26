@@ -113,3 +113,15 @@ Route::post('/push', [\App\Http\Controllers\PushController::class, 'store'])->na
 Route::post('/notifications', [\App\Http\Controllers\PushController::class, 'storePush'])->name('storePush');
 Route::get('/push', [\App\Http\Controllers\PushController::class, 'push'])->name('push');
 
+// "geo_lat": "54.728914",
+//     "geo_lon": "55.967459",
+//     "disease_id": 1,
+//     "condition_id": 2
+
+// "type": 1,
+//     "full_name": "djjsd",
+//     "short_name": "smnd",
+//     "address": "dskjn",
+//     "hospital_rooms": [],
+//     "geo_lat": "54.728914",
+//     "geo_lon": "55.967459"

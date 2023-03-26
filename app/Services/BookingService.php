@@ -651,14 +651,19 @@ class BookingService {
 
     public function getMess($hours, $bookings) {
         $data =[];
+        $ids = [];
+        $fios = [];
+        $phones = [];
+        $emails = [];
         if ($hours == 2) {
             $forTwo = false;
-            $first = DateTime::createFromFormat('Y-m-d H:i:s', $bookings[0]->date_time);
-            $second = DateTime::createFromFormat('Y-m-d H:i:s', $bookings[1]->date_time);
+            $first = new DateTime( $bookings[0]->date_time);
+            $second = new DateTime($bookings[1]->date_time);
             $timeStr = $first->format('d.m.y H:i - ');
             $second->add(new DateInterval('PT1H'));
-
             $timeStr .= $second->format('H:i');
+            $second = $second->modify('-1 hour');
+
             if ($second->format('H') == 8) {
                 $forTwo = true;
             }
@@ -667,11 +672,6 @@ class BookingService {
             if ($hour >=0 && $hour <8) {
                 $first = $first->modify('-1 day');
             }
-
-            $ids = [];
-            $fios = [];
-            $phones = [];
-            $emails = [];
             $operator = Operator::where('hospital_id', $bookings[0]->hospital_id)
                                 ->where('date',$first->format('Y-m-d 00:00:00'))->first();
             if ($operator != null) {
@@ -747,7 +747,7 @@ class BookingService {
                 'time' => $timeStr,
             ];
         } else {
-            $first = DateTime::createFromFormat('Y-m-d H:i:s', $bookings[0]->date_time);
+            $first = new DateTime($bookings[0]->date_time);
             $timeStr = $first->format('d.m.y H:i - ');
             $first->add(new DateInterval('PT1H'));
             $timeStr .= $first->format('H:i');
