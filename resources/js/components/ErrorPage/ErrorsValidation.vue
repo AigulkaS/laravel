@@ -1,6 +1,5 @@
 <template>
-    <div class="col-12"
-         v-if="validationErrors && Object.keys(validationErrors).length > 0">
+    <div class="col-12" v-if="validationErrors"> <!--&& Object.keys(validationErrors).length > 0-->
         <div class="alert alert-danger">
             <template v-if="typeof validationErrors == 'object'">
                 <ul class="mb-0">

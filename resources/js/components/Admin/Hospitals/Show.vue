@@ -42,7 +42,7 @@
 <!--                            </span>-->
                                 <div v-for="(room, index) in hospital.rooms">
                                     <div class="fw-bolder">{{room.name}}</div>
-                                    <div>Время работы: {{room.start ? room.start : '08^00'}}-{{ room.end ? room.end : '08^00' }}</div>
+                                    <div>Время работы: {{room.start ? `${room.start} - ` : 'Круглосуточно'}}{{ room.end ? room.end : '' }}</div>
                                 </div>
 
                             </td>
