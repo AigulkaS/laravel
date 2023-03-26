@@ -104,6 +104,21 @@
                                             </button>
                                         </div>
                                     </div>
+                                    <div class="my-1">
+                                        <label class=" col-form-label fw-bold ">Время работы: </label>
+                                        <span class="mx-2">с</span>
+                                        <select class="form-control form-inline form-select" v-model="room.start">
+                                            <option v-for="(clock, i) in timepiece" :key="i" :value="clock">
+                                                {{ clock }}
+                                            </option>
+                                        </select>
+                                        <span class="mx-2">по</span>
+                                        <select class="form-control form-inline form-select" v-model="room.end">
+                                            <option v-for="(clock, i) in timepiece" :key="i" :value="clock">
+                                                {{ clock }}
+                                            </option>
+                                        </select>
+                                    </div>
                                 </template>
                             </div>
                         </div>
@@ -128,7 +143,7 @@ import { required } from '@vuelidate/validators';
 import { ref } from 'vue';
 // import { VueDadata } from 'vue-dadata';
 // import 'vue-dadata/dist/style.css';
-import {wait, hospital_type} from "../../../consts";
+import {wait, hospital_type, timepiece} from "../../../consts";
 
 // export default defineComponent ({
 export default {
@@ -183,6 +198,7 @@ export default {
             rooms: [],
             rooms_show: false,
 
+
             timeout: null,
             url: import.meta.env.VITE_APP_DADATA_URL,
             token: import.meta.env.VITE_APP_DADATA_API_KEY,
@@ -190,6 +206,8 @@ export default {
 
             wait,
             hospital_type,
+            timepiece
+
         }
     },
     mounted() {
@@ -220,20 +238,20 @@ export default {
         },
         createRooms() {
             if (this.rooms.length == 0) {
-                this.rooms.push({name: null})
+                this.rooms.push({name: null, start: null, end:null})
             }
             this.rooms_show = !this.rooms_show;
         },
         addRoomm(index) {
             // this.rooms.push({name: null})
-            this.rooms.splice(index+1, 0, {name: null})
+            this.rooms.splice(index+1, 0, {name: null, start: null, end:null})
         },
         deleteRoomm(index) {
             this.rooms.splice(index, 1);
             if (this.rooms.length == 0) this.rooms_show=false;
         },
         store() {
-            console.log(this.suggestion)
+            // console.log(this.suggestion)
             // console.log(this.suggestion.unrestricted_value)
 
             this.errs = null
@@ -252,6 +270,7 @@ export default {
                         geo_lat: this.suggestion.data.geo_lat,
                         geo_lon: this.suggestion.data.geo_lon,
                         hospital_rooms: this.rooms
+
                     },
                     {headers: {Authorization: localStorage.getItem('access_token')}
                 }).then(res => {
@@ -310,6 +329,7 @@ export default {
 // });
 </script>
 <style>
+
 .vue-dadata__input {
     display: block;
     width: 100%;

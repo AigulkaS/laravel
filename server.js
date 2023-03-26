@@ -10,7 +10,7 @@ const io = require('socket.io')(http, {
 const Redis = require('ioredis');
 
 const redis = new Redis();
-redis.subscribe('todays-update');
+redis.subscribe('operators-update');
 redis.subscribe('bookings-update');
 redis.subscribe('bookings-store');
 

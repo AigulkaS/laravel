@@ -2,6 +2,8 @@
 
 namespace App\Notifications;
 
+use App\Models\Hospital;
+use App\Models\Role;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -20,9 +22,10 @@ class VerifyEmailNotification extends VerifyEmail implements ShouldQueue
      *
      * @return void
      */
+//
 //    public function __construct()
 //    {
-//        //
+
 //    }
 
     protected function verificationUrl($notifiable)
@@ -39,24 +42,42 @@ class VerifyEmailNotification extends VerifyEmail implements ShouldQueue
         return str_replace('/api', '', $url);
     }
 
-    protected function buildMailMessage($url)
+    /**
+     * Build the mail representation of the notification.
+     *
+     * @param  mixed  $notifiable
+     * @return \Illuminate\Notifications\Messages\MailMessage
+     */
+    public function toMail($notifiable)
     {
+        $verificationUrl = $this->verificationUrl($notifiable);
+
+        if (static::$toMailCallback) {
+            return call_user_func(static::$toMailCallback, $notifiable, $verificationUrl);
+        }
+
+        $hospital = Hospital::find($notifiable->hospital_id);
+        $role = Role::find($notifiable->role_id);
+
         $vars = [
-            'url' => $url
+            'url' => $verificationUrl,
+            'user' => $notifiable,
+            'hospital_full_name' => $hospital->full_name,
+            'role' => $role->label
         ];
-////
         return (new MailMessage)
             ->subject('Подтверждение почты') // Тема письма
             ->markdown('emails.verify', $vars); // Шаблон письма
-//
-//        return (new MailMessage)
-//            ->subject(Lang::get('Подтверждение почты'))
-//            ->greeting('Здравствуйте!')
-//            ->line(Lang::get('Нажмите на кнопку ниже, чтобы подтвердить почту.'))
-//            ->action(Lang::get('Подтвердить почту'), $url)
-//            ->line(Lang::get('Если кнопа не работает, перейдите по ссылке'))
-//            ->line(Lang::get($url));
+//        return $this->buildMailMessage($verificationUrl);
+    }
 
+    protected function buildMailMessage($url)
+    {
+        $vars = ['url' => $url,];
+
+        return (new MailMessage)
+            ->subject('Подтверждение почты') // Тема письма
+            ->markdown('emails.verify', $vars); // Шаблон письма
     }
 
 
