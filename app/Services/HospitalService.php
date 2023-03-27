@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Http\Resources\HospitalResource;
 use App\Models\Hospital;
 use App\Models\HospitalRoom;
 use App\Models\Today;
@@ -12,20 +13,27 @@ class HospitalService {
     public function store($data) {
         try {
             DB::beginTransaction();
-            
             $rooms = $data['hospital_rooms'];
             unset($data['hospital_rooms']);
 
-            $newRooms = $this->getNewRooms($rooms);
-            
+            if($data['type'] == 2) {
+                unset($data['address']);
+                unset($data['geo_lat']);
+                unset($data['geo_lon']);
+            }
+
             $hospital = Hospital::create($data);
 
-            $todayData = [
-                'hospital_id' => $hospital->id,
-            ];
-            Today::create($todayData);
-            $hospital->rooms()->saveMany($newRooms);
-            
+            if ($data['type'] == 1) {
+                $newRooms = $this->getNewRooms($rooms);
+                $hospital->rooms()->saveMany($newRooms);
+            }
+
+            // $todayData = [
+            //     'hospital_id' => $hospital->id,
+            // ];
+            // Today::create($todayData);
+
             DB::commit();
 
         } catch(\Exception $e) {
@@ -43,17 +51,25 @@ class HospitalService {
             $rooms = $data['hospital_rooms'];
             unset($data['hospital_rooms']);
 
-            $updatedRooms = $this->getUpdatedRooms($rooms);
+            if($data['type'] == 2) {
+                unset($data['address']);
+                unset($data['geo_lat']);
+                unset($data['geo_lon']);
+            }
 
             $hospital->update($data);
             $hospital->fresh();
-            $hospital->rooms()->saveMany($updatedRooms);
+
+            if($data['type'] == 1) {
+                $updatedRooms = $this->getUpdatedRooms($rooms);
+                $hospital->rooms()->saveMany($updatedRooms);
+            }
 
             DB::commit();
         } catch(\Exception $e) {
             DB::rollBack();
             return $e->getMessage();
-        } 
+        }
 
         return $hospital;
     }
@@ -63,14 +79,15 @@ class HospitalService {
             DB::beginTransaction();
 
             $hospital->rooms()->delete();
-            $hospital->today()->delete();
+            $hospital->users()->delete();
+            // $hospital->today()->delete();
             $hospital->delete();
 
             DB::commit();
         } catch(\Exception $e) {
             DB::rollBack();
             return $e->getMessage();
-        } 
+        }
 
         return "delete successfully";
     }
@@ -97,5 +114,21 @@ class HospitalService {
             }
         }
         return $newRooms;
+    }
+
+
+    public function disable($data) {
+        try {
+            DB::beginTransaction();
+            $room = HospitalRoom::find($data['room_id']);
+            unset($data['room_id']);
+            $room->update($data);
+            $room->fresh();
+            DB::commit();
+        } catch(\Exception $e) {
+            DB::rollBack();
+            return $e->getMessage();
+        }
+        return  $room;
     }
 }

@@ -17,20 +17,29 @@
 <!--                PushDemo11-->
 <!--            </button>-->
 
-            <div v-if="warning" class="alert alert-warning" role="alert">
+            <div v-if="auth_user && warning" class="alert alert-warning" role="alert">
                 {{warning}}
+                <div>
+                    <div class="fw-bolder">Больницы, не указавщие дежурных врачей:</div>
+                    <ul>
+                        <li v-for="hospital in emptyOrderlies">{{hospital.hospital_name}}</li>
+                    </ul>
+                </div>
+                <div v-if="auth_user && auth_user.role_name == roles.admin">
+                    <div>
+                        <b>Только для админа</b>
+                        <br>
+                        <button type="button" @click="addOrderlies()" class="btn btn-primary">
+                            <font-awesome-icon icon="fa-solid fa-pencil" /> Добавить дежурных
+                        </button>
+                    </div>
+                </div>
             </div>
 
 
-
-
-
-
-
-
-
-            <div v-else-if="bookings.length > 0">
-                <div v-if="auth_user && auth_user.email_verified_at && [roles.admin, roles.dispatcher].includes(auth_user.role_name)">
+<!--            <div v-else-if="bookings.length > 0">-->
+            <div>
+                <div v-if="auth_user && auth_user.email_verified_at && [roles.admin, roles.smp].includes(auth_user.role_name)">
                     <button type="button" class="btn btn-primary" @click.prevent="addBooking()">
                         <font-awesome-icon icon="fa-solid fa-plus" /> Добавить бронь
                     </button>
@@ -75,12 +84,21 @@
                                             Операционная {{ room.name }}
                                         </div>
                                         <div class="row mb-3">
+<!--                                            :class="'bg-'+statuses[val.status].color+'-300'"-->
+<!--                                            :class="addCssClass(room, '')"-->
                                             <div class="col border p-3 rounded text-center"
                                                  v-for="(val, k) in room.val" :key="k"
-                                                 :class="'bg-'+statuses[val.status].color+'-300'"
-                                            >
-                                                <div><h4>{{$dayjs(val.time).format('HH:mm')}}</h4></div>
-                                                <div class="text-white fw-bolder">{{statuses[val.status].label}}</div>
+                                                 :class="addCssClass(room, val)">
+                                                <div>
+                                                    <h4>
+                                                        {{$dayjs(val.time).format('HH:mm')}}
+                                                        <div class="line_height05">-</div>
+                                                        {{ $dayjs(val.time).add(1, 'hour').format('HH:mm') }}
+                                                    </h4>
+                                                </div>
+                                                <div class="fw-bolder" :class="colorRoomOffTime(room,val) ? 'text-black' : 'text-white'">
+                                                    {{colorRoomOffTime(room,val) ? statuses[3].label : statuses[val.status].label}}
+                                                </div>
                                             </div>
                                             <!--                                        <div class="col d-none d-sm-block border bg-yellow-300 p-3 rounded text-center">-->
                                             <!--                                            <div><h4>14:00</h4></div>-->
@@ -158,40 +176,168 @@
                                     />
                                     <span v-if="v$.disease_id.$error" :class="v$.disease_id.$error ? 'text-danger' : ''">
                                       Поле диагноз обязательное поле для заполнения
-                                </span>
+                                    </span>
                                 </div>
                                 <div class="mb-3">
-                                    <button type="submit" :disabled="processing" @click.prevent="hospitalSearch()"
-                                            class="btn btn-primary btn-block">
-                                        {{ processing ? wait : "Поиск ближайшей больницы" }}
-                                    </button>
+                                    <label class="col-form-label">Состояние пациента</label>
+                                    <Multiselect
+                                        v-model="v$.condition_id.$model"
+                                        :class="v$.condition_id.$error ? 'border-danger' : ''"
+                                        :close-on-select="true"
+                                        :hide-selected="false"
+                                        label="name"
+                                        valueProp="id"
+                                        :options="conditions"
+                                    />
+                                    <span v-if="v$.condition_id.$error" :class="v$.condition_id.$error ? 'text-danger' : ''">
+                                      Поле состояние пациента обязательное поле для заполнения
+                                    </span>
                                 </div>
+
+<!--                                <div class="mb-3">-->
+<!--                                    <button type="submit" :disabled="processing" @click.prevent="hospitalSearch()"-->
+<!--                                            class="btn btn-primary btn-block">-->
+<!--                                        {{ processing ? wait : "Поиск ближайшей больницы" }}-->
+<!--                                    </button>-->
+<!--                                </div>-->
                             </form>
 
                             <!--                        После того как нашли ближайщую свободную больницу-->
-                            <div v-if="free_hospital">
-                                <h4>Ближайщая свободная больница</h4>
-                                <div class="fs-4 fw-bolder">{{free_hospital.full_name}}<br></div>
-                                <div class="fs-5 fw-bolder">{{free_hospital.address}}<br></div>
-                                <div class="fs-4">
-                                    Забронировать на
-                                    <div class="form-check form-check-inline" v-for="el in 3">
-                                        <input class="form-check-input" type="radio"
-                                               name="inlineRadioOptions" :id="'inlineRadio4'+el"
-                                               :value="el" v-model="clock">
-                                        <label class="form-check-label" :for="'inlineRadio4'+el">{{el}}</label>
-                                    </div>
-                                    часа
-                                </div>
-                            </div>
+<!--                            <div v-if="free_hospital">-->
+<!--                                <h4>Ближайщая свободная больница</h4>-->
+<!--                                <div class="fs-4 fw-bolder">{{free_hospital.full_name}}<br></div>-->
+<!--                                <div class="fs-5 fw-bolder">{{free_hospital.address}}<br></div>-->
+<!--                                <div class="fs-4">-->
+<!--                                    Забронировать на-->
+<!--                                    <div class="form-check form-check-inline" v-for="el in 3">-->
+<!--                                        <input class="form-check-input" type="radio"-->
+<!--                                               name="inlineRadioOptions" :id="'inlineRadio4'+el"-->
+<!--                                               :value="el" v-model="clock">-->
+<!--                                        <label class="form-check-label" :for="'inlineRadio4'+el">{{el}}</label>-->
+<!--                                    </div>-->
+<!--                                    часа-->
+<!--                                </div>-->
+<!--                            </div>-->
 
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" @click.prevent="closeModal()">Отмена</button>
-                            <button v-if="free_hospital" type="button" :disabled="processing"
+<!--                            <button v-if="free_hospital" type="button" :disabled="processing"-->
+<!--                                    @click.prevent="saveBooking()" class="btn btn-primary">-->
+<!--                                {{ processing ? wait : "Забронировать" }}-->
+<!--                            </button>-->
+                            <button type="button" :disabled="processing"
                                     @click.prevent="saveBooking()" class="btn btn-primary">
                                 {{ processing ? wait : "Забронировать" }}
                             </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Modal Orderly -->
+            <div class="modal fade" id="modalOrderlyHospital"
+                 data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalOrderlyLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalOrderlyLabel">
+                                Добавить дежурных
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="alert alert-primary">
+                                Дежурные на {{$dayjs().set('hour', 8).set('minute', 0).format('DD.MM.YYYY HH:mm')}} - {{$dayjs().add(1, 'day').set('hour', 8).set('minute', 0).format('DD.MM.YYYY HH:mm')}}
+                            </div>
+                            <form class="row">
+                                <div class="form-group row my-1">
+                                    <label class="col-sm-5 col-form-label fw-bold">
+                                        Выберите больницу
+                                    </label>
+                                    <div class="col-sm-7">
+                                        <select class="form-control form-select" v-model="v$.hospital_id.$model"
+                                                :class="v$.hospital_id.$error ? 'border-danger' : ''">
+                                            <option v-for="hospital in emptyOrderlies" :key="hospital.hospital_id"
+                                                    :value="hospital.hospital_id">
+                                                {{ hospital.hospital_name }}
+                                            </option>
+                                        </select>
+                                        <span v-if="v$.hospital_id.$error" class="text-danger">
+                                          Выберите больницу обязательное поле для заполнения
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row my-1">
+                                    <label class="col-sm-5 col-form-label fw-bold">
+                                        Деж. кардиолог
+                                    </label>
+                                    <div class="col-sm-7">
+                                        <select class="form-control form-select" v-model="v$.cardiologist_id.$model"
+                                                :class="v$.cardiologist_id.$error ? 'border-danger' : ''">
+                                            <option v-for="cardiologist in cardiologists" :key="cardiologist.id"
+                                                    :value="cardiologist.id">
+                                                {{ cardiologist.last_name }} {{cardiologist.first_name}} {{cardiologist.patronymic}}
+                                            </option>
+                                        </select>
+                                        <span v-if="v$.cardiologist_id.$error" class="text-danger">
+                                          Деж. кардиолог обязательное поле для заполнения
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row my-1">
+                                    <label class="col-sm-5 col-form-label fw-bold">
+                                        Деж. хирург
+                                    </label>
+                                    <div class="col-sm-7">
+                                        <select class="form-control form-select" v-model="v$.surgeon_id.$model"
+                                                :class="v$.surgeon_id.$error ? 'border-danger' : ''">
+                                            <option v-for="surgeon in surgeons" :key="surgeon.id" :value="surgeon.id">
+                                                {{ surgeon.last_name }} {{surgeon.first_name}} {{surgeon.patronymic}}
+                                            </option>
+                                        </select>
+                                        <span v-if="v$.surgeon_id.$error" class="text-danger">
+                                          Деж. хирург обязательное поле для заполнения
+                                        </span>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                            <button type="button" @click.prevent="updateOrderly()" :disabled="processing" class="btn btn-primary btn-block">
+                                {{ processing ? wait : "Сохранить" }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Hospital Address -->
+            <div class="modal fade" id="modalAddressHospital"
+                 data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalAddressLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalAddressLabel">
+                                Бронь создана
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body" v-if="messages">
+                           <div class="fs-4 fw-bold">{{messages.hospital}}</div>
+                           <div class="fs-5 fw-bolder">{{messages.address}}</div>
+                           <div class="fs-5"><span class="fw-bolder">Диагноз:</span> {{messages.disease}}</div>
+                           <div class="fs-5"><span class="fw-bolder">Состояние пациента:</span> {{messages.condition}}</div>
+                           <div class="fs-5"><span class="fw-bolder">Время брониования:</span> {{messages.time}}</div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ОК</button>
                         </div>
                     </div>
                 </div>
@@ -208,7 +354,7 @@ import {ref} from 'vue';
 import useValidate from '@vuelidate/core'
 import { required} from '@vuelidate/validators'
 import { Modal } from 'bootstrap'
-import {roles, wait, statuses, server_url} from "../consts";
+import {roles, wait, statuses, server_url, hospital_type} from "../consts";
 
 export default {
     name: "HospitalsCard",
@@ -236,6 +382,7 @@ export default {
             token: import.meta.env.VITE_APP_DADATA_API_KEY,
             suggestions: true,
             disease_id: null,
+            condition_id: null,
             processing: false,
             timeout: null,
             myModal: null,
@@ -244,11 +391,24 @@ export default {
             warning: null,
             bookings: [],
             diseases: [],
+            conditions: [],
             free_hospital: null,
+            emptyOrderlies: [],
+            hospital_id: null,
+            surgeon_id: null,
+            cardiologist_id: null,
+            hospitals: [],
+            myModalOrderly: null,
+            cardiologists: [],
+            surgeons: [],
+            myModalAddress: null,
+            messages: null,
+
             roles,
             wait,
             statuses,
             server_url,
+            hospital_type,
         }
     },
     validations() {
@@ -256,6 +416,33 @@ export default {
             suggestion: { required },
             query: { required },
             disease_id: { required },
+            condition_id: { required },
+
+            hospital_id: { required },
+            cardiologist_id: { required },
+            surgeon_id: { required },
+        }
+    },
+    watch: {
+        hospital_id (newValue, oldValue) {
+            if (newValue !== oldValue) {
+                this.errs = null;
+                this.cardiologist_id = null;
+                this.surgeon_id = null;
+                axios.get(`/api/operators/edit`,{
+                    headers: {Authorization: localStorage.getItem('access_token')},
+                    params: {hospital_id: newValue}
+                }).then(res => {
+                    console.log(res);
+                    this.cardiologists = res.data.cardiologist;
+                    this.surgeons = res.data.surgeons;
+                }).catch(err => {
+                    this.errorsMessage(err);
+                }).finally(() => {
+                    this.myModalOrderly.show();
+                });
+            }
+
         }
     },
     computed: {
@@ -267,40 +454,45 @@ export default {
         }
     },
     mounted() {
-        // const socket = io(this.server_url);
-        //
-        // socket.on('bookings-update:App\\Events\\BookingsUpdateEvent', (data) => {
-        //     let arr = data.result;
-        //     this.updateHospitalRoomStatus(arr);
-        // });
-        // socket.on('todays-update:App\\Events\\TodaysUpdateEvent', (data) => {
-        //     let orderly = data.result;
-        //     this.updateHospitalOrderly(orderly);
-        // });
-        // socket.on('bookings-store:App\\Events\\BookingsStoreEvent', (data) => {
-        //     // console.log(data);
-        //     let arr = data.result;
-        //     this.updateHospitalRoomStatus(arr);
-        // });
+        const socket = io(this.server_url);
+
+        socket.on('bookings-update:App\\Events\\BookingsUpdateEvent', (data) => {
+            let arr = data.result;
+            this.updateHospitalRoomStatus(arr);
+        });
+        socket.on('operators-update:App\\Events\\OperatorsUpdateEvent', (data) => {
+            let orderly = data.result;
+            this.updateHospitalOrderly(orderly);
+        });
+        socket.on('bookings-store:App\\Events\\BookingsStoreEvent', (data) => {
+            // console.log(data);
+            let arr = data.result;
+            // this.updateHospitalRoomStatus(arr);
+            this.updateHospitalRoomStatus(arr.bookings)
+        });
 
         this.getData();
     },
     beforeUnmount() {
         if (this.myModal) this.myModal.hide();
+        if (this.myModalOrderly) this.myModalOrderly.hide();
+        if (this.myModalAddress) this.myModalAddress.hide();
     },
     methods: {
         getData() {
-            axios.get(`/api/todays/`,{
-                headers: {Authorization: localStorage.getItem('access_token')}
+            axios.get(`/api/bookings`,{
+                headers: {Authorization: localStorage.getItem('access_token')},
             }).then(res => {
                 console.log(res);
-                let element = res.data.data.find(el => el.surgeon_id == '')
-                if (typeof element !== 'undefined')  {
-                    this.warning = `${element.hospital_name} не указала дежурных врачей!
-                    Дождитесь пока укажут дежурных врачей, после чего вы получите возможность увидеть
-                     график свободных операционных.`
-                } else {
-                    this.getBooking()
+                this.bookings = res.data;
+                this.bookings.forEach(el => {
+                    if (el.surgeon_id == 'default') {
+                        this.emptyOrderlies.push({hospital_id: el.hospital_id, hospital_name: el.hospital_name})
+                    }
+                });
+                if (this.emptyOrderlies.length > 0) {
+                    this.warning = `Не указаны дежурные врачи больниц!
+                    Врачи не получат уведомления о забронированных операционных.`
                 }
             }).catch(err => {
                 this.errorsMessage(err);
@@ -314,7 +506,7 @@ export default {
                 this.bookings = res.data;
             }).catch(err => {
                 this.errorsMessage(err);
-            });
+            }).finally(() => this.successPage = true);
         },
         updateHospitalRoomStatus(arr) {
             let hospitalIndex = this.bookings.findIndex(element => element.hospital_id == arr[0].hospital_id);
@@ -330,31 +522,30 @@ export default {
                 }
             }
         },
-        updateHospitalOrderly(data) {
-            let hospitalIndex = this.bookings.findIndex(element => element.hospital_id == data.hospital_id);
-            if (hospitalIndex != -1) {
-                this.bookings[hospitalIndex].cardiologist_id = data.cardiologist_id
-                this.bookings[hospitalIndex].cardiologist_last_name = data.cardiologist_last_name
-                this.bookings[hospitalIndex].cardiologist_first_name = data.cardiologist_first_name
-                this.bookings[hospitalIndex].cardiologist_patronymic = data.cardiologist_patronymic
-                this.bookings[hospitalIndex].surgeon_id = data.surgeon_id
-                this.bookings[hospitalIndex].surgeon_last_name = data.surgeon_last_name
-                this.bookings[hospitalIndex].surgeon_first_name = data.surgeon_first_name
-                this.bookings[hospitalIndex].surgeon_patronymic = data.surgeon_patronymic
-            }
-        },
         addBooking() {
+            this.v$.$reset();
             this.free_hospital = null
             this.errs = null;
-            this.myModal = new Modal(document.getElementById('modalBooking'), {});
-            axios.get(`/api/bookings/create/disease`,{
-                headers: {Authorization: localStorage.getItem('access_token')},
-            }).then(res => {
-                console.log(res);
-                this.diseases = res.data.disease;
-            }).catch(err => {
-                this.errorsMessage(err);
-            }).finally(() => this.myModal.show());
+            this.suggestion = '';
+            this.query = '';
+            this.disease_id = null;
+            this.condition_id = null;
+
+            if (!this.myModal) {
+                this.myModal = new Modal(document.getElementById('modalBooking'), {});
+                axios.get(`/api/bookings/create/disease`,{
+                    headers: {Authorization: localStorage.getItem('access_token')},
+                }).then(res => {
+                    console.log(res);
+                    this.diseases = res.data.disease;
+                    this.conditions = res.data.conditions;
+                }).catch(err => {
+                    this.errorsMessage(err);
+                }).finally(() => this.myModal.show());
+            } else {
+                this.myModal.show()
+            }
+
         },
         hospitalSearch() {
             this.errs = null;
@@ -378,39 +569,34 @@ export default {
             }
         },
         saveBooking() {
-            this.processing = true;
             this.errs = null;
-            axios.post(`/api/bookings`,
-                {
-                    disease_id: this.disease_id,
-                    dispatcher_id: this.auth_user.id,
-                    hospital_id: this.free_hospital.id,
-                    booking_hours: this.clock
-                },
-                {headers: {Authorization: localStorage.getItem('access_token')}
-            }).then(res => {
-                console.log(res);
-                let data = res.data.data;
-                let hospital_index = this.bookings.findIndex(el => el.hospital_id == data[0].hospital_id);
-                let room_index = this.bookings[hospital_index].rooms.findIndex(el => el.name == data[0].room_name)
-                let time_index = this.bookings[hospital_index].rooms[room_index].val.findIndex(el => el.time == data[0].date_time)
-                for (let i = time_index; i < time_index+data.length; i++) {
-                    if (i >= this.bookings[hospital_index].rooms[room_index].val.length) {
-                        this.bookings[hospital_index].rooms[room_index].val[i-this.bookings[hospital_index].rooms[room_index].val.length].status = data[0].status;
-                    } else {
-                        this.bookings[hospital_index].rooms[room_index].val[i].status = data[0].status;
+            this.v$.$validate();
+            if (!this.v$.suggestion.$error && !this.v$.disease_id.$error && !this.v$.condition_id.$error) {
+                this.processing = true;
+                axios.post(`/api/bookings`,
+                    {
+                        geo_lat: this.suggestion.data.geo_lat,
+                        geo_lon: this.suggestion.data.geo_lon,
+                        disease_id: this.disease_id,
+                        condition_id: this.condition_id,
+                    },
+                    {
+                        headers: {Authorization: localStorage.getItem('access_token')}
+                    }).then(res => {
+                    console.log(res);
+                    this.updateHospitalRoomStatus(res.data.bookings)
+                    this.messages = res.data.messages;
+                    if (!this.myModalAddress) {
+                        this.myModalAddress = new Modal(document.getElementById('modalAddressHospital'), {});
                     }
-                }
-                this.success = 'Бронь успешно дабавлена.';
-                setTimeout(()=>{
-                    this.success = null;
-                },4000)
-                this.myModal.hide();
-            }).catch(err => {
-                this.errorsMessage(err);
-            }).finally(() => {
-                this.processing = false;
-            })
+                    this.myModal.hide();
+                    this.myModalAddress.show();
+                }).catch(err => {
+                    this.errorsMessage(err);
+                }).finally(() => {
+                    this.processing = false;
+                });
+            }
 
         },
         closeModal() {
@@ -452,7 +638,7 @@ export default {
             }, time)
         },
         pushDemo() {
-console.log('push.demo')
+            console.log('push.demo')
             axios.get('/api/push', {
                 headers: {Authorization: localStorage.getItem('access_token')}
             }).then(res => {
@@ -462,79 +648,101 @@ console.log('push.demo')
                 console.log(err.response)
             })
         },
+        addOrderlies() {
+            this.v$.$reset();
+            if (!this.myModalOrderly) {
+                this.myModalOrderly = new Modal(document.getElementById('modalOrderlyHospital'), {});
+            }
+            this.myModalOrderly.show()
+        },
+        updateOrderly() {
+            this.errs = null
+            this.success = null;
+            this.v$.$validate() // checks all inputs
+            // if (!this.v$.$error) {
+            if (!this.v$.hospital_id.$error && !this.v$.surgeon_id.$error && !this.v$.cardiologist_id.$error) {
+                console.log(this.$dayjs().format('YYYY-MM-DD HH:mm:ss'))
+                this.processing = true;
+                axios.post(`/api/operators`,
+                    {
+                        date: this.$dayjs().set('hour', 0).set('minute', 0).set('second', 0).format('YYYY-MM-DD HH:mm:ss'),
+                        hospital_id: this.hospital_id,
+                        cardiologist_id: this.cardiologist_id,
+                        surgeon_id: this.surgeon_id,
+                    },
+                    {
+                        headers: {Authorization: localStorage.getItem('access_token')}
+                    }).then(res => {
+                    console.log(res);
+                    this.updateHospitalOrderly(res.data.data);
+                }).catch(err => {
+                    this.errorsMessage(err);
+                }).finally(() => {
+                    this.processing = false;
+                    this.myModalOrderly.hide();
+                })
+            } else {
+                window.scrollTo(0,0);
+            }
+        },
+        updateHospitalOrderly(data) {
+            if (this.$dayjs(data.date).format("YY-MM-DD") == this.$dayjs().format('YY-MM-DD')
+                ||
+                (this.$dayjs().format('YY-MM-DD') > this.$dayjs(data.date).format("YY-MM-DD")
+                    && Number(this.$dayjs().format('HH')) < 8)) {
+                this.bookings.find(el => {
+                    if (el.hospital_id == data.hospital_id) {
+                        el.cardiologist_id = data.cardiologist_id;
+                        el.cardiologist_first_name = data.cardiologist_first_name;
+                        el.cardiologist_last_name = data.cardiologist_last_name;
+                        el.cardiologist_patronymic = data.cardiologist_patronymic;
+
+                        el.surgeon_id = data.surgeon_id;
+                        el.surgeon_first_name = data.surgeon_first_name;
+                        el.surgeon_last_name = data.surgeon_last_name;
+                        el.surgeon_patronymic = data.surgeon_patronymic;
+                    }
+                });
+                let index = this.emptyOrderlies.findIndex(el => el.hospital_id == data.hospital_id);
+                if (index > -1) {
+                    this.emptyOrderlies.splice(index, 1);
+                }
+                if (this.emptyOrderlies.length == 0) {
+                    this.warning = false;
+                }
+            }
+        },
+        addCssClass(room, val) {
+            let columnColor = this.colorRoomOffTime(room,val)
+                    ? 'bg-gray-300' : val.status == 0
+                        ? 'bg-green-300' : val.status == 1
+                            ? 'bg-red-300' : 'bg-yellow-300';
+
+
+            let str = `${columnColor}`
+
+            return str
+        },
+        colorRoomOffTime(room, val ) {
+            if (!room.start) return false;
+            if (room.start.substr(0, 2) == room.end.substr(0, 2)) {
+                return false
+            } else if (Number(room.start.substr(0, 2)) < Number(room.end.substr(0, 2))) {
+                if (this.$dayjs(val.time).get('hour') >= Number(room.start.substr(0, 2))
+                    && this.$dayjs(val.time).get('hour') <= Number(room.end.substr(0, 2))-1) {
+                    return false
+                } else return true
+            } else { //start > end
+                if ((this.$dayjs(val.time).get('hour') >= Number(room.start.substr(0, 2))
+                        && this.$dayjs(val.time).get('hour') <= 23) ||
+                    (this.$dayjs(val.time).get('hour') <= Number(room.end.substr(0, 2))-1)) {
+                    return false
+                } else return true
+            }
+        },
     },
 
 
 
 }
 </script>
-
-<!--<style>-->
-<!--.autocomplete {-->
-<!--    /*the container must be positioned relative:*/-->
-<!--    position: relative;-->
-<!--    /*display: inline-block;*/-->
-<!--}-->
-
-<!--.autocomplete-items {-->
-<!--    position: absolute;-->
-<!--    border: 1px solid #d4d4d4;-->
-<!--    border-bottom: none;-->
-<!--    border-top: none;-->
-<!--    z-index: 99;-->
-<!--    /*position the autocomplete items to be the same width as the container:*/-->
-<!--    top: 100%;-->
-<!--    left: 0;-->
-<!--    right: 0;-->
-<!--}-->
-<!--.autocomplete-items div {-->
-<!--    /*padding: 10px;*/-->
-<!--    cursor: pointer;-->
-<!--    background-color: #fff;-->
-<!--    border-bottom: 1px solid #d4d4d4;-->
-<!--}-->
-<!--autocomplete-disabled-item  div {-->
-<!--    border-bottom: 1px solid #d4d4d4;-->
-<!--}-->
-<!--.autocomplete-items div:hover {-->
-<!--    /*when hovering an item:*/-->
-<!--    background-color: #e9e9e9;-->
-<!--}-->
-
-<!--.bg-gray-300 {-->
-<!--    background-color: #e9ecef;-->
-<!--}-->
-<!--.bg-red-400 {-->
-<!--    background-color: #e35d6a;-->
-<!--}-->
-<!--.bg-green-400 {-->
-<!--    background-color: #479f76;-->
-<!--}-->
-<!--.bg-yellow-400 {-->
-<!--    background-color: #ffcd39;-->
-<!--}-->
-
-<!--/*.bg-red-300 {*/-->
-<!--/*    background-color: #ea868f;*/-->
-<!--/*}*/-->
-<!--/*.bg-green-300 {*/-->
-<!--/*    background-color: #75b798;*/-->
-<!--/*}*/-->
-<!--/*.bg-yellow-300 {*/-->
-<!--/*    background-color: #ffda6a;*/-->
-<!--/*}*/-->
-
-<!--.bg-red-200 {-->
-<!--    background-color: #f1aeb5;-->
-<!--}-->
-<!--.bg-green-200 {-->
-<!--    background-color: #a3cfbb;-->
-<!--}-->
-<!--.bg-yellow-200 {-->
-<!--    background-color: #ffe69c;-->
-<!--}-->
-<!--</style>-->
-
-<style scoped>
-
-</style>

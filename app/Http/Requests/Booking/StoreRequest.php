@@ -25,9 +25,10 @@ class StoreRequest extends FormRequest
     {
         return [
             'disease_id' => 'required|integer',
-            'dispatcher_id' => 'required|integer',
+            'condition_id' => 'required|integer',
+            'user_id' => 'required|integer', //!
             'hospital_id' => 'required|integer',
-            'booking_hours' => 'required|integer',
+            'date_time' => 'required|string',
         ];
 
     }

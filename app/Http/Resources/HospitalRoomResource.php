@@ -17,6 +17,7 @@ class HospitalRoomResource extends JsonResource
         return [
             'id' => $this->id,
             'hospital_id' => $this->hospital_id,
+            'condition' => $this->condition,
             'name' => $this->name,
         ];
     }

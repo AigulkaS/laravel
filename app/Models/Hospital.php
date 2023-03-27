@@ -14,7 +14,7 @@ class Hospital extends Model
     use Filterable;
     
     protected $guarded = false;
-    public $timestamps = false;
+    public $timestamps = true;
 
     public function rooms() {
         return $this->hasMany(HospitalRoom::class, 'hospital_id', 'id');
@@ -24,7 +24,8 @@ class Hospital extends Model
         return $this->hasMany(Booking::class);
     }
 
-    public function today() {
-        return $this->hasOne(Today::class, 'hospital_id', 'id');
+    public function users() {
+        return $this->hasMany(User::class);
     }
+
 }

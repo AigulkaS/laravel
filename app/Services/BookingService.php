@@ -2,10 +2,10 @@
 
 namespace App\Services;
 
-use App\Http\Resources\BookingResource;
 use App\Models\Booking;
 use App\Models\Hospital;
-use App\Models\Today;
+use App\Models\Operator;
+use App\Models\User;
 use DateInterval;
 use DateTime;
 use Illuminate\Support\Facades\DB;
@@ -13,7 +13,15 @@ use Illuminate\Support\Facades\DB;
 class BookingService {
 
     public function getAllHospitalsInfo() {
-        $hospitals = Hospital::all();
+        $now = new DateTime();
+        $nowHour = $now->format('H');
+        if ($nowHour >=0 && $nowHour <8) {
+            $now = $now->modify('-1 day');
+        }
+        $now = $now->format('Y-m-d 00:00:00');
+
+        // $hospitals = Hospital::all();
+        $hospitals = Hospital::where('type',1)->get();
 
         $data = [];
         foreach($hospitals as $hospital) {
@@ -48,22 +56,29 @@ class BookingService {
 
                 $arrRoom[] = [
                     'id' => $room->id,
+                    'condition' =>$room->condition,
                     'name' => $room->name,
+                    'start' => $room->start,
+                    'end' => $room->end,
                     'val' => $val,
                 ];
             }
 
+            $operators = Operator::where('hospital_id', $hospital->id)
+                        ->where('date', $now)->get();
+            $operator = $operators->isEmpty() ? null : $operators[0];
+
             $data[] = [
                 'hospital_id' => $hospital->id,
                 'hospital_name' => $hospital->short_name,
-                'surgeon_id' => $hospital->today->surgeon_id,
-                'surgeon_last_name' => $hospital->today->surgeon->last_name,
-                'surgeon_first_name' => $hospital->today->surgeon->first_name,
-                'surgeon_patronymic' => $hospital->today->surgeon->patronymic,
-                'cardiologist_id' => $hospital->today->cardiologist_id,
-                'cardiologist_last_name' => $hospital->today->cardiologist->last_name,
-                'cardiologist_first_name' => $hospital->today->cardiologist->first_name,
-                'cardiologist_patronymic' => $hospital->today->cardiologist->patronymic,
+                'surgeon_id' => $operator == null ? 'default' : $operator->surgeon_id,
+                'surgeon_last_name' => $operator == null ? 'default' : $operator->surgeon->last_name,
+                'surgeon_first_name' => $operator == null ? 'default' : $operator->surgeon->first_name,
+                'surgeon_patronymic' => $operator == null ? 'default' : $operator->surgeon->patronymic,
+                'cardiologist_id' => $operator == null ? 'default' : $operator->cardiologist_id,
+                'cardiologist_last_name' => $operator == null ? 'default' : $operator->cardiologist->last_name,
+                'cardiologist_first_name' => $operator == null ? 'default' : $operator->cardiologist->first_name,
+                'cardiologist_patronymic' => $operator == null ? 'default' : $operator->cardiologist->patronymic,
                 'rooms' => $arrRoom,
             ];
         }
@@ -80,12 +95,15 @@ class BookingService {
         foreach($rooms as $room) {
             $val = [];
             $start = new DateTime();
-            $start->setTime(0,0,0);
+            $startHour = $start->format('H');
+            if ($startHour >=0 && $startHour <8) {
+                $start = $start->modify('-1 day');
+            }
+            $start->setTime(8,0,0);
 
             $i = 0;
             do {
                 $time = $start->format('Y-m-d H:00:00');
-
                 $bookings = Booking::where('hospital_id', $hospital->id)
                     ->where('room_id', $room->id)
                     ->where('date_time', $time)->get();
@@ -102,39 +120,71 @@ class BookingService {
 
                     $start->add(new DateInterval('PT1H'));
                     $i++;
-            } while($i <24);
+            } while($i <48);
 
             $arrRoom[] = [
                 'id' => $room->id,
+                'condition' =>$room->condition,
                 'name' => $room->name,
+                'start' => $room->start,
+                'end' => $room->end,
                 'val' => $val,
             ];
+        }
+
+        $arrDate=[];
+        $now = new DateTime();
+        $nowHour = $now->format('H');
+        if ($nowHour >=0 && $nowHour <8) {
+            $now = $now->modify('-1 day');
+        }
+        for ($i = 0; $i<2; $i++) {
+            $operators = Operator::where('hospital_id', $hospital->id)
+                ->where('date', $now->format('Y-m-d 00:00:00'))->get();
+            $operator = $operators->isEmpty() ? null : $operators[0];
+            $arrDate[] = [
+                'date' => $now->format('Y-m-d 00:00:00'),
+                'surgeon_id' => $operator == null ? 'default' : $operator->surgeon_id,
+                'surgeon_last_name' => $operator == null ? 'default' : $operator->surgeon->last_name,
+                'surgeon_first_name' => $operator == null ? 'default' : $operator->surgeon->first_name,
+                'surgeon_patronymic' => $operator == null ? 'default' : $operator->surgeon->patronymic,
+                'cardiologist_id' => $operator == null ? 'default' : $operator->cardiologist_id,
+                'cardiologist_last_name' => $operator == null ? 'default' : $operator->cardiologist->last_name,
+                'cardiologist_first_name' => $operator == null ? 'default' : $operator->cardiologist->first_name,
+                'cardiologist_patronymic' => $operator == null ? 'default' : $operator->cardiologist->patronymic,
+            ];
+            $now = $now->modify('+1 day');
         }
 
         return [
             'hospital_id' => $hospital->id,
             'hospital_name' => $hospital->short_name,
-            'surgeon_id' => $hospital->today->surgeon_id,
-            'surgeon_last_name' => $hospital->today->surgeon->last_name,
-            'surgeon_first_name' => $hospital->today->surgeon->first_name,
-            'surgeon_patronymic' => $hospital->today->surgeon->patronymic,
-            'cardiologist_id' => $hospital->today->cardiologist_id,
-            'cardiologist_last_name' => $hospital->today->cardiologist->last_name,
-            'cardiologist_first_name' => $hospital->today->cardiologist->first_name,
-            'cardiologist_patronymic' => $hospital->today->cardiologist->patronymic,
+            'dates' => $arrDate,
             'rooms' => $arrRoom,
         ];
     }
 
-    public function getNearestHospital($data) {
+    public function getDateTimeForBook() {
+        $dateTime = new DateTime();
+
+        $dateTime->add(new DateInterval('PT20M'));
+        $dateMinute = $dateTime->format('i');
+        $diff = 60 - $dateMinute;
+        if ($diff <= 5) {
+            $dateTime->add(new DateInterval('PT5M'));
+        }
+
+        $dateTime = $dateTime->format('Y-m-d H:00:00');
+        return $dateTime;
+    }
+
+    public function getNearestHospital($data, $dateTime) {
         $geo_lat = floatval($data['geo_lat']);
 
         $geo_lon = floatval($data['geo_lon']);
 
-        $dateTime = new DateTime();
-        $dateTime = $dateTime->format('Y-m-d H:00:00');
-
-        $hospitals = Hospital::all()->toArray();
+        // $hospitals = Hospital::all()->toArray();
+        $hospitals = Hospital::where('type',1)->get()->toArray();
 
         $arrBookedHospitals = [];
         $bookings = Booking::where('date_time', $dateTime)
@@ -142,7 +192,7 @@ class BookingService {
                         $query->where('status', 1)
                               ->orWhere('status', 2);
                     })
-                    ->get();   
+                    ->get();
         foreach($bookings as $booking) {
             $hospital = $booking->hospital;
 
@@ -246,18 +296,21 @@ class BookingService {
 }
 
     public function store($data) {
+        // $start->add(new DateInterval('PT1H'));PT5M
         $storeData = [
             'hospital_id' => $data['hospital_id'],
             'disease_id' => $data['disease_id'],
-            'dispatcher_id' => $data['dispatcher_id'],
+            'condition_id' => $data['condition_id'],
+            'user_id' => $data['user_id'],
         ];
         $hospital = Hospital::find($data['hospital_id']);
         $rooms = $hospital->rooms;
-        $dateTime = new DateTime();
+        // $dateTime = new DateTime();
+        $dateTime = $data['date_time'];
         if (count($rooms)>1) {
             $room_id = null;
             foreach($rooms as $room) {
-                $booking = Booking::where('date_time', $dateTime->format('Y-m-d H:00:00'))
+                $booking = Booking::where('date_time', $dateTime)
                     ->where('hospital_id', $hospital->id)
                     ->where('room_id', $room->id)
                     ->first();
@@ -285,10 +338,19 @@ class BookingService {
             $storeData['room_id'] = $rooms[0]->id;
         }
 
-        $today = Today::where('hospital_id', $hospital->id)->first();
 
-        $storeData['surgeon_id'] = $today->surgeon_id;
-        $storeData['cardiologist_id'] = $today->cardiologist_id;
+        $now = DateTime::createFromFormat('Y-m-d H:i:s', $dateTime);
+        // $now = new DateTime();
+        $nowHour = $now->format('H');
+        if ($nowHour >=0 && $nowHour <8) {
+            $now = $now->modify('-1 day');
+        }
+        $operator = Operator::where('hospital_id', $hospital->id)
+                ->where('date', $now->format('Y-m-d 00:00:00'))->first();
+        // $today = Today::where('hospital_id', $hospital->id)->first();
+
+        $storeData['surgeon_id'] = $operator->surgeon_id;
+        $storeData['cardiologist_id'] = $operator->cardiologist_id;
         if($data['disease_id'] == 1) {
             $storeData['status'] = 1;
         } else {
@@ -298,7 +360,11 @@ class BookingService {
 
         try {
             DB::beginTransaction();
-            for ($i = 0; $i < $data['booking_hours']; $i++) {
+            $dateTime = DateTime::createFromFormat('Y-m-d H:i:s', $dateTime);
+
+            //! for ($i = 0; $i < $data['booking_hours']; $i++) {
+            //! BOOKING FOR 2 HOURS
+            for ($i = 0; $i < 2; $i++) {
                 $storeData['date_time'] = $dateTime->format('Y-m-d H:00:00');
                 $booking = Booking::where('date_time', $storeData['date_time'])
                     ->where('hospital_id', $hospital->id)
@@ -307,6 +373,7 @@ class BookingService {
                 if ($booking == null) {
                     $booking = Booking::create($storeData);
                 } else {
+                    //! +1 hour, what info
                     $booking->update($storeData);
                     $booking->fresh();
                 }
@@ -320,58 +387,427 @@ class BookingService {
             return $e->getMessage();
         }
         return collect($bookings);
+    }
+
+    public function storeNew($data) {
+        $dateTime = new DateTime();
+        $dateTime->add(new DateInterval('PT20M'));
+        $geo_lat = floatval($data['geo_lat']);
+        $geo_lon = floatval($data['geo_lon']);
+        $nowHour = $dateTime->format('H');
+
+        $bookings = Booking::where('date_time', $dateTime->format('Y-m-d H:00:00'))->get();
+
+        $hospitalsData=[];
+        $hospitals = Hospital::where('type',1)
+                            ->whereHas('rooms', function ($query) {
+                                $query->where('condition', 1);
+                            })->get();
+
+        foreach($hospitals as $hospital) {
+            foreach($hospital->rooms as $room) {
+                if ($room->start == null ||
+                    ($nowHour>= substr($room->start, 0, 2) && $nowHour < substr($room->end, 0, 2)
+                        && substr($room->end, 0, 2) - $nowHour > 1)) {
+
+                    $finded = false;
+
+                    foreach($bookings as $booking) {
+                        if ($booking->hospital_id == $hospital->id && $booking->room_id == $room->id) {
+                            $finded = true;
+                            break;
+                        }
+                    }
+
+                    if (!$finded) {
+                        $hospitalsData[] = [
+                            'hospital_id' => $hospital->id,
+                            'room_id' => $room->id,
+                            'geo_lat' => $hospital->geo_lat,
+                            'geo_lon' => $hospital->geo_lon,
+                        ];
+                    }
+
+                }
+            }
+        }
+
+        if (count($hospitalsData)==0) {
+            $bookings = Booking::where('date_time', $dateTime->format('Y-m-d H:00:00'))
+                    ->where('status', 2)
+                    ->get();
+            if ($bookings->isEmpty()) {
+                $hospitals = Hospital::where('type',1)
+                            ->whereHas('rooms', function ($query) {
+                                $query->where('condition', 1);
+                            })->get();
+                foreach($hospitals as $hospital) {
+                    foreach($hospital->rooms as $room) {
+                        if ($room->start == null ||
+                            ($nowHour>= substr($room->start, 0, 2) && $nowHour < substr($room->end, 0, 2)
+                             && substr($room->end, 0, 2) - $nowHour > 1)) {
+                            $addHospital = true;
+                            if ($room->end != null) {
+                                $roomDate = $dateTime->format('Y-m-d').' '.$room->end.':00';
+                                $bookingLast = Booking::where('date_time', $roomDate)->first();
+                                $addHospital = $bookingLast == null ? true : false;
+                            }
+                            if ($addHospital) {
+                                $hospitalsData[] = [
+                                    'hospital_id' => $hospital->id,
+                                    'room_id' => $room->id,
+                                    'geo_lat' => $hospital->geo_lat,
+                                    'geo_lon' => $hospital->geo_lon,
+                                ];
+                            }
+
+                        }
+                    }
+                }
+            } else {
+                foreach($bookings as $booking) {
+                    $room = $booking->room;
+                    if ($room->start == null ||
+                            ($nowHour>= substr($room->start, 0, 2) && $nowHour < substr($room->end, 0, 2)
+                             && substr($room->end, 0, 2) - $nowHour > 1)) {
+                        $addHospital = true;
+                        if ($room->end != null) {
+                            $roomDate = $dateTime->format('Y-m-d').' '.$room->end.':00';
+                            $bookingLast = Booking::where('date_time', $roomDate)->first();
+                            $addHospital = $bookingLast == null ? true : false;
+                        }
+                        if ($addHospital) {
+                            $hospitalsData[] = [
+                                'hospital_id' => $booking->hospital_id,
+                                'room_id' => $room->id,
+                                'geo_lat' => $booking->hospital->geo_lat,
+                                'geo_lon' => $booking->hospital->geo_lon,
+                            ];
+                        }
+                    }
+                }
+            }
+        }
+
+        $mainHospital = null;
+        if(count($hospitalsData) > 1) {
+            $min = null;
+            foreach($hospitalsData as $hospitalData) {
+                $dist = $this->getDistanceBetweenPoints($geo_lat, $geo_lon, floatval($hospitalData['geo_lat']), floatval($hospitalData['geo_lon']));
+                if ($min == null || $dist < $min) {
+                    $min = $dist;
+                    $mainHospital = $hospitalData;
+                }
+            }
+        } else {
+            $mainHospital = $hospitalsData[0];
+        }
+
+        $storeData = [
+            'hospital_id' => $mainHospital['hospital_id'],
+            'room_id' => $mainHospital['room_id'],
+            'status' => $data['disease_id'] == 1 ? 1 : 2,
+            'disease_id' => $data['disease_id'],
+            'condition_id' => $data['condition_id'],
+            'user_id' => auth('sanctum')->user()->id,
+            // 'user_id' => 1,
+
+        ];
+
+        $done = false;
+        $finded = false;
+        $bookingHours = 0;
+        $bookings = [];
+        try {
+            DB::beginTransaction();
+            $updateBookings =[];
+            do {
+                loop:
+                $storeData['date_time'] = $dateTime->format('Y-m-d H:00:00');
+
+                $booking = Booking::where('date_time', $dateTime->format('Y-m-d H:00:00'))
+                    ->where('hospital_id', $mainHospital['hospital_id'])
+                    ->where('room_id', $mainHospital['room_id'])
+                    ->first();
+
+                if ($booking != null) {
+                    if ($booking->status == 1) {
+                        $dateTime->add(new DateInterval('PT1H'));
+                        $done = true;
+                        goto loop;
+                    } else {
+                        if ($storeData['disease_id'] == 1) {
+                            $updateBookings[] = $booking;
+                        } else {
+                            $dateTime->add(new DateInterval('PT1H'));
+                            $done = true;
+                            goto loop;
+                        }
+                    }
+                } else {
+                    $finded = true;
+                }
+
+                if ($bookingHours<2) {
+                    $booking = Booking::create($storeData);
+                    $bookingHours++;
+                    $bookings[]=$booking;
+                }
+
+                if ($finded && ($bookingHours == 2 || ($done && $bookingHours == 1))) {
+                    break;
+                } else {
+                    $dateTime->add(new DateInterval('PT1H'));
+                }
+            } while(true);
+
+            foreach($updateBookings as $updateBooking) {
+                $room = $updateBooking->room;
+                $hour = $dateTime->format('H');
+                if ($room->start == null ||
+                    ($hour>= substr($room->start, 0, 2) && $hour < substr($room->end, 0, 2))) {
+                    $updateData = [
+                        "date_time" => $dateTime->format('Y-m-d H:00:00')
+                    ];
+                    $updateBooking->update($updateData);
+                    $updateBooking->fresh();
+                    $bookings[]=$updateBooking;
+                } else {
+                    $updateBooking->delete();
+                }
+                $dateTime->add(new DateInterval('PT1H'));
+            }
+            DB::commit();
+        } catch(\Exception $e) {
+            DB::rollBack();
+            return $e->getMessage();
+        }
+
+        return [
+            'hours' => $bookingHours,
+            'bookings' => collect($bookings)
+        ];
     }
 
     public function update($data) {
-        $storeData = [
-            'hospital_id' => $data['hospital_id'],
-            'disease_id' => $data['status'] == 0 ? 2 : $data['status'],
-            'status' => $data['status'],
-            'room_id' => $data['room_id'],
-        ];
-        $today = Today::where('hospital_id', $data['hospital_id'])->first();
-
-        $storeData['surgeon_id'] = $today->surgeon_id;
-        $storeData['cardiologist_id'] = $today->cardiologist_id;
-        $storeData['dispatcher_id'] = $storeData['surgeon_id'];
-
-        $dateTime = new DateTime($data['date_time']);
         $bookings = [];
+        $dateTimes = $data['date_times'];
+        if ($data['status'] == 0) {
+            try {
+                DB::beginTransaction();
+                foreach ($dateTimes as $dateTime) {
+                    $booking = Booking::where('date_time', $dateTime)
+                    ->where('hospital_id', $data['hospital_id'])
+                    ->where('room_id', $data['room_id'])
+                    ->first();
 
-        try {
-            DB::beginTransaction();
-            for ($i = 0; $i < $data['booking_hours']; $i++) {
-                $storeData['date_time'] = $dateTime->format('Y-m-d H:00:00');
-                $booking = Booking::where('date_time', $storeData['date_time'])
+                    if ($booking != null) {
+                        $booking->status = 0;
+                        $bookings[]=$booking;
+                        $booking->delete();
+                    }
+                }
+                DB::commit();
+            } catch(\Exception $e) {
+                DB::rollBack();
+                return $e->getMessage();
+            }
+            return collect($bookings);
+        } else {
+            $storeData = [
+                'hospital_id' => $data['hospital_id'],
+                'room_id' => $data['room_id'],
+                // 'user_id' => 1,
+                'user_id' => auth('sanctum')->user()->id,
+                'status' => $data['status'],
+            ];
+
+            try {
+                DB::beginTransaction();
+                foreach ($dateTimes as $dateTime) {
+                    $booking = Booking::where('date_time', $dateTime)
                     ->where('hospital_id',$storeData['hospital_id'])
                     ->where('room_id', $storeData['room_id'])
                     ->first();
-                    
-                if ($booking == null) {
+
+                    if ($booking != null) {
+                        $booking->delete();
+
+                    }
+                    $storeData['date_time'] = $dateTime;
+
                     $booking = Booking::create($storeData);
-                } else {
-                    $booking->update($storeData);
-                    $booking->fresh();
+
+                    $bookings[]=$booking;
+
                 }
 
-                $bookings[]=$booking;
-                $dateTime->add(new DateInterval('PT1H'));
+                DB::commit();
+            } catch(\Exception $e) {
+                DB::rollBack();
+                return $e->getMessage();
             }
-            DB::commit();
-        } catch(\Exception $e) {
-            DB::rollBack();
-            return $e->getMessage();
+            return collect($bookings);
         }
-        return collect($bookings);
     }
 
-    // public function delete($booking) {
-    //     try {
-    //         $booking->delete();
-    //     } catch(\Exception $e) {
-    //         DB::rollBack();
-    //         return $e->getMessage();
-    //     }
-    //     return "delete successfully";
-    // }
+    public function getMess($hours, $bookings) {
+        $data =[];
+        $ids = [];
+        $fios = [];
+        $phones = [];
+        $emails = [];
+        if ($hours == 2) {
+            $forTwo = false;
+            $first = new DateTime( $bookings[0]->date_time);
+            $second = new DateTime($bookings[1]->date_time);
+            $timeStr = $first->format('d.m.y H:i - ');
+            $second->add(new DateInterval('PT1H'));
+            $timeStr .= $second->format('H:i');
+            $second = $second->modify('-1 hour');
+
+            if ($second->format('H') == 8) {
+                $forTwo = true;
+            }
+
+            $hour = $first->format('H');
+            if ($hour >=0 && $hour <8) {
+                $first = $first->modify('-1 day');
+            }
+            $operator = Operator::where('hospital_id', $bookings[0]->hospital_id)
+                                ->where('date',$first->format('Y-m-d 00:00:00'))->first();
+            if ($operator != null) {
+                $ids = [
+                    $operator->surgeon->id,
+                    $operator->cardiologist->id
+                ];
+                $fios = [
+                    $operator->surgeon->last_name . ' ' . $operator->surgeon->first_name . ' ' . $operator->surgeon->patronymic,
+                    $operator->cardiologist->last_name . ' ' . $operator->cardiologist->first_name . ' ' . $operator->cardiologist->patronymic
+                ];
+                $phones = [
+                    $operator->surgeon->phone,
+                    $operator->cardiologist->phone,
+                ];
+                $emails = [
+                    $operator->surgeon->email,
+                    $operator->cardiologist->email,
+                ];
+            } else {
+                $moderator = User::where('hospital_id', $bookings[0]->hospital_id)
+                                ->whereHas('role', function ($query) {
+                                    $query->where('name', 'moderator hosp');
+                                })->first();
+                if ($moderator != null) {
+                    $ids[]=$moderator->id;
+                    $fios[] = $moderator->last_name . ' ' . $moderator->first_name . ' ' . $moderator->patronymic;
+                    $phones[] = $moderator->phone;
+                    $emails[] = $moderator->email;
+                }
+            }
+
+            if ($forTwo) {
+                $operator = Operator::where('hospital_id', $bookings[0]->hospital_id)
+                                ->where('date',$second->format('Y-m-d 00:00:00'))->first();
+                if ($operator != null) {
+                    $ids[] = $operator->surgeon->id;
+                    $ids[] = $operator->cardiologist->id;
+                    $fios[] = $operator->surgeon->last_name . ' ' . $operator->surgeon->first_name . ' ' . $operator->surgeon->patronymic;
+                    $fios[] = $operator->cardiologist->last_name . ' ' . $operator->cardiologist->first_name . ' ' . $operator->cardiologist->patronymic;
+                    $phones[] = $operator->surgeon->phone;
+                    $phones[] = $operator->cardiologist->phone;
+                    $emails[] = $operator->surgeon->email;
+                    $emails[] = $operator->cardiologist->email;
+                } else {
+                    $moderator = User::where('hospital_id', $bookings[0]->hospital_id)
+                                    ->whereHas('role', function ($query) {
+                                        $query->where('name', 'moderator hosp');
+                                    })->first();
+                    if ($moderator != null) {
+                        $ids[]=$moderator->id;
+                        $fios[] = $moderator->last_name . ' ' . $moderator->first_name . ' ' . $moderator->patronymic;
+                        $phones[] = $moderator->phone;
+                        $emails[] = $moderator->email;
+                    }
+                }
+            }
+            $users = [];
+            for ($i = 0; $i < count($ids); $i++) {
+                $users[] = [
+                    'id' => $ids[$i],
+                    'email' => $emails[$i],
+                    'phone' => $phones[$i],
+                    'fio' => $fios[$i]
+                ];
+            }
+            $data = [
+                'users' => $users,
+                'hospital' => $bookings[0]->hospital->short_name,
+                'address' => $bookings[0]->hospital->address,
+                'disease' =>$bookings[0]->disease->name,
+                'condition' => $bookings[0]->condition->name,
+                'time' => $timeStr,
+            ];
+        } else {
+            $first = new DateTime($bookings[0]->date_time);
+            $timeStr = $first->format('d.m.y H:i - ');
+            $first->add(new DateInterval('PT1H'));
+            $timeStr .= $first->format('H:i');
+            $first = $first->modify('-1 hour');
+
+            $hour = $first->format('H');
+            if ($hour >=0 && $hour <8) {
+                $first = $first->modify('-1 day');
+            }
+            $operator = Operator::where('hospital_id', $bookings[0]->hospital_id)
+                                ->where('date',$first->format('Y-m-d 00:00:00'))->first();
+            if ($operator != null) {
+                $ids = [
+                    $operator->surgeon->id,
+                    $operator->cardiologist->id
+                ];
+                $fios = [
+                    $operator->surgeon->last_name . ' ' . $operator->surgeon->first_name . ' ' . $operator->surgeon->patronymic,
+                    $operator->cardiologist->last_name . ' ' . $operator->cardiologist->first_name . ' ' . $operator->cardiologist->patronymic
+                ];
+                $phones = [
+                    $operator->surgeon->phone,
+                    $operator->cardiologist->phone,
+                ];
+                $emails = [
+                    $operator->surgeon->email,
+                    $operator->cardiologist->email,
+                ];
+            } else {
+                $moderator = User::where('hospital_id', $bookings[0]->hospital_id)
+                                ->whereHas('role', function ($query) {
+                                    $query->where('name', 'moderator hosp');
+                                })->first();
+                if ($moderator != null) {
+                    $ids[]=$moderator->id;
+                    $fios[] = $moderator->last_name . ' ' . $moderator->first_name . ' ' . $moderator->patronymic;
+                    $phones[] = $moderator->phone;
+                    $emails[] = $moderator->email;
+                }
+            }
+            $users = [];
+            for ($i = 0; $i < count($ids); $i++) {
+                $users[] = [
+                    'id' => $ids[$i],
+                    'email' => $emails[$i],
+                    'phone' => $phones[$i],
+                    'fio' => $fios[$i]
+                ];
+            }
+            $data = [
+                'users' => $users,
+                'hospital' => $bookings[0]->hospital->short_name,
+                'address' => $bookings[0]->hospital->address,
+                'disease' =>$bookings[0]->disease->name,
+                'condition' => $bookings[0]->condition->name,
+                'time' => $timeStr,
+            ];
+        }
+        return $data;
+    }
 }

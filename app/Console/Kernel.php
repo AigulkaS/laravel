@@ -33,11 +33,11 @@ class Kernel extends ConsoleKernel
         // ->timezone('Asia/Yekaterinburg')
         // ->dailyAt('22:42');
 
-        $schedule
-        ->command('operator:daily')
-        ->timezone('Asia/Yekaterinburg')
-        // ->cron('34 23 * * *');
-        ->dailyAt('23:58');
+        // $schedule
+        // ->command('operator:daily')
+        // ->timezone('Asia/Yekaterinburg')
+        // // ->cron('34 23 * * *');
+        // ->dailyAt('08:00');
     }
 
     /**

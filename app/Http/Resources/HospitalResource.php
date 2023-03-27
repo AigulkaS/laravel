@@ -16,10 +16,13 @@ class HospitalResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'type' => $this->type,
             'full_name' => $this->full_name,
             'short_name' => $this->short_name,
             'address' => $this->address,
             'rooms' => $this->rooms,
+            'geo_lat' => $this->geo_lat,
+            'geo_lon' => $this->geo_lon,
         ];
     }
 }

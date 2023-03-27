@@ -12,7 +12,7 @@ class HospitalRoom extends Model
     use SoftDeletes;
     
     protected $guarded = false;
-    public $timestamps = false;
+    public $timestamps = true;
 
     public function hospital() {
         return $this->belongsTo(Hospital::class, 'hospital_id', 'id');

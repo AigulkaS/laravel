@@ -50,7 +50,7 @@
                                     <input type="text" :value="v$.query.$model"
                                            @input="lazyCaller($event.target.value)"
                                            class="form-control" id="address_sick"
-                                           :class="v$.suggestion.$error || v$.query.$error? 'border-danger' : ''"
+                                           :class="(v$.suggestion.$error && query !== hospital.address) || v$.query.$error? 'border-danger' : ''"
                                     >
                                     <div v-if="addresses.length" class="autocomplete-items">
                                         <div
@@ -68,8 +68,9 @@
                                             {{suggestion = ''}}
                                         </div>
                                     </div>
-                                    <span v-if="v$.suggestion.$error || v$.query.$error"
-                                          :class="v$.suggestion.$error || v$.query.$error ? 'text-danger' : ''">
+<!--                                    <span v-if="v$.suggestion.$error || v$.query.$error"-->
+                                    <span v-if="(v$.suggestion.$error && query !== hospital.address) || v$.query.$error"
+                                          :class="(v$.suggestion.$error && query !== hospital.address) || v$.query.$error ? 'text-danger' : ''">
                                       Поле адрес обязательное поле для заполнения
                                     </span>
                                 </div>
@@ -86,9 +87,38 @@
                         <div class="form-group row my-1">
                             <label class="col-sm-2 col-form-label fw-bold ">Кабинет</label>
                             <div class="col-sm-10">
-                                <div class="row my-1" v-for="(room, index) in this.hospital.rooms">
-                                    <div class="col-7 col-sm-5">
-                                        <input type="text" class="form-control" v-model="room.name">
+                                <div class="row my-3" v-for="(room, index) in this.hospital.rooms">
+                                    <div class="col-sm-7">
+                                        <input type="text" class="form-control" v-model="room.name" @change="verificationTime(room)">
+                                        <label class=" col-form-label fw-bold ">Время работы: </label>
+                                        <span class="mx-2">с</span>
+                                        <select class="form-control form-inline form-select"
+                                                v-model="room.start" :disabled="room.round_the_clock"
+                                                @change="verificationTime(room)">
+                                            <option v-for="(clock, i) in timepiece" :key="i" :value="clock">
+                                                {{ clock }}
+                                            </option>
+                                        </select>
+                                        <span class="mx-2">по</span>
+                                        <select class="form-control form-inline form-select"
+                                                v-model="room.end" :disabled="room.round_the_clock"
+                                                @change="verificationTime(room)">
+                                            <option v-for="(clock, i) in timepiece" :key="i" :value="clock">
+                                                {{ clock }}
+                                            </option>
+                                        </select>
+                                        <div v-if="room.error" class="pl-sm-4 text-danger">
+                                            {{room.error}}
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" :value="true"
+                                                   v-model="room.round_the_clock" id="day_and_night1"
+                                                   @change="chekedChanged(room)"
+                                            >
+                                            <label class="form-check-label" for="day_and_night1">
+                                                Круглосуточно
+                                            </label>
+                                        </div>
                                     </div>
                                     <div class="col col-sm-3">
                                         <button type="button"
@@ -114,7 +144,7 @@
                                     <div class="row my-1">
                                         <label class="col col-sm-2 col-form-label fw-bold ">Кабинет</label>
                                         <div class="col-5 col-sm-5">
-                                            <input type="text" class="form-control" v-model="room.name">
+                                            <input type="text" class="form-control" v-model="room.name" @change="verificationTime(room)">
                                         </div>
                                         <div class="col col-sm-3">
                                             <button type="button" @click.prevent="addRoomm(index)"
@@ -125,6 +155,36 @@
                                                     class="ml-1 mt-1 btn btn-danger btn-circle">
                                                 <font-awesome-icon icon="fa-solid fa-minus" />
                                             </button>
+                                        </div>
+                                    </div>
+                                    <div class="my-1">
+                                        <label class=" col-form-label fw-bold ">Время работы: </label>
+                                        <span class="mx-2">с</span>
+                                        <select class="form-control form-inline form-select"
+                                                v-model="room.start" :disabled="room.round_the_clock"
+                                                @change="verificationTime(room)">
+                                            <option v-for="(clock, i) in timepiece" :key="i" :value="clock">
+                                                {{ clock }}
+                                            </option>
+                                        </select>
+                                        <span class="mx-2">по</span>
+                                        <select class="form-control form-inline form-select"
+                                                v-model="room.end" :disabled="room.round_the_clock"
+                                                @change="verificationTime(room)">
+                                            <option v-for="(clock, i) in timepiece" :key="i" :value="clock">
+                                                {{ clock }}
+                                            </option>
+                                        </select>
+                                        <div v-if="room.error" class="pl-sm-4 text-danger">
+                                            {{room.error}}
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" :value="true"
+                                                   v-model="room.round_the_clock" id="day_and_night"
+                                                   @change="chekedChanged(room)">
+                                            <label class="form-check-label" for="day_and_night">
+                                                Круглосуточно
+                                            </label>
                                         </div>
                                     </div>
                                 </template>
@@ -153,7 +213,7 @@ import { required, email, minLength, sameAs } from '@vuelidate/validators';
 import { ref } from 'vue';
 // import { VueDadata } from 'vue-dadata';
 // import 'vue-dadata/dist/style.css';
-import {wait} from "../../../consts";
+import {wait, hospital_type, timepiece} from "../../../consts";
 
 // export default defineComponent ({
 export default {
@@ -180,7 +240,7 @@ export default {
     // },
     setup() {
         const query = ref('');
-        const suggestion = ref('');
+        const suggestion = ref('undefined');
         const addresses = ref([]);
         const selectAddress = (address) => {
             query.value = address.value;
@@ -208,12 +268,20 @@ export default {
             url: import.meta.env.VITE_APP_DADATA_URL,
             token: import.meta.env.VITE_APP_DADATA_API_KEY,
             suggestions: true,
+            round_the_clock: true,
 
-            wait,
+            wait, hospital_type, timepiece,
+
         }
     },
     mounted() {
         this.getData();
+    },
+    computed: {
+        auth_user() {
+            return localStorage.getItem('auth_user')
+                ? JSON.parse(localStorage.getItem('auth_user')) : null
+        }
     },
     validations() {
         return {
@@ -227,25 +295,29 @@ export default {
     },
     methods: {
         getData() {
-            axios.get(`/api/hospitals/${this.id}/edit`, {
+            axios.get(`/api/hospitals/${this.id ? this.id : this.auth_user.hospital_id}/edit`, {
                 headers: {Authorization: localStorage.getItem('access_token')}
             }).then(res => {
                 console.log(res);
                 this.hospital = res.data.data;
                 this.query = this.hospital.address;
                 // this.suggestion = this.hospital.address;
+                this.hospital.rooms.forEach(el => {
+                    el['round_the_clock'] = el.start ? false : true;
+                    el['error'] = null;
+                })
             }).catch(err => {
                 this.errorsMessage(err);
             }).finally(() => this.successPage = true);
         },
         createRooms() {
             if (this.rooms.length == 0) {
-                this.rooms.push({name: null})
+                this.rooms.push({name: null, start: null, end:null, round_the_clock: true, error: null})
             }
             this.rooms_show = !this.rooms_show;
         },
         addRoomm(index) {
-            this.rooms.splice(index+1, 0, {name: null})
+            this.rooms.splice(index+1, 0, {name: null, start: null, end:null, round_the_clock: true, error: null})
         },
         deleteRoomm(index) {
             this.rooms.splice(index, 1);
@@ -264,23 +336,38 @@ export default {
         update() {
             this.errs = null
             this.success = null;
+            let timeErr = this.rooms.findIndex(el => el.error != null);
             this.v$.$validate() // checks all inputs
-            this.rooms = this.rooms.filter((el, index) => {
-                return  el.name !== null && el.name !== ''
-            });
-            let rooms = this.hospital.rooms.concat(this.rooms);
-            if (!this.v$.$error) {
+            if ((!this.v$.$error && timeErr == -1) || (!this.v$.hospital.$error && this.query == this.hospital.address && timeErr == -1)) {
                 this.processing = true;
+
+                this.rooms = this.rooms.filter((el, index) => {
+                    return  el.name !== null && el.name !== ''
+                });
+                let rooms = this.hospital.rooms.concat(this.rooms);
+                rooms.forEach(el => {
+                    if (!el.start) {
+                        delete el.start;
+                        delete el.end;
+                    }
+                    delete el.round_the_clock;
+                    delete el.error;
+                });
+
                 let data = {};
-                if (typeof this.suggestion == 'undefined') {
+                if (this.suggestion == 'undefined' && this.query == this.hospital.address) {
                     data = {
+                        type: hospital_type.hospital,
                         full_name: this.hospital.full_name,
                         short_name: this.hospital.short_name,
                         address: this.query,
-                        hospital_rooms: rooms
+                        geo_lat: this.hospital.geo_lat,
+                        geo_lon: this.hospital.geo_lon,
+                        hospital_rooms: rooms,
                     }
                 } else {
                     data = {
+                        type: hospital_type.hospital,
                         full_name: this.hospital.full_name,
                         short_name: this.hospital.short_name,
                         address: this.suggestion.unrestricted_value,
@@ -289,7 +376,7 @@ export default {
                         hospital_rooms: rooms
                     }
                 }
-                axios.patch(`/api/hospitals/${this.id}`, data,
+                axios.patch(`/api/hospitals/${this.id ? this.id : this.auth_user.hospital_id}`, data,
                     {headers: {Authorization: localStorage.getItem('access_token')}
                 }).then(res => {
                     console.log(res);
@@ -297,7 +384,8 @@ export default {
                     this.success = 'Данные успешно изменены. Перенаправление...';
                     this.$emit('change_data', res.data.data)
                     setTimeout(()=>{
-                        this.$router.push({name:'hospitals'})
+                        // this.$router.push({name:'hospitals'})
+                        this.$router.go(-1)
                     },3000)
                 }).catch(err => {
                     this.errorsMessage(err);
@@ -344,6 +432,28 @@ export default {
                     })
                     .catch(err => this.errorsMessage(err));
             }, time)
+        },
+        chekedChanged(room) {
+            console.log(room);
+            if (room.round_the_clock) {
+                room.start = null;
+                room.end = null;
+            }
+        },
+        verificationTime(room) {
+            if (!room.start && room.end) {
+                room.error = 'Укажите время начала и конца работы'
+            } else if (room.start && room.end==room.start) {
+                room.error = 'Время начала и конца совпадают. Укажите, время работы крулосуточно'
+            } else if (room.start && room.end && Number(room.start.substr(0, 2)) > Number(room.end.substr(0, 2)) ) {
+                room.error = 'Время начала не должно быть больше время конца'
+            } else if (!room.name || room.name == '') {
+                console.log(room.name)
+                room.error = 'Поле Кабинет не может быть пустым'
+            } else {
+                room.error = null;
+            }
+
         }
     }
 }

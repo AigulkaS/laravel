@@ -27,8 +27,7 @@ class UpdateRequest extends FormRequest
             'hospital_id' => 'required|integer',
             'room_id' => 'required|integer',
             'status' => 'required|integer',
-            'date_time' => 'required|string',
-            'booking_hours' => 'required|integer',
+            'date_times' => 'required',
         ];
 
     }

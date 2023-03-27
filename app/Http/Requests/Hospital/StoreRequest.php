@@ -24,13 +24,20 @@ class StoreRequest extends FormRequest
     public function rules()
     {
         return [
+            'type' => 'required|integer',
             'full_name' => 'required|string',
             'short_name' => 'required|string',
-            'address' => 'required|string',
-            'hospital_rooms' => 'required', 
-            'geo_lat' => 'required|string', 
-            'geo_lon' => 'required|string', 
+            'address' => 'string',
+            'hospital_rooms' => '',
+            'geo_lat' => 'string', 
+            'geo_lon' => 'string', 
         ];
+
+        // 'hospital_rooms' => [
+        //     'name' => 'required|integer',
+        //     'start' => 'string',
+        //     'end' => 'string',
+        // ],
 
     }
 }

@@ -76,12 +76,15 @@
 </template>
 
 <script>
+import {hospital_type} from "../../../consts";
+
 export default {
     name: "Hospitals",
     data() {
         return {
             hospitals: null,
             success : null,
+            hospital_type,
         }
     },
     mounted() {
@@ -90,7 +93,8 @@ export default {
     methods: {
         getData() {
             axios.get('/api/hospitals', {
-                headers: {Authorization: localStorage.getItem('access_token')}
+                headers: {Authorization: localStorage.getItem('access_token')},
+                params: {type: this.hospital_type.hospital}
             }).then(res => {
                 console.log(res);
                 this.hospitals = res.data.data;

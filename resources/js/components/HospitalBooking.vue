@@ -3,86 +3,227 @@
         <error-page v-if="errPage" :err="errs"></error-page>
 
         <div v-else-if="successPage">
-            <div class="container" v-if="orderly">
-                <h4 v-if="orderly">{{orderly.hospital_name}}</h4>
+<!--            <div class="container" v-if="orderly">-->
+<!--                <h4 v-if="orderly">{{orderly.hospital_name}}</h4>-->
+            <div class="container">
+                <h4 class="mb-3">{{hospital_name}}</h4>
 
                 <!--Errors-->
                 <errors-validation :validationErrors="errs"/>
 
-                <!--Add Orderlies-->
-                <div v-if="canAddOrderly()" class="alert alert-warning fw-bolder" role="alert">
-                    Для просмотра и редактирования графика занятости операционных укажите
-                    дежурного хирирга и кардиолога на {{ $dayjs().format('DD.MM.YYYY') }}.
-                    <div class="mt-3">
-                        <button type="button" @click="modalOrder()" class="btn btn-primary">
-                            <font-awesome-icon icon="fa-solid fa-pencil" /> Добавить дежурных
-                        </button>
-                    </div>
+                <!--Badge Statuses-->
+                <div>
+                    <h3 v-for="status in statuses" class="d-inline-flex me-1">
+                            <span class="badge" :class="'bg-'+status.color+'-300'" style="color: black">
+                                {{status.label}}
+                            </span>
+                    </h3>
                 </div>
 
-                <!--Orderly FIO-->
-                <div v-else>
-                    <div class="mt-3" v-if="canUpdate()">
-                        <button type="button" @click="modalOrder()" class="btn btn-primary">
-                            <font-awesome-icon icon="fa-solid fa-pencil" /> Сменить дежурных
-                        </button>
-                    </div>
-                    <div class="d-flex my-3">
-                        <div class="me-auto fs-5">
-                            <div>
-                                <span class="fw-bold">Деж. кардиолог: </span>
-                                <span>{{orderly.cardiologist_last_name}} {{orderly.cardiologist_first_name}} {{orderly.cardiologist_patronymic}}</span>
-                            </div>
-                            <div>
-                                <span class="fw-bold">Деж. хирург: </span>
-                                <span>{{orderly.surgeon_last_name}} {{orderly.surgeon_first_name}} {{orderly.surgeon_patronymic}}</span>
+                <div class="row">
+
+                    <div class="col-sm-6">
+
+                        <!--Add Orderlies-->
+                        <div v-if="canAddOrderly(dateToday.date)" class="alert alert-warning fw-bolder">
+                            Укажите дежурного хирирга и кардиолога на
+                            {{ $dayjs(dateToday.date).set('hour', 8).set('minute', 0).format('DD.MM.YYYY HH:mm') }} -
+                            {{ $dayjs(dateTommorow.date).set('hour', 8).set('minute', 0).format('DD.MM.YYYY HH:mm') }}.
+                            <div class="mt-3">
+                                <button type="button" @click="modalOrder(dateToday)" class="btn btn-primary">
+                                    <font-awesome-icon icon="fa-solid fa-pencil" /> Добавить дежурных
+                                </button>
                             </div>
                         </div>
-                        <div class="align-self-center">
-                            <h5>{{ $dayjs().format('DD.MM.YYYY') }}</h5>
+
+
+                        <div>
+                            <!--Orderly FIO-->
+                            <div class="mt-3" v-if="canUpdate(dateToday.date)">
+                                <button type="button" @click="modalOrder(dateToday)" class="btn btn-primary">
+                                    <font-awesome-icon icon="fa-solid fa-pencil" /> Сменить дежурных
+                                </button>
+                            </div>
+                            <div class="d-flex my-3">
+                                <div class="me-auto fs-5">
+                                    <div>
+                                        <span class="fw-bold">Деж. кардиолог: </span>
+                                        <span>{{dateToday.cardiologist_last_name}} {{dateToday.cardiologist_first_name}} {{dateToday.cardiologist_patronymic}}</span>
+                                    </div>
+                                    <div>
+                                        <span class="fw-bold">Деж. хирург: </span>
+                                        <span>{{dateToday.surgeon_last_name}} {{dateToday.surgeon_first_name}} {{dateToday.surgeon_patronymic}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="align-self-center text-center">
+                                <h5 class="fw-bold">{{ $dayjs(dateToday.date).set('hour', 8).set('minute', 0).format('DD.MM.YYYY HH:mm') }} -
+                                    {{ $dayjs(dateTommorow.date).set('hour', 8).set('minute', 0).format('DD.MM.YYYY HH:mm') }}</h5>
+                            </div>
+
+                            <!--time columns--> <!--Cards-->
+                            <div class="row justify-content-center">
+                                <!--<div class="col-sm-6"-->
+                                <div class="col-sm-12" v-for="(room, index) in rooms" :key="index">
+                                    <div class="card mb-2">
+                                        <div class="card-body">
+                                            <h5 class="card-title fs-4 fw-bold">{{room.name}}</h5>
+                                            <h5 class="card-title">
+                                                Время работы {{room.start ? room.start : '08:00'}} -
+                                                {{room.end ? room.end : '08:00'}}
+                                            </h5>
+
+                                            <div class="my-1 d-flex">
+                                                <div v-if="btnChangeStatus(dateToday, index)">
+                                                    <button type="button"
+                                                            @click="bookingRoom(room,room.val[choice_time.day == dateToday.date ? choice_time.start_index : choice_time.start_index+24],index,choice_time.start_index,room.condition,false,dateToday)"
+                                                            class="btn btn-sm btn-danger">
+                                                        <font-awesome-icon icon="fa-solid fa-pencil" />
+                                                        Сменить статус
+                                                    </button>
+                                                </div>
+                                                <div v-if="allowOnOffRoom()" class="ms-auto">
+                                                    <button type="button"
+                                                            @click="OffOnHospitalRoom(room.id, room.condition, index)"
+                                                            class="btn  btn-sm"
+                                                            :class="room.condition == 0 ? 'btn-success' : 'btn-secondary'">
+                                                        <font-awesome-icon icon="fa-solid fa-pencil" />
+                                                        {{room.condition == 0 ? 'Открыть' : 'Закрыть'}} операционную
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div class="card-text"
+                                                 :class="room.condition == 0 ? 'disabledcard' : ''">
+                                                <div class="row row-cols-3 row-cols-sm-6 p-0 mx-1">
+                                                    <div class="col text-center border-white p-0"
+                                                         v-for="(val, i) in roomsVal(room.val, dateToday)" :key="i">
+
+                                                        <div class="square"
+                                                             @click="onClick(room, val, index, i, room.condition, true, dateToday)"
+                                                             :class="addCssClass(room, index, val, i, dateToday)">
+                                                            <div class="fw-bold fs-5 text-wrap">
+                                                                {{ $dayjs(val.time).format('HH:mm') }}
+                                                                <div class="line_height">-</div>
+                                                                {{ $dayjs(val.time).add(1, 'hour').format('HH:mm') }}
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
                     </div>
 
-                    <!--Badge Statuses-->
-                    <div>
-                        <h3 v-for="status in statuses" class="d-inline-flex me-1">
-                            <span class="badge" :class="'bg-'+status.color+'-300'" style="color: black">{{status.label}}</span>
-                        </h3>
-                    </div>
+                    <div class="col-sm-6">
 
-                    <!--time columns-->
-                    <!--Cards-->
-                    <div class="row justify-content-center">
-                        <div class="col-sm-6"
-                             v-for="(room, index) in rooms" :key="index">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title fs-4 fw-bold">Операционня {{room.name}}</h5>
-                                    <div class="card-text">
+                        <!--Add Orderlies-->
+                        <div v-if="canAddOrderly(dateTommorow.date)" class="alert alert-warning fw-bolder">
+                            Укажите дежурного хирирга и кардиолога на
+                            {{ $dayjs(dateTommorow.date).set('hour', 8).set('minute', 0).format('DD.MM.YYYY HH:mm') }} -
+                            {{ $dayjs(dateTommorow.date).add(1,'day').set('hour', 8).set('minute', 0).format('DD.MM.YYYY HH:mm') }}.
+                            <div class="mt-3">
+                                <button type="button" @click="modalOrder(dateTommorow)" class="btn btn-primary">
+                                    <font-awesome-icon icon="fa-solid fa-pencil" /> Добавить дежурных
+                                </button>
+                            </div>
+                        </div>
 
-                                        <div class="row row-cols-3 row-cols-sm-6 p-0 mx-1">
-                                            <div class="col text-center border-white p-0"
-                                                 v-for="(val, i) in room.val" :key="i">
 
-                                                <div class="square" @click="bookingRoom(room.name, val, index, i)"
-                                                     :class="val.status == 0
-                                             ? 'bg-green-300'
-                                             : val.status == 1 ? 'bg-red-300' : 'bg-yellow-300',
-                                              canUpdate() ? 'cursor' : ''">
-                                                    <div>
-                                                        <div><div class="fw-bold fs-5 text-wrap">{{ $dayjs(val.time).format('HH:mm') }}</div></div>
+                        <div>
+                            <!--Orderly FIO-->
+                            <div class="mt-3" v-if="canUpdate(dateTommorow.date)">
+                                <button type="button" @click="modalOrder(dateTommorow)" class="btn btn-primary">
+                                    <font-awesome-icon icon="fa-solid fa-pencil" /> Сменить дежурных
+                                </button>
+                            </div>
+                            <div class="d-flex my-3">
+                                <div class="me-auto fs-5">
+                                    <div>
+                                        <span class="fw-bold">Деж. кардиолог: </span>
+                                        <span>{{dateTommorow.cardiologist_last_name}} {{dateTommorow.cardiologist_first_name}} {{dateTommorow.cardiologist_patronymic}}</span>
+                                    </div>
+                                    <div>
+                                        <span class="fw-bold">Деж. хирург: </span>
+                                        <span>{{dateTommorow.surgeon_last_name}} {{dateTommorow.surgeon_first_name}} {{dateTommorow.surgeon_patronymic}}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="align-self-center text-center">
+                                <h5 class="fw-bold">{{ $dayjs(dateTommorow.date).set('hour', 8).set('minute', 0).format('DD.MM.YYYY HH:mm') }} -
+                                    {{ $dayjs(dateTommorow.date).add(1, 'day').set('hour', 8).set('minute', 0).format('DD.MM.YYYY HH:mm') }}</h5>
+                            </div>
+
+                            <!--time columns--><!--Cards-->
+                            <div class="row justify-content-center">
+                                <!-- <div class="col-sm-6"-->
+                                <div class="col-sm-12"
+                                     v-for="(room, index) in rooms" :key="index">
+                                    <div class="card mb-2">
+                                        <div class="card-body">
+                                            <h5 class="card-title fs-4 fw-bold">{{room.name}}</h5>
+                                            <h5 class="card-title">
+                                                Время работы {{room.star ? room.start : '08:00'}} -
+                                                {{room.end ? room.end : '08:00'}}
+                                            </h5>
+
+                                            <div class="my-1 d-flex">
+                                                <div v-if="btnChangeStatus(dateTommorow, index)">
+                                                    <button type="button"
+                                                            @click="bookingRoom(room, room.val[choice_time.day == dateToday.date ? choice_time.start_index : choice_time.start_index+24], index, choice_time.start_index, room.condition, false, dateTommorow)"
+                                                            class="btn btn-sm btn-danger">
+                                                        <font-awesome-icon icon="fa-solid fa-pencil" />
+                                                        Сменить статус
+                                                    </button>
+                                                </div>
+                                                <div v-if="allowOnOffRoom()" class="ms-auto">
+                                                    <button type="button"
+                                                            @click="OffOnHospitalRoom(room.id, room.condition, index)"
+                                                            class="btn  btn-sm"
+                                                            :class="room.condition == 0 ? 'btn-success' : 'btn-secondary'">
+                                                        <font-awesome-icon icon="fa-solid fa-pencil" />
+                                                        {{room.condition == 0 ? 'Открыть' : 'Закрыть'}} операционную
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div class="card-text" :class="room.condition == 0 ? 'disabledcard' : ''">
+
+                                                <div class="row row-cols-3 row-cols-sm-6 p-0 mx-1">
+<!--                                                    v-for="(val, i) in roomsVal(room.val, dateTommorow)" :key="i"-->
+                                                    <div class="col text-center border-white p-0"
+                                                         v-for="(val, i) in roomsVal(room.val, dateTommorow)" :key="i">
+
+                                                        <div class="square"
+                                                             @click="onClick(room, val, index, i, room.condition, true, dateTommorow)"
+                                                             :class="addCssClass(room, index, val, i, dateTommorow)">
+                                                                <div class="fw-bold fs-5 text-wrap">
+                                                                    {{ $dayjs(val.time).format('HH:mm') }}
+                                                                    <div class="line_height">-</div>
+                                                                    {{ $dayjs(val.time).add(1, 'hour').format('HH:mm') }}
+                                                                </div>
+                                                        </div>
+
                                                     </div>
                                                 </div>
 
                                             </div>
                                         </div>
-
                                     </div>
                                 </div>
                             </div>
                         </div>
+
                     </div>
+
                 </div>
+
 
                 <!-- Modal clocks -->
                 <div class="modal fade" id="statusModal"
@@ -92,7 +233,7 @@
                         <div class="modal-content">
                             <div v-if="modal" class="modal-header">
                                 <h5 class="modal-title" id="statusModalLabel">
-                                    Операционная {{modal ? modal.room_name : ''}}
+                                    {{modal ? modal.room_name : ''}}
                                 </h5>
                                 <button type="button" class="btn-close" @click.prevent="closeModal()"></button>
                             </div>
@@ -100,45 +241,56 @@
 
                                 <errors-validation :validationErrors="errs"/>
 
+                                <div v-if="message_free_status" class="alert alert-danger d-flex align-items-center" role="alert">
+                                    <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+                                    <div>
+                                        Статус
+                                        <span class="badge" :class="'bg-'+statuses[1].color+'-300'" style="color: black">
+                                            {{statuses[1].label}}
+                                        </span>
+                                        можно поставить только если предыдущее время не стоит в статусе
+                                        <span class="badge" :class="'bg-'+statuses[0].color+'-300'" style="color: black">
+                                            {{statuses[0].label}}
+                                        </span>
+                                        <p>
+                                            Если вам нужно занять этот период времеи выбрите статус
+                                            <span class="badge" :class="'bg-'+statuses[2].color+'-300'" style="color: black">
+                                                {{statuses[2].label}}
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+
                                 <h5 class="text-center">
-                                    Время: <span class="fw-bold">{{$dayjs(modal.time).format('HH:mm')}}</span>
-                                    Статус: <span class="fw-bold" :class="'bg-'+status.color+'-300'">{{status.label}}</span>
+                                    <div>
+                                        {{ChangeTime()}}
+                                    </div>
+                                    Статус: <span class="fw-bold" :class="'bg-'+status.color+'-300'">
+                                    {{status.label}}</span>
                                 </h5>
                                 <form  @submit.prevent="" class="row">
-                                    <div class="form-group row my-1">
-                                        <label class="col-sm-4 col-form-label fw-bold">
+
+                                    <div class="form-group row my-3">
+                                        <label class="col-sm-5 col-form-label fw-bold">
                                             Изменить статус:
                                         </label>
-                                        <div class="col-sm-8">
+                                        <div class="col-sm-7">
                                             <select class="form-select mb-3"
                                                     v-model="newStatus">
                                                 <template v-for="el in statuses">
-                                                    <option v-if="el.val !== status.val"
+                                                    <option v-if="el.val !== status.val && el.val != 10"
                                                             :value="el.val">{{el.label}}</option>
                                                 </template>
                                             </select>
-                                        </div>
-                                    </div>
-                                    <div v-if="newStatus !== 0 && newStatus !== status.val" >
-                                        <div class="fs-4">
-                                            Установить статус
-                                            <span class="fw-bolder" :class="'bg-'+statuses[newStatus].color+'-300'">
-                                        {{statuses[newStatus].label}}
-                                    </span><br>
-                                            на <div class="form-check form-check-inline" v-for="el in 3">
-                                            <input class="form-check-input" type="radio"
-                                                   name="inlineRadioOptions" :id="'inlineRadio4'+el"
-                                                   :value="el" v-model="clock">
-                                            <label class="form-check-label" :for="'inlineRadio4'+el">{{el}}</label>
-                                        </div>
-                                            часа
                                         </div>
                                     </div>
                                 </form>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" @click.prevent="closeModal()">Отмена</button>
-                                <button type="button" class="btn btn-primary" @click.prevent="saveStatus()">OK</button>
+                                <button type="button" class="btn btn-primary" @click.prevent="saveStatus()" :disabled="processing">
+                                    {{ processing ? wait : "OK" }}
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -157,6 +309,10 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
+                                <div v-if="date" class="alert alert-primary">
+                                    Дежурные на {{$dayjs(date.date).set('hour', 8).set('minute', 0).format('DD.MM.YYYY HH:mm')}}
+                                    - {{$dayjs(date.date).add(1, 'day').set('hour', 8).set('minute', 0).format('DD.MM.YYYY HH:mm')}}
+                                </div>
                                 <form class="row">
                                     <div class="form-group row my-1">
                                         <label class="col-sm-4 col-form-label fw-bold">
@@ -220,7 +376,7 @@ export default {
     name: "HospitalBooking",
     data() {return {
         v$: useValidate(),
-        orderly: null,
+        orderly: [],
         modal: null,
         status: null,
         newStatus: null,
@@ -234,6 +390,20 @@ export default {
         cardiologist_id: null,
         processing: false,
         rooms: [],
+        disabled_hospital_room:false,
+
+        dateToday: null,
+        dateTommorow: null,
+        date: null,
+        hospital_name: null,
+        hospital_id: null,
+        condition_id: null,
+        conditions: [],
+        choice_time: {},
+        clicks: 0,
+        timer: null,
+        message_free_status: false,
+
         roles,
         wait,
         statuses,
@@ -244,23 +414,6 @@ export default {
             surgeon_id: {required},
             cardiologist_id: {required}
         }
-    },
-    mounted() {
-        // const socket = io(this.server_url);
-        // socket.on('todays-update:App\\Events\\TodaysUpdateEvent', (data) => {
-        //     this.orderly = data.result;
-        // });
-        //
-        // socket.on('bookings-update:App\\Events\\BookingsUpdateEvent', (data) => {
-        //     let arr = data.result;
-        //     this.updateRoomStatus(arr);
-        // });
-        // socket.on('bookings-store:App\\Events\\BookingsStoreEvent', (data) => {
-        //     // console.log(data);
-        //     let arr = data.result;
-        //     this.updateHospitalRoomStatus(arr);
-        // });
-        this.getData();
     },
     computed: {
         auth_user() {
@@ -274,80 +427,264 @@ export default {
         if (this.myModal) this.myModal.hide();
         if (this.myModalOrderly) this.myModalOrderly.hide();
     },
+    watch: {
+        newStatus (newVal, oldVal) {
+            if (newVal !== oldVal) {
+                this.message_free_status = false;
+            }
+        }
+    },
+    mounted() {
+        const socket = io(this.server_url);
+        socket.on('operators-update:App\\Events\\OperatorsUpdateEvent', (data) => {
+            let doctor = data.result;
+            this.getOrderly(doctor);
+        });
+
+        socket.on('bookings-update:App\\Events\\BookingsUpdateEvent', (data) => {
+            let arr = data.result;
+            this.updateRoomStatus(arr);
+        });
+        socket.on('bookings-store:App\\Events\\BookingsStoreEvent', (data) => {
+            // console.log(data);
+            let arr = data.result;
+            this.updateRoomStatusDispet(arr.bookings);
+        });
+        this.getData();
+    },
+
     methods: {
         getData() {
-            axios.get(`/api/todays/`,{
-                headers: {Authorization: localStorage.getItem('access_token')},
-                params: {hospital_id: this.$route.params.id ? this.$route.params.id : this.auth_user.hospital_id}
-            }).then(res => {
-                console.log(res);
-                let arr = res.data.data;
-                this.orderly =arr.length > 0 ? arr[arr.length-1] : null;
-                if (this.orderly && this.orderly.surgeon_id !== '') this.getBooking();
-            }).catch(err => {
-                this.errorsMessage(err);
-            }).finally(() => this.successPage = true)
-        },
-        getBooking() {
-            this.errs = null;
             axios.get(`/api/bookings`,{
                 headers: {Authorization: localStorage.getItem('access_token')},
-                params: {hospital_id: this.$route.params.id ? this.$route.params.id : this.auth_user.hospital_id}
+                params: {hospital_id: this.$route.params.id ? this.$route.params.id : this.auth_user.hospital_id},
             }).then(res => {
                 console.log(res);
+                this.hospital_name = res.data.hospital_name;
+                this.hospital_id = res.data.hospital_id;
+                this.dateToday = res.data.dates[0];
+                this.dateTommorow = res.data.dates[1];
+                res.data.dates.forEach(el => {
+                    if (el.surgeon_id == 'default') {
+                        this.orderly.push({date: el.date})
+                    }
+                });
                 this.rooms = res.data.rooms;
             }).catch(err => {
                 this.errorsMessage(err);
-            });
+            }).finally(() => this.successPage = true);
+
         },
-        bookingRoom(room_name, val, room_index, val_index) {
-            if ([this.roles.cardiologist, this.roles.surgeon, this.roles.admin].includes(this.auth_user.role_name)) {
+        bookingRoom(room, val, room_index, val_index, room_condition, col, day) {
+            this.v$.$reset();
+            if (this.$dayjs().get('date') == this.$dayjs(val.time).get('date')
+                && this.$dayjs().get('hour') > this.$dayjs(val.time).get('hour')) {
+                return;
+            }
+
+            if (Object.keys(this.choice_time).length == 0 || this.choice_time.day != day.date
+                || this.choice_time.room_index != room_index
+                || this.choice_time.time.findIndex(el => el.val_index == val_index) == -1) {
+                this.choicesTime(room, val, room_index, val_index, room_condition, day)
+            }
+
+            if (room_condition == 0
+                || (this.$dayjs().get('date') == this.$dayjs(this.choice_time.time[0].val.time).get('date')
+                    && this.$dayjs().get('hour') > this.$dayjs(this.choice_time.time[0].val.time).get('hour'))
+            ) {
+                if (!col && this.choice_time.start_index != this.choice_time.end_index) {
+                    this.choice_time.start_index = this.choice_time.start_index+1;
+                } else return;
+            }
+
+            if ([this.roles.cardiologist, this.roles.surgeon, this.roles.moderator, this.roles.admin].includes(this.auth_user.role_name)) {
                 this.errors = null;
                 this.myModal = new Modal(document.getElementById('statusModal'), {})
                 this.modal = {
-                    room_name: room_name,
-                    time: val.time,
-                    status: val.status,
+                    room_name: room.name,
+                    time_start: this.rooms[room_index].val[this.choice_time.start_index].time, //val.time,
+                    time_end: this.rooms[room_index].val[this.choice_time.end_index].time, //val.time,
+                    status: this.choice_time.time[0].val.status,
                     room_index: room_index,
-                    val_index: val_index
+                    val_index: val_index,
+                    day: this.choice_time.day
                 };
                 this.newStatus = val.status;
                 this.clock = 2;
                 this.status = this.statuses.find(el => el.val == this.modal.status);
+                this.condition_id = null;
                 this.myModal.show();
             }
         },
+        onClick(room, val, room_index, val_index, room_condition, col, day)  {
+            this.clicks++;
+            if (this.clicks === 1) {
+                this.timer = setTimeout( () => {
+                    this.choicesTime(room, val, room_index, val_index, room_condition, day);
+                    this.clicks = 0
+                }, 190);
+            } else {
+                clearTimeout(this.timer);
+                this.bookingRoom(room, val, room_index, val_index, room_condition, col, day)
+                this.clicks = 0;
+            }
+        },
+        choicesTime(room, val, room_index, val_index, room_condition, day) {
+            if ((room_condition == 0) || !this.oldTime(val) || this.colorRoomOffTime(room,room_index,val_index,val )) return;
+            if (Object.keys(this.choice_time).length == 0) {
+                this.choice_time.room_index = room_index;
+                this.choice_time.day = day.date;
+                this.choice_time.start_index = val_index;
+                this.choice_time.end_index = val_index;
+                this.choice_time.time = [
+                    {val: val, val_index: val_index}
+                ]
+            } else {
+                if (this.choice_time.day == day.date && this.choice_time.room_index == room_index) {
+                    if (val_index > this.choice_time.end_index) {
+                        for (let i=this.choice_time.end_index+1; i <= val_index; i++) {
+                            this.choice_time.time.push({
+                                val: this.rooms[this.choice_time.room_index].val[day.date == this.dateToday.date ? i : i+24],
+                                val_index: i})
+                        }
+                        this.choice_time.end_index = val_index;
+                    } else if (val_index <= this.choice_time.end_index) {
+                        if (val_index == this.choice_time.start_index) {
+                            this.choice_time = {};
+                        } else {
+                            if (val_index > this.choice_time.start_index) {
+                                let col = this.choice_time.time.filter(el => el.val_index >= val_index).length;
+                                let index = this.choice_time.time.findIndex(el => el.val_index == val_index);
+                                this.choice_time.time.splice(index, col);
+                                this.choice_time.end_index = val_index-1;
+                            } else if (val_index < this.choice_time.start_index) {
+                                let arr = [];
+                                for (let i=val_index; i < this.choice_time.start_index; i++) {
+                                    arr.push({
+                                        val: this.rooms[this.choice_time.room_index].val[day.date == this.dateToday.date ? i : i+24],
+                                        val_index: i})
+                                }
+                                this.choice_time.time = arr.concat(this.choice_time.time)
+                                this.choice_time.start_index = val_index;
+                            }
+                        }
+                    }
+                } else {
+                    this.choice_time.room_index = room_index;
+                    this.choice_time.day = day.date;
+                    this.choice_time.start_index = val_index;
+                    this.choice_time.end_index = val_index;
+                    this.choice_time.time = [
+                        {val: val, val_index: val_index}
+                    ]
+                }
+            }
+            // console.log(this.choice_time)
+        },
+        colorChoiseTime(room_index, val_index, day) {
+            return this.choice_time.day == day.date && this.choice_time.time
+            && this.choice_time.room_index == room_index
+            && this.choice_time.time.findIndex(el => el.val_index == val_index) > -1 ? true : false;
+        },
+        oldTime(val) {
+            if (this.$dayjs().set('minute', 0).set('second', 0).format('YYYY-MM-DD HH:mm:ss') <= val.time) {
+                return true;
+            } else return false;
+        },
+        colorRoomOffTime(room, index, i, val ) {
+            if (!room.start) return false;
+            if (room.start.substr(0, 2) == room.end.substr(0, 2)) {
+                return false
+            } else if (Number(room.start.substr(0, 2)) < Number(room.end.substr(0, 2))) {
+                if (this.$dayjs(val.time).get('hour') >= Number(room.start.substr(0, 2))
+                    && this.$dayjs(val.time).get('hour') <= Number(room.end.substr(0, 2))-1) {
+                    return false
+                } else return true
+            } else { //start > end
+                if ((this.$dayjs(val.time).get('hour') >= Number(room.start.substr(0, 2))
+                    && this.$dayjs(val.time).get('hour') <= 23) ||
+                    (this.$dayjs(val.time).get('hour') <= Number(room.end.substr(0, 2))-1)) {
+                    return false
+                } else return true
+            }
+        },
+        btnChangeStatus(day, room_index) {
+            return Object.keys(this.choice_time).length > 0
+            && this.choice_time.day == day.date
+            && this.choice_time.room_index == room_index ? true :false;
+        },
         saveStatus() {
             this.errs = null;
+            this.message_free_status = false
+
+            if (this.newStatus == 1) { // Статус = занят
+                if ((this.choice_time.start_index - 1 >= 0 && this.choice_time.day == this.dateToday.date)
+                    || this.choice_time.day == this.dateTommorow.date) {
+
+                    let val_index = this.choice_time.start_index - 1;
+                    if (this.choice_time.day == this.dateTommorow.date) {
+                        val_index = val_index + 24;
+                    }
+
+                    if (this.rooms[this.choice_time.room_index].val[val_index].status == 0) {
+                        if (this.rooms[this.choice_time.room_index].start == this.rooms[this.choice_time.room_index].end) {
+                            console.log('message error start == end');
+                            this.message_free_status = true;
+                            return;
+                        } else if (Number(this.rooms[this.choice_time.room_index].start.substr(0, 2)) < Number(this.rooms[this.choice_time.room_index].end.substr(0, 2))) {
+                            if (Number(this.rooms[this.choice_time.room_index].start.substr(0, 2)) <= this.$dayjs(this.rooms[this.choice_time.room_index].val[val_index].time).get('hour')
+                                && this.$dayjs(this.rooms[this.choice_time.room_index].val[val_index].time).get('hour') <= Number(this.rooms[this.choice_time.room_index].end.substr(0, 2))-1
+                                && this.$dayjs().isBefore(this.$dayjs(this.rooms[this.choice_time.room_index].val[val_index].time).add(1, 'hour'))
+                            )
+                            {
+                                console.log('message error start < end');
+                                this.message_free_status = true;
+                                return
+                            }
+                        } else {
+                            if (
+                                this.$dayjs().isBefore(this.$dayjs(this.rooms[this.choice_time.room_index].val[val_index].time).add(1, 'hour'))
+                                    &&
+                                (
+                                    (Number(this.rooms[this.choice_time.room_index].start.substr(0, 2)) <= this.$dayjs(this.rooms[this.choice_time.room_index].val[val_index].time).get('hour')
+                                    && this.$dayjs(this.rooms[this.choice_time.room_index].val[val_index].time).get('hour') <= 23)
+                                    || (0 <= this.$dayjs(this.rooms[this.choice_time.room_index].val[val_index].time).get('hour')
+                                    && this.$dayjs(this.rooms[this.choice_time.room_index].val[val_index].time).get('hour') <= Number(this.rooms[this.choice_time.room_index].end.substr(0, 2))-1)
+                                )
+                            )
+                            {
+                                this.message_free_status = true;
+                                console.log('start > end')
+                                return
+                            }
+                        }
+
+                    }
+
+                }
+            }
+
+            let date_times = this.choice_time.time.map(a => a.val.time);
+            this.processing = true;
             axios.patch(`/api/bookings`,
                 {
                     hospital_id: this.$route.params.id ? this.$route.params.id : this.auth_user.hospital_id,
                     room_id: this.rooms[this.modal.room_index].id,
                     status: this.newStatus,
-                    date_time: this.rooms[this.modal.room_index].val[this.modal.val_index].time,
-                    booking_hours: this.newStatus == 0 ? 1 : this.clock
+                    date_times: date_times,
+
                 },
                 {headers: {Authorization: localStorage.getItem('access_token')}
             }).then(res => {
                 console.log(res);
+                this.choice_time = {};
                 let arr = res.data.data;
                 this.updateRoomStatus(arr);
-
-                // if (this.newStatus == 0 || this.clock == 1) {
-                //     this.rooms[this.modal.room_index].val[this.modal.val_index].status = this.newStatus
-                // } else {
-                //     for (let i=this.modal.val_index;i<this.modal.val_index+this.clock; i++) {
-                //         console.log(this.rooms[this.modal.room_index].val[i])
-                //         if (i >= this.rooms[this.modal.room_index].val.length) {
-                //             this.rooms[this.modal.room_index].val[i-this.rooms[this.modal.room_index].val.length].status = this.newStatus
-                //         } else {
-                //             this.rooms[this.modal.room_index].val[i].status = this.newStatus
-                //         }
-                //     }
-                // }
                 this.myModal.hide();
             }).catch(err => {
                 this.errorsMessage(err);
+            }).finally(() => {
+                this.processing = false;
             });
         },
         updateRoomStatus(arr) {
@@ -361,10 +698,32 @@ export default {
                 })
             }
         },
-        modalOrder() {
+        updateRoomStatusDispet(arr) {
+            if (this.hospital_id && this.hospital_id == arr[0].hospital_id)  {
+                let roomIndex = this.rooms.findIndex(el => el.id == arr[0].room_id);
+                if (roomIndex != -1) {
+                    arr.forEach(el => {
+                        let valIndex = this.rooms[roomIndex].val.findIndex(e => e.time == el.date_time);
+                        if (valIndex != -1) {
+                            this.rooms[roomIndex].val[valIndex].status = el.status
+                        }
+                    })
+                }
+            }
+        },
+        modalOrder(orderly) {
+            this.v$.$reset();
             this.errs = null;
+            this.date = orderly;
+            if (orderly.surgeon_id == 'default') {
+                this.surgeon_id = null;
+                this.cardiologist_id = null;
+            } else {
+                this.surgeon_id = orderly.surgeon_id;
+                this.cardiologist_id = orderly.cardiologist_id;
+            }
             this.myModalOrderly = new Modal(document.getElementById('modalOrderly'), {})
-            axios.get(`/api/todays/edit`,{
+            axios.get(`/api/operators/edit`,{
                 headers: {Authorization: localStorage.getItem('access_token')},
                 params: {hospital_id: this.$route.params.id ? this.$route.params.id : this.auth_user.hospital_id}
             }).then(res => {
@@ -383,18 +742,18 @@ export default {
             this.v$.$validate() // checks all inputs
             if (!this.v$.$error) {
                 this.processing = true;
-                axios.patch(`/api/todays`,
-                    {
-                        hospital_id: this.$route.params.id ? this.$route.params.id : this.auth_user.hospital_id,
-                        cardiologist_id: this.cardiologist_id,
-                        surgeon_id: this.surgeon_id,
-                    },
-                    {
+                let data = {
+                    date: this.date.date,
+                    hospital_id: this.$route.params.id ? this.$route.params.id : this.auth_user.hospital_id,
+                    cardiologist_id: this.cardiologist_id,
+                    surgeon_id: this.surgeon_id,
+                };
+                axios.post(`/api/operators`, data, {
                     headers: {Authorization: localStorage.getItem('access_token')}
                 }).then(res => {
                     console.log(res);
-                    this.orderly = res.data.data;
-                    if (this.rooms.length == 0) this.getBooking();
+                    let doctor = res.data.data;
+                    this.getOrderly(doctor);
                 }).catch(err => {
                     this.errorsMessage(err);
                 }).finally(() => {
@@ -406,61 +765,116 @@ export default {
             }
 
         },
-        canAddOrderly() {
-            return
-            [this.roles.surgeon, this.roles.cardiologist, this.roles.admin].includes(this.auth_user.role_name)
-            && (!this.orderly || this.orderly.surgeon_id == '');
+        getOrderly(doctor) {
+            let i = this.orderly.findIndex(el => el.date == doctor.date);
+            if (i > -1) {
+                this.orderly.splice(i, 1)
+            };
+            if (this.dateToday.date == doctor.date) {
+                this.dateToday.cardiologist_id = doctor.cardiologist_id;
+                this.dateToday.cardiologist_first_name = doctor.cardiologist_first_name;
+                this.dateToday.cardiologist_last_name = doctor.cardiologist_last_name;
+                this.dateToday.cardiologist_patronymic = doctor.cardiologist_patronymic;
+
+                this.dateToday.surgeon_id = doctor.surgeon_id;
+                this.dateToday.surgeon_first_name = doctor.surgeon_first_name;
+                this.dateToday.surgeon_last_name = doctor.surgeon_last_name;
+                this.dateToday.surgeon_patronymic = doctor.surgeon_patronymic;
+            } else if (this.dateTommorow.date == doctor.date) {
+                this.dateTommorow.cardiologist_id = doctor.cardiologist_id;
+                this.dateTommorow.cardiologist_first_name = doctor.cardiologist_first_name;
+                this.dateTommorow.cardiologist_last_name = doctor.cardiologist_last_name;
+                this.dateTommorow.cardiologist_patronymic = doctor.cardiologist_patronymic;
+
+                this.dateTommorow.surgeon_id = doctor.surgeon_id;
+                this.dateTommorow.surgeon_first_name = doctor.surgeon_first_name;
+                this.dateTommorow.surgeon_last_name = doctor.surgeon_last_name;
+                this.dateTommorow.surgeon_patronymic = doctor.surgeon_patronymic;
+            }
+
         },
-        canUpdate() {
-            return [this.roles.surgeon, this.roles.cardiologist, this.roles.admin].includes(this.auth_user.role_name);
+        canAddOrderly(date) {
+            return [this.roles.surgeon, this.roles.cardiologist, this.roles.admin].includes(this.auth_user.role_name)
+                && this.orderly.length > 0 && this.orderly.findIndex(el => el.date == date)>-1;
+
+        },
+        canUpdate(date) {
+            return [this.roles.surgeon, this.roles.cardiologist, this.roles.admin].includes(this.auth_user.role_name)
+                && (this.orderly.length == 0 || !this.orderly.find(el => el.date == date));
         },
         closeModal() {
             this.errors = null;
             this.myModal.hide();
+        },
+        OffOnHospitalRoom(room_id, condition, index) {
+            axios.get(`/api/hospital_rooms/disable`,
+                {
+                    headers: {Authorization: localStorage.getItem('access_token')},
+                    params: {
+                        room_id,
+                        condition: condition == 1 ? 0 : 1
+                    }
+                }).then(res => {
+                console.log(res);
+                this.rooms[index].condition = res.data.data.condition
+            }).catch(err => {
+                this.errorsMessage(err);
+            }).finally(() => {
+                if (Object.keys(this.choice_time).length > 0 && this.choice_time.day == this.dateToday.date) {
+                    this.choice_time = {}
+                }
+            });
+
+        },
+        roomsVal(val, date) {
+            let arr = [];
+            if (date == this.dateToday) {
+                arr = val.slice(0,24)
+            } else {
+                arr = val.slice(24,48)
+            }
+            return arr;
+        },
+        allowOnOffRoom() {
+            return this.auth_user &&
+            [this.roles.admin, this.roles.cardiologist, this.roles.surgeon].includes(this.auth_user.role_name)
+            ? true : false;
+        },
+        addCssClass(room, room_index, val, val_index, day) {
+            let columnColor = this.colorChoiseTime(room_index, val_index, day)
+                ? 'bg-choice' : this.colorRoomOffTime(room,room_index,val_index,val)
+                    ? 'bg-gray-300' : val.status == 0
+                        ? 'bg-green-300' : val.status == 1
+                            ? 'bg-red-300' : 'bg-yellow-300';
+
+            let disabledCard = this.oldTime(val) ? '' : 'disabledcard';
+
+            let cursor = this.canUpdate() && room.condition == 1 && this.oldTime(val)
+            && !this.colorRoomOffTime(room,room_index,val_index,val) ? 'cursor' : '';
+
+            let str = `${columnColor} ${disabledCard} ${cursor}`
+
+            return str
+        },
+        ChangeTime() {
+            let start = this.$dayjs(this.modal.time_start).get('date')
+                == this.$dayjs(this.modal.time_end).add(1, 'hour').get('date')
+                ? this.$dayjs(this.modal.time_start).format('HH:mm')
+                : this.modal.day == this.dateToday.date
+                    ? this.$dayjs(this.modal.time_start).format('HH:mm DD.MM.YY')
+                    : this.$dayjs(this.modal.time_start).add(1, 'day').format('HH:mm DD.MM.YY');
+            let end = this.modal.day == this.dateToday.date
+                ? this.$dayjs(this.modal.time_end).add(1, 'hour').format('HH:mm DD.MM.YY')
+                : this.$dayjs(this.modal.time_end).add(1, 'hour').add(1, 'day').format('HH:mm DD.MM.YY')
+            return `Время: ${start} - ${end}`
         }
+
+
     },
 }
 </script>
 
 <style scoped>
-.border-white {
-    border: 1px solid #fff;
-}
-.square {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    /*cursor: pointer;*/
-    aspect-ratio: 1;
-    width: 100%;
-    position: relative;
-}
-.cursor {
-    cursor: pointer !important;
-}
-.striped {
-    background: linear-gradient(to right, cyan 50%, palegoldenrod 50%);
-}
-.room1 {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 50%;
-    height: 100%;
-    cursor: pointer;
-    /*z-index: 0;*/
-    border-right: 1px solid white;
-}
-.room2 {
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 50%;
-    height: 100%;
-    cursor: pointer;
-    /*z-index: 0;*/
-    border-left: 1px solid white;
-}
 
 </style>
 

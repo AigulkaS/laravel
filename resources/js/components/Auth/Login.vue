@@ -61,10 +61,10 @@
                                     </button>
                                 </div>
 
-<!--                                <div class="col-12 mb-2 text-center">-->
-<!--                                    <router-link :to="{name: 'forgot-password'}">-->
-<!--                                        Забыли свой пароль</router-link>-->
-<!--                                </div>-->
+                                <div class="col-12 mb-2 text-center">
+                                    <router-link :to="{name: 'forgot-password'}">
+                                        Забыли свой пароль</router-link>
+                                </div>
 
                                 <div class="col-12 text-center">
                                     <label>У вас нет аккаунта?

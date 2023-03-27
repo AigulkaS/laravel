@@ -33,19 +33,28 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
 });
 
-
-Route::get('/users/create', App\Http\Controllers\User\CreateController::class)->name('user.create');
+// for users
+Route::get('/users/create', App\Http\Controllers\User\CreateController::class)->name('user.create')->middleware('permissions:edit user');
 Route::get('/users/{user}', App\Http\Controllers\User\ShowController::class,)->name('user.show');
 Route::get('/users/{user}/edit', App\Http\Controllers\User\EditController::class,)->name('user.edit');
 Route::patch('/users/{user}', App\Http\Controllers\User\UpdateController::class,)->name('user.update');
 
+Route::get('/users', App\Http\Controllers\User\IndexController::class)->name('user.index')->middleware('permissions:edit user');
+Route::post('/users', App\Http\Controllers\User\StoreController::class)->name('user.store')->middleware('permissions:edit user');
+Route::delete('/users/{user}', App\Http\Controllers\User\DestroyController::class,)->name('user.delete')->middleware('permissions:edit user');
+//
+
+//for hospitals
+Route::get('/hospitals/{hospital}', App\Http\Controllers\Hospital\ShowController::class,)->name('hospital.show')->middleware('permissions:edit hospital');
+Route::get('/hospitals/{hospital}/edit', App\Http\Controllers\Hospital\EditController::class,)->name('hospital.edit')->middleware('permissions:edit hospital');
+Route::patch('/hospitals/{hospital}', App\Http\Controllers\Hospital\UpdateController::class,)->name('hospital.update')->middleware('permissions:edit hospital');
+// for hospital rooms
+Route::delete('/hospital_rooms/{hospital_room}', App\Http\Controllers\Hospital\DestroyRoomController::class,)->name('hospital_room.delete')->middleware('permissions:edit hospital');
+Route::get('/hospital_rooms/disable', App\Http\Controllers\Hospital\DisableController::class,)->name('hospital_room.disable')->middleware('permissions:disable hospital room');
+
+//
+
 Route::group(['middleware' => 'role:admin'], function () {
-    // for users
-    Route::get('/users', App\Http\Controllers\User\IndexController::class)->name('user.index');
-    Route::post('/users', App\Http\Controllers\User\StoreController::class)->name('user.store');
-    Route::delete('/users/{user}', App\Http\Controllers\User\DestroyController::class,)->name('user.delete');
-    //
-// ->middleware('permissions:edit booking,edit today')
 
     // for roles
     Route::get('/roles', App\Http\Controllers\Role\IndexController::class)->name('role.index');
@@ -71,12 +80,7 @@ Route::group(['middleware' => 'role:admin'], function () {
     Route::get('/hospitals', App\Http\Controllers\Hospital\IndexController::class)->name('hospital.index');
     Route::get('/hospitals/create', App\Http\Controllers\Hospital\CreateController::class)->name('hospital.create');
     Route::post('/hospitals', App\Http\Controllers\Hospital\StoreController::class)->name('hospital.store');
-    Route::get('/hospitals/{hospital}', App\Http\Controllers\Hospital\ShowController::class,)->name('hospital.show');
-    Route::get('/hospitals/{hospital}/edit', App\Http\Controllers\Hospital\EditController::class,)->name('hospital.edit');
-    Route::patch('/hospitals/{hospital}', App\Http\Controllers\Hospital\UpdateController::class,)->name('hospital.update');
     Route::delete('/hospitals/{hospital}', App\Http\Controllers\Hospital\DestroyController::class,)->name('hospital.delete');
-    // for hospital rooms
-    Route::delete('/hospital_rooms/{hospital_room}', App\Http\Controllers\Hospital\DestroyRoomController::class,)->name('hospital_room.delete');
     //
 
     // for diseases
@@ -90,23 +94,34 @@ Route::group(['middleware' => 'role:admin'], function () {
     //
 });
 
-
-// for today
-Route::get('/todays', App\Http\Controllers\Today\IndexController::class)->name('today.index');//->middleware('permissions:show today');
-Route::get('/todays/edit', App\Http\Controllers\Today\EditController::class,)->name('today.edit')->middleware('permissions:edit today');
-Route::patch('/todays', App\Http\Controllers\Today\UpdateController::class,)->name('today.update')->middleware('permissions:edit today');
+// for operators
+Route::get('/operators', App\Http\Controllers\Operator\IndexController::class)->name('operator.index');
+Route::get('/operators/edit', App\Http\Controllers\Operator\EditController::class,)->name('operator.edit')->middleware('permissions:edit operator');
+Route::post('/operators', App\Http\Controllers\Operator\UpdateController::class,)->name('operator.update')->middleware('permissions:edit operator');
 //
 
 // for booking
-Route::get('/bookings', App\Http\Controllers\Booking\IndexController::class)->name('booking.index'); //->middleware('permissions:show booking');
-Route::get('/bookings/create/disease', [\App\Http\Controllers\Booking\CreateController::class, 'disease'])->name('disease')->middleware('permissions:show booking,create booking,edit booking');
-Route::get('/bookings/create/hospital', [\App\Http\Controllers\Booking\CreateController::class, 'hospital'])->name('hospital')->middleware('permissions:show booking,create booking,edit booking');
-Route::post('/bookings', App\Http\Controllers\Booking\StoreController::class)->name('booking.store')->middleware('permissions:show booking,create booking,edit booking');
-Route::patch('/bookings', App\Http\Controllers\Booking\UpdateController::class,)->name('booking.update')->middleware('permissions:show booking,create booking,edit booking');
-// Route::delete('/bookings/{booking}', App\Http\Controllers\Booking\DestroyController::class,)->name('booking.delete');
+Route::get('/bookings', App\Http\Controllers\Booking\IndexController::class)->name('booking.index');
+Route::get('/bookings/create/disease', [\App\Http\Controllers\Booking\CreateController::class, 'disease'])->name('disease')->middleware('permissions:create booking');
+// Route::get('/bookings/create/hospital', [\App\Http\Controllers\Booking\CreateController::class, 'hospital'])->name('hospital')->middleware('permissions:show booking,create booking,edit booking');
+// Route::post('/bookings', App\Http\Controllers\Booking\StoreController::class)->name('booking.store')->middleware('permissions:show booking,create booking,edit booking');
+Route::post('/bookings', App\Http\Controllers\Booking\StoreControllerNew::class)->name('booking.store')->middleware('permissions:create booking');
+Route::patch('/bookings', App\Http\Controllers\Booking\UpdateController::class,)->name('booking.update')->middleware('permissions:update booking');
 //
 
 Route::post('/push', [\App\Http\Controllers\PushController::class, 'store'])->name('store');
 Route::post('/notifications', [\App\Http\Controllers\PushController::class, 'storePush'])->name('storePush');
 Route::get('/push', [\App\Http\Controllers\PushController::class, 'push'])->name('push');
 
+// "geo_lat": "54.728914",
+//     "geo_lon": "55.967459",
+//     "disease_id": 1,
+//     "condition_id": 2
+
+// "type": 1,
+//     "full_name": "djjsd",
+//     "short_name": "smnd",
+//     "address": "dskjn",
+//     "hospital_rooms": [],
+//     "geo_lat": "54.728914",
+//     "geo_lon": "55.967459"

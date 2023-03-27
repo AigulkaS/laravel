@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 class HospitalFilter extends AbstractFilter
 {
     public const ID = 'id';
+    public const TYPE = 'type';
     public const FULL_NAME = 'full_name';
     public const SHORT_NAME = 'short_name';
     public const ADDRESS = 'address';
@@ -18,6 +19,7 @@ class HospitalFilter extends AbstractFilter
     {
         return [
             self::ID => [$this, 'id'],
+            self::TYPE => [$this, 'type'],
             self::FULL_NAME => [$this, 'fullName'],
             self::SHORT_NAME => [$this, 'shortName'],
             self::ADDRESS => [$this, 'address'],
@@ -27,6 +29,11 @@ class HospitalFilter extends AbstractFilter
     public function id(Builder $builder, $value)
     {
         $builder->where('id', $value);
+    }
+
+    public function type(Builder $builder, $value)
+    {
+        $builder->where('type', $value);
     }
 
     public function fullName(Builder $builder, $value)

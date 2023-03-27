@@ -14,7 +14,7 @@ class Role extends Model
     use Filterable;
 
     protected $guarded = false;
-    public $timestamps = false;
+    public $timestamps = true;
 
     public function users() {
         return $this->hasMany(User::class);

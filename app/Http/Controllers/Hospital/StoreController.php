@@ -11,10 +11,40 @@ class StoreController extends BaseController
     public function __invoke(StoreRequest $request)
     {
         $data = $request->validated();
-        
-        $hospital = $this->service->store($data);
 
-        return new HospitalResource($hospital);
+        $error = false;
+        $rooms = $data['hospital_rooms'];
+        foreach ($rooms as $room) {
+            if (array_key_exists('start', $room)) {
+                if (!array_key_exists('end', $room)) {
+                    $error = true;
+                    break;
+                }
+                $arr = explode( ':', $room['start']);
+                $start = $arr[0];
+                $arr = explode( ':', $room['end']);
+                $end = $arr[0];
+                if ($end <= $start) {
+                    $error = true;
+                    break;
+                }
+            } else {
+                if (array_key_exists('end', $room)) {
+                    $error = true;
+                    break;
+                }
+            }
+
+        }
+        if ($error) {
+            return response()->json([
+                'message' => 'wrong time data',
+            ], 422);
+        } else {
+            $hospital = $this->service->store($data);
+            return $hospital instanceof String ? $hospital : new HospitalResource($hospital);
+        }
+
     }
-     
+
 }
