@@ -32,17 +32,17 @@ class StoreControllerNew extends BaseController
                 'messages' => $messages,
             ]));
 
-            foreach ($messages['users'] as $user) {
-                $data = [
-                    'user' => $user,
-                    'hospital' => $messages['hospital'],
-                    'address' => $messages['address'],
-                    'disease' => $messages['disease'],
-                    'condition' => $messages['condition'],
-                    'time' => $messages['time'],
-                ];
-                Mail::to($user['email'])->send(new BookingMail($data));
-            }
+//            foreach ($messages['users'] as $user) {
+//                $data = [
+//                    'user' => $user,
+//                    'hospital' => $messages['hospital'],
+//                    'address' => $messages['address'],
+//                    'disease' => $messages['disease'],
+//                    'condition' => $messages['condition'],
+//                    'time' => $messages['time'],
+//                ];
+//                Mail::to($user['email'])->send(new BookingMail($data));
+//            }
 
             return response()->json([
                 'bookings' => BookingResource::collection($bookingsInfo['bookings']),
