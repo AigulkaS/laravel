@@ -59,7 +59,7 @@
 
                     <div>
                         <div v-if="auth_user && auth_user.email_verified_at
-                            && [roles.cardiologist, roles.surgeon].includes(auth_user.role_name)">
+                            && [roles.cardiologist, roles.surgeon, roles.moderator].includes(auth_user.role_name)">
                             <HospitalBooking></HospitalBooking>
                         </div>
                         <div v-else>
