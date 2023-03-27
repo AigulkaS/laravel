@@ -20,7 +20,7 @@ class AuthController extends Controller
         $data['password'] = Hash::make($data['password']);
 
         //Временно
-//        $data['email_verified_at'] = Date::now();
+        $data['email_verified_at'] = Date::now();
         //
 
         $user = User::firstOrCreate([

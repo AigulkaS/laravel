@@ -435,21 +435,21 @@ export default {
         }
     },
     mounted() {
-        const socket = io(this.server_url);
-        socket.on('operators-update:App\\Events\\OperatorsUpdateEvent', (data) => {
-            let doctor = data.result;
-            this.getOrderly(doctor);
-        });
-
-        socket.on('bookings-update:App\\Events\\BookingsUpdateEvent', (data) => {
-            let arr = data.result;
-            this.updateRoomStatus(arr);
-        });
-        socket.on('bookings-store:App\\Events\\BookingsStoreEvent', (data) => {
-            // console.log(data);
-            let arr = data.result;
-            this.updateRoomStatusDispet(arr.bookings);
-        });
+        // const socket = io(this.server_url);
+        // socket.on('operators-update:App\\Events\\OperatorsUpdateEvent', (data) => {
+        //     let doctor = data.result;
+        //     this.getOrderly(doctor);
+        // });
+        //
+        // socket.on('bookings-update:App\\Events\\BookingsUpdateEvent', (data) => {
+        //     let arr = data.result;
+        //     this.updateRoomStatus(arr);
+        // });
+        // socket.on('bookings-store:App\\Events\\BookingsStoreEvent', (data) => {
+        //     // console.log(data);
+        //     let arr = data.result;
+        //     this.updateRoomStatusDispet(arr.bookings);
+        // });
         this.getData();
     },
 
