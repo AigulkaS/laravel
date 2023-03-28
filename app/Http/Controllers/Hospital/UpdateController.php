@@ -15,29 +15,31 @@ class UpdateController extends BaseController
             $data = $request->validated();
 
             $error = false;
-            $rooms = $data['hospital_rooms'];
-            foreach ($rooms as $room) {
-                if (array_key_exists('start', $room)) {
-                    if (!array_key_exists('end', $room)) {
-                        $error = true;
-                        break;
-                    }
-                    $arr = explode( ':', $room['start']);
-                    $start = $arr[0];
-                    $arr = explode( ':', $room['end']);
-                    $end = $arr[0];
-                    if ($end <= $start) {
-                        $error = true;
-                        break;
-                    }
-                } else {
-                    if (array_key_exists('end', $room)) {
-                        $error = true;
-                        break;
+            if (array_key_exists('hospital_rooms', $data)) {
+                $rooms = $data['hospital_rooms'];
+                foreach ($rooms as $room) {
+                    if (array_key_exists('start', $room)) {
+                        if (!array_key_exists('end', $room)) {
+                            $error = true;
+                            break;
+                        }
+                        $arr = explode( ':', $room['start']);
+                        $start = $arr[0];
+                        $arr = explode( ':', $room['end']);
+                        $end = $arr[0];
+                        if ($end <= $start) {
+                            $error = true;
+                            break;
+                        }
+                    } else {
+                        if (array_key_exists('end', $room)) {
+                            $error = true;
+                            break;
+                        }
                     }
                 }
-
             }
+            
             if ($error) {
                 return response()->json([
                     'message' => 'wrong time data',
@@ -51,8 +53,6 @@ class UpdateController extends BaseController
                 'message' => 'Access is denied',
             ], 403);
         }
-
-
     }
 
 
