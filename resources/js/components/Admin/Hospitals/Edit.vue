@@ -5,7 +5,7 @@
         <div v-else-if="successPage" class="container">
             <div class="row justify-content-center">
                 <div class="col-12" v-if="hospital">
-                    <h5 class="fw-bold">Редактирвать разрешение - {{hospital.short_name}} </h5>
+                    <h5 class="fw-bold">Редактирвать - {{hospital.short_name}} </h5>
 
                     <div v-if="success" class="alert alert-success" role="alert">
                         {{success}}

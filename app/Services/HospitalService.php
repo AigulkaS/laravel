@@ -2,10 +2,8 @@
 
 namespace App\Services;
 
-use App\Http\Resources\HospitalResource;
 use App\Models\Hospital;
 use App\Models\HospitalRoom;
-use App\Models\Today;
 use Illuminate\Support\Facades\DB;
 
 class HospitalService {
@@ -13,27 +11,16 @@ class HospitalService {
     public function store($data) {
         try {
             DB::beginTransaction();
-            $rooms = $data['hospital_rooms'];
-            unset($data['hospital_rooms']);
-
-            if($data['type'] == 2) {
-                unset($data['address']);
-                unset($data['geo_lat']);
-                unset($data['geo_lon']);
-            }
-
-            $hospital = Hospital::create($data);
-
-            if ($data['type'] == 1) {
+            
+            if($data['type'] == 1) {
+                $rooms = $data['hospital_rooms'];
+                unset($data['hospital_rooms']);
                 $newRooms = $this->getNewRooms($rooms);
+                $hospital = Hospital::create($data);
                 $hospital->rooms()->saveMany($newRooms);
+            } else {
+                $hospital = Hospital::create($data);
             }
-
-            // $todayData = [
-            //     'hospital_id' => $hospital->id,
-            // ];
-            // Today::create($todayData);
-
             DB::commit();
 
         } catch(\Exception $e) {
@@ -48,21 +35,16 @@ class HospitalService {
         try {
             DB::beginTransaction();
 
-            $rooms = $data['hospital_rooms'];
-            unset($data['hospital_rooms']);
-
-            if($data['type'] == 2) {
-                unset($data['address']);
-                unset($data['geo_lat']);
-                unset($data['geo_lon']);
-            }
-
-            $hospital->update($data);
-            $hospital->fresh();
-
             if($data['type'] == 1) {
+                $rooms = $data['hospital_rooms'];
+                unset($data['hospital_rooms']);
                 $updatedRooms = $this->getUpdatedRooms($rooms);
+                $hospital->update($data);
+                $hospital->fresh();
                 $hospital->rooms()->saveMany($updatedRooms);
+            } else {
+                $hospital->update($data);
+                $hospital->fresh();
             }
 
             DB::commit();

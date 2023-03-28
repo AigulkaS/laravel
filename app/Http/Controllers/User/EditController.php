@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\User;
 
-use App\Http\Controllers\Controller;
 use App\Http\Resources\HospitalResource;
 use App\Http\Resources\RoleResource;
 use App\Http\Resources\UserResource;
@@ -24,6 +23,7 @@ class EditController extends BaseController
                  (strpos($userChecked->role->name, 'moderator') !== false && $userChecked->hospital_id == $user->hospital_id)) {
                 $roles = null;
                 $hospitals = null;
+                $smps = null;
                 $userCheck = auth('sanctum')->user();
                 switch ($userCheck->role->name) {
                     case 'admin':
