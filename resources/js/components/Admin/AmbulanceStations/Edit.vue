@@ -5,7 +5,7 @@
         <div v-else-if="successPage" class="container">
             <div class="row justify-content-center">
                 <div class="col-12" v-if="station">
-                    <h5 class="fw-bold">Редактирвать разрешение - {{station.short_name}} </h5>
+                    <h5 class="fw-bold">Редактирвать - {{station.short_name}} </h5>
 
                     <div v-if="success" class="alert alert-success" role="alert">
                         {{success}}
@@ -84,9 +84,15 @@ export default {
             },
         }
     },
+    computed: {
+        auth_user() {
+            return localStorage.getItem('auth_user')
+                ? JSON.parse(localStorage.getItem('auth_user')) : null
+        }
+    },
     methods: {
         getData() {
-            axios.get(`/api/hospitals/${this.id}/edit`, {
+            axios.get(`/api/hospitals/${this.id ? this.id : this.auth_user.hospital_id}/edit`, {
                 headers: {Authorization: localStorage.getItem('access_token')}
             }).then(res => {
                 console.log(res);
@@ -111,7 +117,7 @@ export default {
                         hospital_rooms: 'null'
                     }
 
-                axios.patch(`/api/hospitals/${this.id}`, data,
+                axios.patch(`/api/hospitals/${this.id ? this.id : this.auth_user.hospital_id}`, data,
                     {headers: {Authorization: localStorage.getItem('access_token')}
                 }).then(res => {
                     console.log(res);

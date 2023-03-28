@@ -157,6 +157,33 @@ const routes = [
 
 
             {
+                path: 'ambulance_station',
+                component: () => import('../components/Admin/AmbulanceStations/Show.vue'),
+                name: 'ambulance_station_show_user',
+                meta : {
+                    email_verified: true,
+                    requiresAuth: true,
+                    breadcrumb: 'СМП',
+                },
+                children: [
+                    {
+                        path: 'edit',
+                        props: route => ({
+                            id: route.params.id,
+                        }),
+                        component: () => import('../components/Admin/AmbulanceStations/Edit.vue'),
+                        name: 'ambulance_station_edit_user',
+                        meta : {
+                            email_verified: true,
+                            requiresAuth: true,
+                            breadcrumb: 'Редактирование',
+                        },
+                    },
+                ]
+            },
+
+
+            {
                 path: 'admin',
                 component: () => import('../components/Admin/Admin.vue'),
                 name: 'admin_page',
@@ -259,7 +286,8 @@ const routes = [
                                 },
                             },
                         ]
-                    },{
+                    },
+                    {
                         path: 'permissions',
                         component: () => import('../components/Admin/Permissions/Permissions.vue'),
                         name: 'permissions',
