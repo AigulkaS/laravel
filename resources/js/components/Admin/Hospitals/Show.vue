@@ -59,8 +59,7 @@
                 </div>
             </div>
             <div>
-                <router-view @change_data = "onChangeChild"
-                ></router-view>
+                <router-view @change_data = "onChangeChild"></router-view>
             </div>
         </div>
     </div>
@@ -88,7 +87,7 @@ export default {
     },
     methods: {
         getData() {
-            console.log( this.auth_user.hospital_id)
+            // console.log( this.auth_user.hospital_id)
             axios.get(`/api/hospitals/${this.id ? this.id : this.auth_user.hospital_id}`, {
                 headers: {Authorization: localStorage.getItem('access_token')}
             }).then(res => {

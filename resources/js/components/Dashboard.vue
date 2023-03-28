@@ -30,9 +30,14 @@
                                 Пользователи
                             </router-link>
                         </li>
-                        <li class="nav-item" v-if="auth_user && [roles.admin, roles.moderator, roles.moderator_smp].includes(auth_user.role_name)">
+                        <li class="nav-item" v-if="auth_user && [roles.admin, roles.moderator].includes(auth_user.role_name)">
                             <router-link :to="{name:'hospital_show_user'}" class="nav-link">
                                 Больница
+                            </router-link>
+                        </li>
+                        <li class="nav-item" v-if="auth_user && [roles.admin, roles.moderator_smp].includes(auth_user.role_name)">
+                            <router-link :to="{name:'ambulance_station_show_user'}" class="nav-link">
+                                СМП
                             </router-link>
                         </li>
                     </ul>
