@@ -111,10 +111,10 @@ export default {
                         type:  hospital_type.smp,
                         full_name: this.station.full_name,
                         short_name: this.station.short_name,
-                        address: 'null',
-                        geo_lat: 'null',
-                        geo_lon: 'null',
-                        hospital_rooms: 'null'
+                        // address: 'null',
+                        // geo_lat: 'null',
+                        // geo_lon: 'null',
+                        // hospital_rooms: 'null'
                     },
                     {headers: {Authorization: localStorage.getItem('access_token')}
                 }).then(res => {
