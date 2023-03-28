@@ -42,7 +42,7 @@ class UpdateController extends BaseController
             
             if ($error) {
                 return response()->json([
-                    'messages' => 'wrong time data',
+                    'message' => 'wrong time data',
                 ], 422);
             } else {
                 $hospital = $this->service->update($hospital, $data);
@@ -55,5 +55,5 @@ class UpdateController extends BaseController
         }
     }
 
-        
+
 }

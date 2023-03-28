@@ -93,7 +93,7 @@
                                     <div class="row my-1">
                                         <label class="col col-sm-2 col-form-label fw-bold ">Кабинет</label>
                                         <div class="col-5 col-sm-5">
-                                            <input type="text" class="form-control" v-model="room.name">
+                                            <input type="text" class="form-control" v-model="room.name" @change="verificationTime(room)">
                                         </div>
                                         <div class="col col-sm-3">
                                             <button type="button" @click.prevent="addRoomm(index)" class="mt-1 btn btn-success btn-circle">
@@ -107,17 +107,34 @@
                                     <div class="my-1">
                                         <label class=" col-form-label fw-bold ">Время работы: </label>
                                         <span class="mx-2">с</span>
-                                        <select class="form-control form-inline form-select" v-model="room.start">
+                                        <select class="form-control form-inline form-select"
+                                                v-model="room.start" :disabled="room.round_the_clock"
+                                                @change="verificationTime(room)"
+                                        >
                                             <option v-for="(clock, i) in timepiece" :key="i" :value="clock">
                                                 {{ clock }}
                                             </option>
                                         </select>
                                         <span class="mx-2">по</span>
-                                        <select class="form-control form-inline form-select" v-model="room.end">
+                                        <select class="form-control form-inline form-select"
+                                                v-model="room.end" :disabled="room.round_the_clock"
+                                                @change="verificationTime(room)"
+                                        >
                                             <option v-for="(clock, i) in timepiece" :key="i" :value="clock">
                                                 {{ clock }}
                                             </option>
                                         </select>
+                                        <div v-if="room.error" class="pl-sm-4 text-danger">
+                                            {{room.error}}
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" :value="true"
+                                                   v-model="room.round_the_clock" id="day_and_night"
+                                                   @change="chekedChanged(room)">
+                                            <label class="form-check-label" for="day_and_night">
+                                                Круглосуточно
+                                            </label>
+                                        </div>
                                     </div>
                                 </template>
                             </div>
@@ -238,13 +255,13 @@ export default {
         },
         createRooms() {
             if (this.rooms.length == 0) {
-                this.rooms.push({name: null, start: null, end:null})
+                this.rooms.push({name: null, start: null, end:null, round_the_clock: true, error: null})
             }
             this.rooms_show = !this.rooms_show;
         },
         addRoomm(index) {
             // this.rooms.push({name: null})
-            this.rooms.splice(index+1, 0, {name: null, start: null, end:null})
+            this.rooms.splice(index+1, 0, {name: null, start: null, end:null, round_the_clock: true, error: null})
         },
         deleteRoomm(index) {
             this.rooms.splice(index, 1);
@@ -253,15 +270,26 @@ export default {
         store() {
             // console.log(this.suggestion)
             // console.log(this.suggestion.unrestricted_value)
-
             this.errs = null
             this.success = null;
+            let timeErr = this.rooms.findIndex(el => el.error != null);
+
             this.v$.$validate() // checks all inputs
-            this.rooms = this.rooms.filter((el, index) => {
-               return  el.name !== null && el.name !== ''
-            })
-            if (!this.v$.$error) {
+            if (!this.v$.$error && timeErr == -1) {
                 this.processing = true;
+
+                this.rooms = this.rooms.filter((el, index) => {
+                    return  el.name !== null && el.name !== ''
+                })
+                this.rooms.forEach(el => {
+                    if (!el.start) {
+                        delete el.start;
+                        delete el.end;
+                    }
+                    delete el.round_the_clock;
+                    delete el.error;
+                });
+
                 axios.post('/api/hospitals', {
                         type:  hospital_type.hospital,
                         full_name: this.hospital.full_name,
@@ -323,6 +351,28 @@ export default {
                     })
                     .catch(err => this.errorsMessage(err));
             }, time)
+        },
+        chekedChanged(room) {
+            console.log(room);
+            if (room.round_the_clock) {
+                room.start = null;
+                room.end = null;
+            }
+        },
+        verificationTime(room) {
+            if (!room.start && room.end) {
+                room.error = 'Укажите время начала и конца работы'
+            } else if (room.start && room.end==room.start) {
+                room.error = 'Время начала и конца совпадают. Укажите, время работы крулосуточно'
+            } else if (room.start && room.end && Number(room.start.substr(0, 2)) > Number(room.end.substr(0, 2)) ) {
+                room.error = 'Время начала не должно быть больше время конца'
+            } else if (!room.name || room.name == '') {
+                console.log(room.name)
+                room.error = 'Поле Кабинет не может быть пустым'
+            } else {
+                room.error = null;
+            }
+
         }
     }
 }
