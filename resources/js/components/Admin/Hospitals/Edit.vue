@@ -87,9 +87,33 @@
                         <div class="form-group row my-1">
                             <label class="col-sm-2 col-form-label fw-bold ">Кабинет</label>
                             <div class="col-sm-10">
-                                <div class="row my-1" v-for="(room, index) in this.hospital.rooms">
-                                    <div class="col-7 col-sm-5">
+                                <div class="row my-3" v-for="(room, index) in this.hospital.rooms">
+                                    <div class="col-sm-7">
                                         <input type="text" class="form-control" v-model="room.name">
+                                        <label class=" col-form-label fw-bold ">Время работы: </label>
+                                        <span class="mx-2">с</span>
+                                        <select class="form-control form-inline form-select"
+                                                v-model="room.start" :disabled="room.round_the_clock">
+                                            <option v-for="(clock, i) in timepiece" :key="i" :value="clock">
+                                                {{ clock }}
+                                            </option>
+                                        </select>
+                                        <span class="mx-2">по</span>
+                                        <select class="form-control form-inline form-select"
+                                                v-model="room.end" :disabled="room.round_the_clock">
+                                            <option v-for="(clock, i) in timepiece" :key="i" :value="clock">
+                                                {{ clock }}
+                                            </option>
+                                        </select>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" :value="true"
+                                                   v-model="room.round_the_clock" id="day_and_night1"
+                                                   @change="chekedChanged(room)"
+                                            >
+                                            <label class="form-check-label" for="day_and_night1">
+                                                Круглосуточно
+                                            </label>
+                                        </div>
                                     </div>
                                     <div class="col col-sm-3">
                                         <button type="button"
@@ -128,6 +152,31 @@
                                             </button>
                                         </div>
                                     </div>
+                                    <div class="my-1">
+                                        <label class=" col-form-label fw-bold ">Время работы: </label>
+                                        <span class="mx-2">с</span>
+                                        <select class="form-control form-inline form-select"
+                                                v-model="room.start" :disabled="room.round_the_clock">
+                                            <option v-for="(clock, i) in timepiece" :key="i" :value="clock">
+                                                {{ clock }}
+                                            </option>
+                                        </select>
+                                        <span class="mx-2">по</span>
+                                        <select class="form-control form-inline form-select"
+                                                v-model="room.end" :disabled="room.round_the_clock">
+                                            <option v-for="(clock, i) in timepiece" :key="i" :value="clock">
+                                                {{ clock }}
+                                            </option>
+                                        </select>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" :value="true"
+                                                   v-model="room.round_the_clock" id="day_and_night"
+                                                   @change="chekedChanged(room)">
+                                            <label class="form-check-label" for="day_and_night">
+                                                Круглосуточно
+                                            </label>
+                                        </div>
+                                    </div>
                                 </template>
 
                             </div>
@@ -154,7 +203,7 @@ import { required, email, minLength, sameAs } from '@vuelidate/validators';
 import { ref } from 'vue';
 // import { VueDadata } from 'vue-dadata';
 // import 'vue-dadata/dist/style.css';
-import {wait, hospital_type} from "../../../consts";
+import {wait, hospital_type, timepiece} from "../../../consts";
 
 // export default defineComponent ({
 export default {
@@ -209,8 +258,9 @@ export default {
             url: import.meta.env.VITE_APP_DADATA_URL,
             token: import.meta.env.VITE_APP_DADATA_API_KEY,
             suggestions: true,
+            round_the_clock: true,
 
-            wait, hospital_type,
+            wait, hospital_type, timepiece,
 
         }
     },
@@ -242,18 +292,21 @@ export default {
                 this.hospital = res.data.data;
                 this.query = this.hospital.address;
                 // this.suggestion = this.hospital.address;
+                this.hospital.rooms.forEach(el => {
+                    el['round_the_clock'] = el.start ? false : true;
+                })
             }).catch(err => {
                 this.errorsMessage(err);
             }).finally(() => this.successPage = true);
         },
         createRooms() {
             if (this.rooms.length == 0) {
-                this.rooms.push({name: null})
+                this.rooms.push({name: null, start: null, end:null, round_the_clock: true})
             }
             this.rooms_show = !this.rooms_show;
         },
         addRoomm(index) {
-            this.rooms.splice(index+1, 0, {name: null})
+            this.rooms.splice(index+1, 0, {name: null, start: null, end:null, round_the_clock: true})
         },
         deleteRoomm(index) {
             this.rooms.splice(index, 1);
@@ -277,6 +330,7 @@ export default {
                 return  el.name !== null && el.name !== ''
             });
             let rooms = this.hospital.rooms.concat(this.rooms);
+            rooms.forEach(el => delete el.round_the_clock);
             if (!this.v$.$error || (!this.v$.hospital.$error && this.query == this.hospital.address)) {
                 this.processing = true;
                 let data = {};
@@ -357,6 +411,13 @@ export default {
                     })
                     .catch(err => this.errorsMessage(err));
             }, time)
+        },
+        chekedChanged(room) {
+            console.log(room);
+            if (room.round_the_clock) {
+                room.start = null;
+                room.end = null;
+            }
         }
     }
 }
