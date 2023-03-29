@@ -13,6 +13,8 @@ const redis = new Redis();
 redis.subscribe('operators-update');
 redis.subscribe('bookings-update');
 redis.subscribe('bookings-store');
+redis.subscribe('bookings-index');
+redis.subscribe('bookings-all-time-index');
 
 redis.on('message', function (channel, message) {
     console.log('Message recieved:'+ message);
