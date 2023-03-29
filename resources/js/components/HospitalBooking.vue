@@ -435,30 +435,30 @@ export default {
         }
     },
     mounted() {
-        const socket = io(this.server_url);
-        socket.on('operators-update:App\\Events\\OperatorsUpdateEvent', (data) => {
-            let doctor = data.result;
-            this.getOrderly(doctor);
-        });
-
-        socket.on('bookings-update:App\\Events\\BookingsUpdateEvent', (data) => {
-            let arr = data.result;
-            this.updateRoomStatus(arr);
-        });
-        socket.on('bookings-store:App\\Events\\BookingsStoreEvent', (data) => {
-            // console.log(data);
-            let arr = data.result;
-            this.updateRoomStatusDispet(arr.bookings);
-        });
-
-        socket.on('bookings-all-time-index:App\\Events\\BookingsAllTimeIndexEvent', (data) => {
-            let result = data.result;
-            let hospital_id = this.$route.params.id ? this.$route.params.id : this.auth_user.hospital_id;
-            let index = result.findIndex(el => el.hospital_id == hospital_id)
-            if (index > -1) {
-                this.hospitalBookings(result[index]);
-            }
-        });
+        // const socket = io(this.server_url);
+        // socket.on('operators-update:App\\Events\\OperatorsUpdateEvent', (data) => {
+        //     let doctor = data.result;
+        //     this.getOrderly(doctor);
+        // });
+        //
+        // socket.on('bookings-update:App\\Events\\BookingsUpdateEvent', (data) => {
+        //     let arr = data.result;
+        //     this.updateRoomStatus(arr);
+        // });
+        // socket.on('bookings-store:App\\Events\\BookingsStoreEvent', (data) => {
+        //     // console.log(data);
+        //     let arr = data.result;
+        //     this.updateRoomStatusDispet(arr.bookings);
+        // });
+        //
+        // socket.on('bookings-all-time-index:App\\Events\\BookingsAllTimeIndexEvent', (data) => {
+        //     let result = data.result;
+        //     let hospital_id = this.$route.params.id ? this.$route.params.id : this.auth_user.hospital_id;
+        //     let index = result.findIndex(el => el.hospital_id == hospital_id)
+        //     if (index > -1) {
+        //         this.hospitalBookings(result[index]);
+        //     }
+        // });
         this.getData();
     },
 
