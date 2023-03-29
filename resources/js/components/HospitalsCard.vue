@@ -39,7 +39,7 @@
 
 <!--            <div v-else-if="bookings.length > 0">-->
             <div>
-                <div v-if="auth_user && auth_user.email_verified_at && [roles.admin, roles.smp].includes(auth_user.role_name)">
+                <div v-if="auth_user && auth_user.email_verified_at && [roles.admin, roles.smp, roles.moderator_smp].includes(auth_user.role_name)">
                     <button type="button" class="btn btn-primary" @click.prevent="addBooking()">
                         <font-awesome-icon icon="fa-solid fa-plus" /> Добавить бронь
                     </button>
@@ -454,22 +454,26 @@ export default {
         }
     },
     mounted() {
-        // const socket = io(this.server_url);
-        //
-        // socket.on('bookings-update:App\\Events\\BookingsUpdateEvent', (data) => {
-        //     let arr = data.result;
-        //     this.updateHospitalRoomStatus(arr);
-        // });
-        // socket.on('operators-update:App\\Events\\OperatorsUpdateEvent', (data) => {
-        //     let orderly = data.result;
-        //     this.updateHospitalOrderly(orderly);
-        // });
-        // socket.on('bookings-store:App\\Events\\BookingsStoreEvent', (data) => {
-        //     // console.log(data);
-        //     let arr = data.result;
-        //     // this.updateHospitalRoomStatus(arr);
-        //     this.updateHospitalRoomStatus(arr.bookings)
-        // });
+        const socket = io(this.server_url);
+
+        socket.on('bookings-update:App\\Events\\BookingsUpdateEvent', (data) => {
+            let arr = data.result;
+            this.updateHospitalRoomStatus(arr);
+        });
+        socket.on('operators-update:App\\Events\\OperatorsUpdateEvent', (data) => {
+            let orderly = data.result;
+            this.updateHospitalOrderly(orderly);
+        });
+        socket.on('bookings-store:App\\Events\\BookingsStoreEvent', (data) => {
+            console.log(data);
+            let arr = data.result;
+            this.updateHospitalRoomStatus(arr.bookings)
+        });
+        socket.on('bookings-index:App\\Events\\BookingsIndexEvent', (data) => {
+            let result = data.result;
+            console.log(result)
+            this.allBookings(result);
+        });
 
         this.getData();
     },
@@ -484,30 +488,34 @@ export default {
                 headers: {Authorization: localStorage.getItem('access_token')},
             }).then(res => {
                 console.log(res);
-                this.bookings = res.data;
-                this.bookings.forEach(el => {
-                    if (el.surgeon_id == 'default') {
-                        this.emptyOrderlies.push({hospital_id: el.hospital_id, hospital_name: el.hospital_name})
-                    }
-                });
-                if (this.emptyOrderlies.length > 0) {
-                    this.warning = `Не указаны дежурные врачи больниц!
-                    Врачи не получат уведомления о забронированных операционных.`
+                this.allBookings(res.data);
+
+            }).catch(err => {
+                this.errorsMessage(err);
+            }).finally(() => this.successPage = true);
+        },
+        allBookings(data) {
+            this.bookings = data;
+            this.bookings.forEach(el => {
+                if (el.surgeon_id == 'default') {
+                    this.emptyOrderlies.push({hospital_id: el.hospital_id, hospital_name: el.hospital_name})
                 }
-            }).catch(err => {
-                this.errorsMessage(err);
-            }).finally(() => this.successPage = true);
+            });
+            if (this.emptyOrderlies.length > 0) {
+                this.warning = `Не указаны дежурные врачи больниц!
+                    Врачи не получат уведомления о забронированных операционных.`
+            }
         },
-        getBooking() {
-            axios.get(`/api/bookings`,{
-                headers: {Authorization: localStorage.getItem('access_token')},
-            }).then(res => {
-                console.log(res);
-                this.bookings = res.data;
-            }).catch(err => {
-                this.errorsMessage(err);
-            }).finally(() => this.successPage = true);
-        },
+        // getBooking() {
+        //     axios.get(`/api/bookings`,{
+        //         headers: {Authorization: localStorage.getItem('access_token')},
+        //     }).then(res => {
+        //         console.log(res);
+        //         this.bookings = res.data;
+        //     }).catch(err => {
+        //         this.errorsMessage(err);
+        //     }).finally(() => this.successPage = true);
+        // },
         updateHospitalRoomStatus(arr) {
             let hospitalIndex = this.bookings.findIndex(element => element.hospital_id == arr[0].hospital_id);
             if (hospitalIndex != -1) {

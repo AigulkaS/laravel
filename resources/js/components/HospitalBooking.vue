@@ -435,21 +435,30 @@ export default {
         }
     },
     mounted() {
-        // const socket = io(this.server_url);
-        // socket.on('operators-update:App\\Events\\OperatorsUpdateEvent', (data) => {
-        //     let doctor = data.result;
-        //     this.getOrderly(doctor);
-        // });
-        //
-        // socket.on('bookings-update:App\\Events\\BookingsUpdateEvent', (data) => {
-        //     let arr = data.result;
-        //     this.updateRoomStatus(arr);
-        // });
-        // socket.on('bookings-store:App\\Events\\BookingsStoreEvent', (data) => {
-        //     // console.log(data);
-        //     let arr = data.result;
-        //     this.updateRoomStatusDispet(arr.bookings);
-        // });
+        const socket = io(this.server_url);
+        socket.on('operators-update:App\\Events\\OperatorsUpdateEvent', (data) => {
+            let doctor = data.result;
+            this.getOrderly(doctor);
+        });
+
+        socket.on('bookings-update:App\\Events\\BookingsUpdateEvent', (data) => {
+            let arr = data.result;
+            this.updateRoomStatus(arr);
+        });
+        socket.on('bookings-store:App\\Events\\BookingsStoreEvent', (data) => {
+            // console.log(data);
+            let arr = data.result;
+            this.updateRoomStatusDispet(arr.bookings);
+        });
+
+        socket.on('bookings-all-time-index:App\\Events\\BookingsAllTimeIndexEvent', (data) => {
+            let result = data.result;
+            let hospital_id = this.$route.params.id ? this.$route.params.id : this.auth_user.hospital_id;
+            let index = result.findIndex(el => el.hospital_id == hospital_id)
+            if (index > -1) {
+                this.hospitalBookings(result[index]);
+            }
+        });
         this.getData();
     },
 
@@ -460,20 +469,23 @@ export default {
                 params: {hospital_id: this.$route.params.id ? this.$route.params.id : this.auth_user.hospital_id},
             }).then(res => {
                 console.log(res);
-                this.hospital_name = res.data.hospital_name;
-                this.hospital_id = res.data.hospital_id;
-                this.dateToday = res.data.dates[0];
-                this.dateTommorow = res.data.dates[1];
-                res.data.dates.forEach(el => {
-                    if (el.surgeon_id == 'default') {
-                        this.orderly.push({date: el.date})
-                    }
-                });
-                this.rooms = res.data.rooms;
+                this.hospitalBookings(res.data)
             }).catch(err => {
                 this.errorsMessage(err);
             }).finally(() => this.successPage = true);
 
+        },
+        hospitalBookings(data) {
+            this.hospital_name = data.hospital_name;
+            this.hospital_id = data.hospital_id;
+            this.dateToday = data.dates[0];
+            this.dateTommorow = data.dates[1];
+            data.dates.forEach(el => {
+                if (el.surgeon_id == 'default') {
+                    this.orderly.push({date: el.date})
+                }
+            });
+            this.rooms = data.rooms;
         },
         bookingRoom(room, val, room_index, val_index, room_condition, col, day) {
             this.v$.$reset();
@@ -628,9 +640,12 @@ export default {
 
                     if (this.rooms[this.choice_time.room_index].val[val_index].status == 0) {
                         if (this.rooms[this.choice_time.room_index].start == this.rooms[this.choice_time.room_index].end) {
-                            console.log('message error start == end');
-                            this.message_free_status = true;
-                            return;
+                            if (this.$dayjs().isBefore(this.$dayjs(this.rooms[this.choice_time.room_index].val[val_index].time).add(1, 'hour'))) {
+                                console.log('message error start == end');
+                                this.message_free_status = true;
+                                return;
+                            }
+
                         } else if (Number(this.rooms[this.choice_time.room_index].start.substr(0, 2)) < Number(this.rooms[this.choice_time.room_index].end.substr(0, 2))) {
                             if (Number(this.rooms[this.choice_time.room_index].start.substr(0, 2)) <= this.$dayjs(this.rooms[this.choice_time.room_index].val[val_index].time).get('hour')
                                 && this.$dayjs(this.rooms[this.choice_time.room_index].val[val_index].time).get('hour') <= Number(this.rooms[this.choice_time.room_index].end.substr(0, 2))-1
