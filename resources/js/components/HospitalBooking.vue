@@ -435,21 +435,21 @@ export default {
         }
     },
     mounted() {
-        const socket = io(this.server_url);
-        socket.on('operators-update:App\\Events\\OperatorsUpdateEvent', (data) => {
-            let doctor = data.result;
-            this.getOrderly(doctor);
-        });
-
-        socket.on('bookings-update:App\\Events\\BookingsUpdateEvent', (data) => {
-            let arr = data.result;
-            this.updateRoomStatus(arr);
-        });
-        socket.on('bookings-store:App\\Events\\BookingsStoreEvent', (data) => {
-            // console.log(data);
-            let arr = data.result;
-            this.updateRoomStatusDispet(arr.bookings);
-        });
+        // const socket = io(this.server_url);
+        // socket.on('operators-update:App\\Events\\OperatorsUpdateEvent', (data) => {
+        //     let doctor = data.result;
+        //     this.getOrderly(doctor);
+        // });
+        //
+        // socket.on('bookings-update:App\\Events\\BookingsUpdateEvent', (data) => {
+        //     let arr = data.result;
+        //     this.updateRoomStatus(arr);
+        // });
+        // socket.on('bookings-store:App\\Events\\BookingsStoreEvent', (data) => {
+        //     // console.log(data);
+        //     let arr = data.result;
+        //     this.updateRoomStatusDispet(arr.bookings);
+        // });
         this.getData();
     },
 
@@ -794,12 +794,12 @@ export default {
 
         },
         canAddOrderly(date) {
-            return [this.roles.surgeon, this.roles.cardiologist, this.roles.admin].includes(this.auth_user.role_name)
+            return [this.roles.surgeon, this.roles.cardiologist, this.roles.moderator,  this.roles.admin].includes(this.auth_user.role_name)
                 && this.orderly.length > 0 && this.orderly.findIndex(el => el.date == date)>-1;
 
         },
         canUpdate(date) {
-            return [this.roles.surgeon, this.roles.cardiologist, this.roles.admin].includes(this.auth_user.role_name)
+            return [this.roles.surgeon, this.roles.cardiologist, this.roles.moderator, this.roles.admin].includes(this.auth_user.role_name)
                 && (this.orderly.length == 0 || !this.orderly.find(el => el.date == date));
         },
         closeModal() {
@@ -837,7 +837,7 @@ export default {
         },
         allowOnOffRoom() {
             return this.auth_user &&
-            [this.roles.admin, this.roles.cardiologist, this.roles.surgeon].includes(this.auth_user.role_name)
+            [this.roles.admin, this.roles.cardiologist, this.roles.surgeon, this.roles.moderator].includes(this.auth_user.role_name)
             ? true : false;
         },
         addCssClass(room, room_index, val, val_index, day) {

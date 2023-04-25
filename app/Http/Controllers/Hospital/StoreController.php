@@ -41,13 +41,13 @@ class StoreController extends BaseController
         
         if ($error) {
             return response()->json([
-                'messages' => 'wrong time data',
+                'message' => 'wrong time data',
             ], 422);
         } else {
             $hospital = $this->service->store($data);
             return $hospital instanceof String ? $hospital : new HospitalResource($hospital);
         }
-        
+
     }
 
 }
