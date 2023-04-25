@@ -10,7 +10,7 @@ class ShowController extends BaseController
     public function __invoke(Hospital $hospital)
     {
         $user = auth('sanctum')->user();
-        if ($user->role->name == 'admin' || $user->hospiatl_id == $hospital->id) {
+        if ($user->role->name == 'admin' || $user->hospital_id == $hospital->id) {
             return new HospitalResource($hospital);
         } else {
             return response()->json([

@@ -11,7 +11,7 @@ class UpdateController extends BaseController
     public function __invoke(UpdateRequest $request, Hospital $hospital)
     {
         $user = auth('sanctum')->user();
-        if ($user->role->name == 'admin' || $user->hospiatl_id == $hospital->id) {
+        if ($user->role->name == 'admin' || $user->hospital_id == $hospital->id) {
             $data = $request->validated();
 
             $error = false;
