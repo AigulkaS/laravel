@@ -73,7 +73,7 @@
                                                 {{room.end ? room.end : '08:00'}}
                                             </h5>
 
-                                            <div class="my-1 d-flex">
+                                            <div class="my-1 d-flex" v-if="canUpdateClock()">
                                                 <div v-if="btnChangeStatus(dateToday, index)">
                                                     <button type="button"
                                                             @click="bookingRoom(room,room.val[choice_time.day == dateToday.date ? choice_time.start_index : choice_time.start_index+24],index,choice_time.start_index,room.condition,false,dateToday)"
@@ -173,7 +173,7 @@
                                                 {{room.end ? room.end : '08:00'}}
                                             </h5>
 
-                                            <div class="my-1 d-flex">
+                                            <div class="my-1 d-flex" v-if="canUpdateClock()">
                                                 <div v-if="btnChangeStatus(dateTommorow, index)">
                                                     <button type="button"
                                                             @click="bookingRoom(room, room.val[choice_time.day == dateToday.date ? choice_time.start_index : choice_time.start_index+24], index, choice_time.start_index, room.condition, false, dateTommorow)"
@@ -529,16 +529,18 @@ export default {
             }
         },
         onClick(room, val, room_index, val_index, room_condition, col, day)  {
-            this.clicks++;
-            if (this.clicks === 1) {
-                this.timer = setTimeout( () => {
-                    this.choicesTime(room, val, room_index, val_index, room_condition, day);
-                    this.clicks = 0
-                }, 190);
-            } else {
-                clearTimeout(this.timer);
-                this.bookingRoom(room, val, room_index, val_index, room_condition, col, day)
-                this.clicks = 0;
+            if (this.canUpdateClock()) {
+                this.clicks++;
+                if (this.clicks === 1) {
+                    this.timer = setTimeout( () => {
+                        this.choicesTime(room, val, room_index, val_index, room_condition, day);
+                        this.clicks = 0
+                    }, 190);
+                } else {
+                    clearTimeout(this.timer);
+                    this.bookingRoom(room, val, room_index, val_index, room_condition, col, day)
+                    this.clicks = 0;
+                }
             }
         },
         choicesTime(room, val, room_index, val_index, room_condition, day) {
@@ -641,9 +643,11 @@ export default {
                     if (this.rooms[this.choice_time.room_index].val[val_index].status == 0) {
                         if (this.rooms[this.choice_time.room_index].start == this.rooms[this.choice_time.room_index].end) {
                             if (this.$dayjs().isBefore(this.$dayjs(this.rooms[this.choice_time.room_index].val[val_index].time).add(1, 'hour'))) {
-                                console.log('message error start == end');
-                                this.message_free_status = true;
-                                return;
+                                if (this.$dayjs(this.rooms[this.choice_time.room_index].val[val_index].time).add(1, 'hour').format('HH:mm') !== '08:00') {
+                                    console.log('message error start == end');
+                                    this.message_free_status = true;
+                                    return;
+                                }
                             }
 
                         } else if (Number(this.rooms[this.choice_time.room_index].start.substr(0, 2)) < Number(this.rooms[this.choice_time.room_index].end.substr(0, 2))) {
@@ -809,13 +813,40 @@ export default {
 
         },
         canAddOrderly(date) {
-            return [this.roles.surgeon, this.roles.cardiologist, this.roles.moderator,  this.roles.admin].includes(this.auth_user.role_name)
-                && this.orderly.length > 0 && this.orderly.findIndex(el => el.date == date)>-1;
+            if (this.orderly.length > 0 && this.orderly.findIndex(el => el.date == date)>-1) {
+                if ([this.roles.surgeon, this.roles.cardiologist,   this.roles.admin].includes(this.auth_user.role_name)) {
+                    return true
+                }
+                if (this.roles.moderator == this.auth_user.role_name && this.hospital_id == this.auth_user.hospital_id) {
+                    return true
+                }
+            }
+            return false
+            // return [this.roles.surgeon, this.roles.cardiologist, this.roles.moderator,  this.roles.admin].includes(this.auth_user.role_name)
+            //     && this.orderly.length > 0 && this.orderly.findIndex(el => el.date == date)>-1;
 
         },
         canUpdate(date) {
-            return [this.roles.surgeon, this.roles.cardiologist, this.roles.moderator, this.roles.admin].includes(this.auth_user.role_name)
-                && (this.orderly.length == 0 || !this.orderly.find(el => el.date == date));
+            if (this.orderly.length == 0 || !this.orderly.find(el => el.date == date)) {
+                if ([this.roles.surgeon, this.roles.cardiologist, this.roles.admin].includes(this.auth_user.role_name)) {
+                    return true;
+                }
+                if (this.roles.moderator== this.auth_user.role_name && this.hospital_id == this.auth_user.hospital_id) {
+                    return true;
+                }
+            }
+            return false;
+            // return [this.roles.surgeon, this.roles.cardiologist, this.roles.moderator, this.roles.admin].includes(this.auth_user.role_name)
+            //     && (this.orderly.length == 0 || !this.orderly.find(el => el.date == date));
+        },
+        canUpdateClock() {
+                if ([this.roles.surgeon, this.roles.cardiologist, this.roles.admin].includes(this.auth_user.role_name)) {
+                    return true
+                }
+                if (this.roles.moderator == this.auth_user.role_name && this.hospital_id == this.auth_user.hospital_id) {
+                    return true
+                }
+                return false
         },
         closeModal() {
             this.errors = null;

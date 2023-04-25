@@ -9,7 +9,7 @@ class DestroyRoomController extends BaseController
     public function __invoke(HospitalRoom $hospitalRoom)
     {
         $user = auth('sanctum')->user();
-        if ($user->role->name == 'admin' || $user->hospiatl_id == $hospitalRoom->hospital_id) {
+        if ($user->role->name == 'admin' || $user->hospital_id == $hospitalRoom->hospital_id) {
             try {
                 $hospitalRoom->delete();
                 return response()->json([

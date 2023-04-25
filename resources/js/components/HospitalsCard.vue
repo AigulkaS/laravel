@@ -39,9 +39,9 @@
 
 <!--            <div v-else-if="bookings.length > 0">-->
             <div>
-                <div v-if="auth_user && auth_user.email_verified_at && [roles.admin, roles.smp, roles.moderator_smp].includes(auth_user.role_name)">
-                    <button type="button" class="btn btn-primary" @click.prevent="addBooking()">
-                        <font-awesome-icon icon="fa-solid fa-plus" /> Добавить бронь
+                <div class="text-center" v-if="auth_user && auth_user.email_verified_at && [roles.admin, roles.smp, roles.moderator_smp].includes(auth_user.role_name)">
+                    <button type="button" class="btn btn-lg btn-danger" @click.prevent="addBooking()">
+                        Диагностирован ОКС
                     </button>
                 </div>
                 <div class="row mt-4">

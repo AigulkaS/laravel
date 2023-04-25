@@ -514,8 +514,8 @@ class BookingService {
 
         ];
 
-        $done = false;
-        $finded = false;
+        // $done = false;
+        // $finded = false;
         $bookingHours = 0;
         $bookings = [];
         try {
@@ -544,9 +544,10 @@ class BookingService {
                             goto loop;
                         }
                     }
-                } else {
-                    $finded = true;
                 }
+                //  else {
+                //     $finded = true;
+                // }
 
                 if ($bookingHours<2) {
                     $booking = Booking::create($storeData);
@@ -554,7 +555,8 @@ class BookingService {
                     $bookings[]=$booking;
                 }
 
-                if ($finded && ($bookingHours == 2 || ($done && $bookingHours == 1))) {
+                // if ($finded && ($bookingHours == 2 || ($done && $bookingHours == 1))) {
+                if ($bookingHours == 2 || ($done && $bookingHours == 1)) {
                     break;
                 } else {
                     $dateTime->add(new DateInterval('PT1H'));
