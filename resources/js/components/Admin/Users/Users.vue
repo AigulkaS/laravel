@@ -48,11 +48,13 @@
                                      params: {id: user.id}}">
                                         {{user.email}}</router-link>
                                 </td>
-                                <td data-label="Роль">{{user.role_name}}</td>
+                                <td data-label="Роль">{{user.role_label}}</td>
                                 <td data-label="Фамилия">{{user.last_name}}</td>
                                 <td data-label="Имя">{{user.first_name}}</td>
                                 <td data-label="Отчество">{{user.patronymic}}</td>
-                                <td data-label="Больница/СМП">{{user.hospital_name}}</td>
+                                <td data-label="Больница/СМП">
+                                    {{user.hospital_type == hospital_type.person ? '-' : user.hospital_name}}
+                                </td>
                                 <td data-label="Изменить">
                                     <router-link :to="{name: $route.name == 'users' ? 'user_edit' : 'user_edit_for_moderator',
                                      params: {'id': user.id}}" tag="button" class="btn btn-warning" title="Изменить">
@@ -89,6 +91,8 @@
 </template>
 
 <script>
+import {hospital_type} from "../../../consts";
+
 export default {
     name: "Users",
     data() {
@@ -98,6 +102,7 @@ export default {
             last_page: 1,
             perPage: 2,
             total: 100,
+            hospital_type,
         }
     },
     mounted() {

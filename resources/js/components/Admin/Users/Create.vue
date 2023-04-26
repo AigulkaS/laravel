@@ -101,6 +101,27 @@
                         </div>
 
                         <div class="form-group row my-2">
+                            <label class="col-sm-3 col-form-label fw-bold"
+                                   :class="v$.user.role_id.$error ? 'text-danger' : ''">
+                                Роль<span class="text-danger">*</span>
+                            </label>
+                            <div class="col-sm-8">
+                                <Multiselect
+                                    v-model="user.role_id"
+                                    :close-on-select="true"
+                                    :hide-selected="false"
+                                    label="label"
+                                    valueProp="id"
+                                    :options="roles ? roles : []"
+                                />
+                                <span v-if="v$.user.role_id.$error"
+                                      :class="v$.user.role_id.$error ? 'text-danger' : ''">
+                                      Роль обязательное поле для заполнения
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="form-group row my-2" v-if="user.role_name !== role.admin">
                             <label class="col-sm-3 col-form-label fw-bold">Укажите место работы
                                 <span class="text-danger">*</span>
                             </label>
@@ -123,7 +144,7 @@
                             </div>
                         </div>
 
-                        <div class="form-group row my-2">
+                        <div class="form-group row my-2" v-if="user.role_name !== role.admin">
                             <label class="col-sm-3 col-form-label fw-bold"
                                    :class="v$.user.hospital_id.$error ? 'text-danger' : ''">
                                 {{type == hospital_type.hospital ? 'Больница' : 'Скорая медицинская помощь'}}
@@ -149,27 +170,6 @@
                                       :class="v$.user.hospital_id.$error ? 'text-danger' : ''">
                                       {{type == hospital_type.hospital ? 'Больница' : 'Скорая медицинская помощь'}}
                                         обязательное поле для заполнения
-                                </span>
-                            </div>
-                        </div>
-
-                        <div class="form-group row my-2">
-                            <label class="col-sm-3 col-form-label fw-bold"
-                                   :class="v$.user.role_id.$error ? 'text-danger' : ''">
-                                Роль<span class="text-danger">*</span>
-                            </label>
-                            <div class="col-sm-8">
-                                <Multiselect
-                                    v-model="user.role_id"
-                                    :close-on-select="true"
-                                    :hide-selected="false"
-                                    label="label"
-                                    valueProp="id"
-                                    :options="roles ? roles : []"
-                                />
-                                <span v-if="v$.user.role_id.$error"
-                                      :class="v$.user.role_id.$error ? 'text-danger' : ''">
-                                      Роль обязательное поле для заполнения
                                 </span>
                             </div>
                         </div>
@@ -279,6 +279,7 @@ export default {
                 patronymic: "",
                 phone: "",
                 role_id: 0,
+                role_name: null,
             },
             inputType: 'password',
             hospitals: [],
@@ -300,6 +301,18 @@ export default {
     computed: {
         auth_user() {
             return localStorage.getItem('auth_user') ? JSON.parse(localStorage.getItem('auth_user')) : null
+        }
+    },
+    watch: {
+        'user.role_id' (newVal, oldVal) {
+            if (this.auth_user.role_name == this.role.admin && newVal !== oldVal) {
+                this.user.hospital_id = '';
+                this.user.role_name = this.roles.find(el => el.id == newVal).name;
+                if (this.user.role_name == this.role.admin) {
+                    this.type = this.hospital_type.person;
+                    this.user.hospital_id = 1;
+                }
+            }
         }
     },
     validations() {

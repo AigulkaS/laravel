@@ -22,7 +22,8 @@ const statuses = [
 //: 'Станция СМП'
 const hospital_type = {
     hospital: 1,
-    smp: 2
+    smp: 2,
+    person: 3,
 }
 
 // const server_url = 'http://127.0.0.1:3000';
