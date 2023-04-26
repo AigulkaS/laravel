@@ -75,7 +75,7 @@
                             <th class="col-2">Роль</th>
                             <td class="col-10">{{user.role_label}}</td>
                         </tr>
-                        <tr>
+                        <tr v-if="user.role_name !== roles.admin">
                             <th class="col-2">
                                 {{user.hospital_type && user.hospital_type == hospital_type.hospital
                                 ? 'Больница' : 'СМП'}}
@@ -103,7 +103,7 @@
 </template>
 
 <script>
-import {hospital_type} from "../../../consts";
+import {hospital_type, roles} from "../../../consts";
 
 export default {
     name: "Show",
@@ -113,7 +113,7 @@ export default {
             user: null,
             verify_email: 1,
             success : null,
-            hospital_type,
+            hospital_type, roles
         }
     },
     mounted() {
