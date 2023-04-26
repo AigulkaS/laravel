@@ -171,7 +171,7 @@ class DatabaseSeeder extends Seeder
         
 
         DB::table('hospitals')->insert([
-            'type' => 1,
+            'type' => 3,
             'full_name' => 'default',
             'short_name' => 'default',
             'address' => 'default',
@@ -204,7 +204,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Крайне тяжелое',
         ]);
 // ;
-        User::factory(10)->create();
+        // User::factory(10)->create();
 
         // $this->todaysFactoryCreate();
 //         Booking::factory(10)->create();
@@ -215,18 +215,5 @@ class DatabaseSeeder extends Seeder
             'permission_id' => Permission::get()->random()->id,
             'role_id' => Role::get()->random()->id,
         ]);
-    }
-
-    private function todaysFactoryCreate() {
-        $surgeons = User::where('role_id', 2)->get();
-        $cardiologists = User::where('role_id', 3)->get();
-        $hospitals=Hospital::all();
-        foreach($hospitals as $hospital) {
-            DB::table('todays')->insert([
-                'hospital_id' => $hospital->id,
-                'surgeon_id' => $surgeons->random()->id,
-                'cardiologist_id' => $cardiologists->random()->id,
-            ]);
-        }
     }
 }
