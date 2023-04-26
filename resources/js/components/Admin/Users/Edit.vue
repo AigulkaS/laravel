@@ -103,9 +103,7 @@
                         </div>
 
                         <div class="form-group row my-1">
-                            <label class="col-sm-2 col-form-label fw-bold">
-                                Роль
-                            </label>
+                            <label class="col-sm-2 col-form-label fw-bold">Роль</label>
                             <div class="col-sm-10">
                                 <select class="form-control form-select" v-model="user.role_id">
                                     <option v-for="role in roles" :key="role.id" :value="role.id">
@@ -115,7 +113,7 @@
                             </div>
                         </div>
 
-                        <div class="form-group row my-1">
+                        <div class="form-group row my-1" v-if="user.role_name !== role.admin">
                             <label class="col-sm-2 col-form-label fw-bold">
                                 {{user.hospital_type && user.hospital_type == hospital_type.hospital
                                 ? 'Больница' : 'СМП'}}
@@ -180,6 +178,19 @@ export default {
         auth_user() {
             return localStorage.getItem('auth_user') ? JSON.parse(localStorage.getItem('auth_user')) : null
         },
+    },
+    watch: {
+        'user.role_id' (newVal, oldVal) {
+            if (this.auth_user.role_name == this.role.admin && newVal !== oldVal) {
+                this.user.role_name = this.roles.find(el => el.id == newVal).name
+                if (this.user.role_name == this.role.admin) {
+                    this.user.hospital_type = this.hospital_type.person
+                    this.user.hospital_id = 1;
+                } else if ([this.role.moderator_smp, this.role.smp].includes(this.user.role_name)){
+                    this.user.hospital_type = this.hospital_type.smp
+                } else this.user.hospital_type = this.hospital_type.hospital
+            }
+        }
     },
     validations() {
         return {
